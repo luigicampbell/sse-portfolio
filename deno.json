@@ -1,0 +1,82 @@
+{
+  "nodeModulesDir": "auto",
+  "unstable": [
+    "kv"
+  ],
+  "imports": {
+    "@deno/vite-plugin": "npm:@deno/vite-plugin@^2.0.3",
+    "@domain/": "./packages/domain/",
+    "@oak/oak": "jsr:@oak/oak@^17.2.0",
+    "pdf-lib": "npm:pdf-lib@^1.17.1",
+    "react": "npm:react@^19",
+    "react-dom": "npm:react-dom@^19",
+    "@types/react": "npm:@types/react@^19.2.18",
+    "@types/react-dom": "npm:@types/react-dom@^19",
+    "vite": "npm:vite@latest",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^6.0.5",
+    "chart.js": "npm:chart.js@^4",
+    "react-chartjs-2": "npm:react-chartjs-2@^5"
+  },
+  "compilerOptions": {
+    "lib": [
+      "deno.ns",
+      "deno.window",
+      "deno.unstable",
+      "dom",
+      "dom.iterable"
+    ],
+    "types": [
+      "npm:vite/client"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "strict": true
+  },
+  "fmt": {
+    "include": [
+      "apps",
+      "packages",
+      "content"
+    ],
+    "exclude": [
+      "node_modules/",
+      "dist/",
+      "coverage/",
+      "apps/web/.vite"
+    ]
+  },
+  "lint": {
+    "include": [
+      "apps",
+      "packages"
+    ],
+    "exclude": [
+      "node_modules/",
+      "dist/",
+      "coverage/",
+      "apps/web/.vite"
+    ],
+    "rules": {
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "tasks": {
+    "dev": "deno task dev:api & deno task dev:web",
+    "dev:api": "deno run --env-file=.env --allow-env --allow-net --allow-read --allow-write --watch apps/api/src/server.ts",
+    "dev:web": "deno run --env-file=.env -A npm:vite --config apps/web/vite.config.ts",
+    "seed": "deno run --env-file=.env --allow-env --allow-read --allow-write apps/api/scripts/seed.ts",
+    "history:check": "deno run --allow-read --allow-run apps/api/scripts/history/replay-history.ts",
+    "history:apply": "deno run --allow-read --allow-run apps/api/scripts/history/replay-history.ts --apply",
+    "test:cv": "deno test --allow-read --allow-write apps/api/tests/cv.routes.test.ts",
+    "test:health": "deno test --allow-env --allow-read --allow-write apps/api/tests/health.routes.test.ts",
+    "test:middleware": "deno test --allow-env --allow-read --allow-write apps/api/tests/health.routes.test.ts",
+    "test:portfolio": "deno test --allow-read --allow-write apps/api/tests/portfolio.routes.test.ts",
+    "test:sitemap": "deno test --allow-env --allow-read --allow-write apps/api/tests/sitemap.routes.test.ts",
+    "build:web": "deno run --env-file=.env -A npm:vite build --config apps/web/vite.config.ts",
+    "check": "deno check apps/api/src/server.ts apps/api/scripts/seed.ts apps/web/src/main.tsx apps/web/vite.config.ts",
+    "fmt": "deno fmt apps packages content",
+    "verify": "deno fmt apps packages content --check && deno lint && deno task check"
+  }
+}

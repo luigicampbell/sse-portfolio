@@ -1,0 +1,11 @@
+.env
+node_modules/
+dist/
+apps/web/dist/
+apps/api/scripts
+content
+data/
+*.kv
+*.kv-shm
+*.kv-wal
+.DS_Store
