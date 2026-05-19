@@ -1,0 +1,286 @@
+:root {
+  /* Typography */
+  --font-family-sans:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Segoe UI",
+    sans-serif;
+
+  --font-family-mono:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    Menlo,
+    monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.0625rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-3xl: clamp(2.25rem, 5vw, 3.5rem);
+  --font-size-eyebrow: clamp(
+    var(--font-size-base),
+    var(--font-size-md),
+    var(--font-size-lg)
+  );
+  --font-size-hero: clamp(
+    var(--font-size-lg),
+    var(--font-size-xl),
+    var(--font-size-2xl)
+  );
+  --font-size-headline: clamp(
+    var(--font-size-2xl),
+    var(--font-size-3xl),
+    var(--font-size-4xl)
+  );
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.08;
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+
+  --letter-spacing-tight: -0.03em;
+  --letter-spacing-heading: -0.015em;
+  --letter-spacing-wide: 0.08em;
+
+  /* Spacing */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Layout */
+  --container-width: 72rem;
+  --content-width: 48rem;
+  --page-gutter: clamp(1rem, 4vw, 2rem);
+  --section-spacing: clamp(1rem, 5vw, 5rem);
+  --header-height: 4.5rem;
+
+  /* Radius */
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+  --radius-2xl: 2rem;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --duration-fast: 140ms;
+  --duration-normal: 220ms;
+  --duration-slow: 360ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Light appearance */
+  color-scheme: light;
+
+  --color-background: #f5f5f7;
+  --color-background-elevated: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f0f0f2;
+  --color-surface-hover: #e8e8ed;
+
+  --color-text: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-text-tertiary: #86868b;
+  --color-text-inverse: #ffffff;
+
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-strong: rgba(0, 0, 0, 0.14);
+
+  --color-accent: #0071e3;
+  --color-accent-hover: #0077ed;
+  --color-accent-active: #0068d1;
+  --color-accent-muted: rgba(0, 113, 227, 0.1);
+
+  --color-success: #248a3d;
+  --color-warning: #b25000;
+  --color-danger: #d70015;
+
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-selection: rgba(0, 113, 227, 0.2);
+
+  /* Shadows */
+  --shadow-xs:
+    0 1px 2px rgba(0, 0, 0, 0.04);
+
+  --shadow-sm:
+    0 2px 8px rgba(0, 0, 0, 0.05);
+
+  --shadow-md:
+    0 8px 24px rgba(0, 0, 0, 0.07);
+
+  --shadow-lg:
+    0 16px 40px rgba(0, 0, 0, 0.1);
+
+  --shadow-accent:
+    0 8px 24px rgba(0, 113, 227, 0.2);
+
+  /* Focus */
+  --focus-ring:
+    0 0 0 3px rgba(0, 113, 227, 0.28);
+
+  /* Glass is reserved for navigation surfaces */
+  --glass-background: rgba(255, 255, 255, 0.76);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur: 20px;
+
+  /* Chart semantic colors */
+  --color-chart-text: var(--color-text);
+  --color-chart-text-secondary: var(--color-text-secondary);
+  --color-chart-grid: var(--color-border);
+  --color-chart-surface: var(--color-surface);
+
+  /* Chart category palette */
+  --color-chart-primary: var(--color-accent);
+  --color-chart-green: #22c55e;
+  --color-chart-purple: #8b5cf6;
+  --color-chart-orange: #f97316;
+  --color-chart-pink: #ec4899;
+  --color-chart-teal: #14b8a6;
+
+  --color-chart-primary-fill: color-mix(
+    in srgb,
+    var(--color-chart-primary) 15%,
+    transparent
+  );
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-background: #000000;
+  --color-background-elevated: #1c1c1e;
+  --color-surface: #1c1c1e;
+  --color-surface-secondary: #2c2c2e;
+  --color-surface-hover: #3a3a3c;
+
+  --color-text: #f5f5f7;
+  --color-text-secondary: #a1a1a6;
+  --color-text-tertiary: #86868b;
+  --color-text-inverse: #1d1d1f;
+
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+
+  --color-accent: #2997ff;
+  --color-accent-hover: #40a9ff;
+  --color-accent-active: #147ce5;
+  --color-accent-muted: rgba(41, 151, 255, 0.16);
+
+  --color-success: #30d158;
+  --color-warning: #ff9f0a;
+  --color-danger: #ff453a;
+
+  --color-overlay: rgba(0, 0, 0, 0.66);
+  --color-selection: rgba(41, 151, 255, 0.28);
+
+  --shadow-xs:
+    0 1px 2px rgba(0, 0, 0, 0.3);
+
+  --shadow-sm:
+    0 2px 8px rgba(0, 0, 0, 0.28);
+
+  --shadow-md:
+    0 8px 24px rgba(0, 0, 0, 0.36);
+
+  --shadow-lg:
+    0 16px 40px rgba(0, 0, 0, 0.44);
+
+  --shadow-accent:
+    0 8px 24px rgba(41, 151, 255, 0.24);
+
+  --focus-ring:
+    0 0 0 3px rgba(41, 151, 255, 0.38);
+
+  --glass-background: rgba(28, 28, 30, 0.76);
+  --glass-border: rgba(255, 255, 255, 0.12);
+
+  /* Chart semantic colors */
+  --color-chart-green: #4ade80;
+  --color-chart-purple: #a78bfa;
+  --color-chart-orange: #fb923c;
+  --color-chart-pink: #f472b6;
+  --color-chart-teal: #2dd4bf;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-background: #000000;
+    --color-background-elevated: #1c1c1e;
+    --color-surface: #1c1c1e;
+    --color-surface-secondary: #2c2c2e;
+    --color-surface-hover: #3a3a3c;
+
+    --color-text: #f5f5f7;
+    --color-text-secondary: #a1a1a6;
+    --color-text-tertiary: #86868b;
+    --color-text-inverse: #1d1d1f;
+
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-border-strong: rgba(255, 255, 255, 0.18);
+
+    --color-accent: #2997ff;
+    --color-accent-hover: #40a9ff;
+    --color-accent-active: #147ce5;
+    --color-accent-muted: rgba(41, 151, 255, 0.16);
+
+    --color-success: #30d158;
+    --color-warning: #ff9f0a;
+    --color-danger: #ff453a;
+
+    --color-overlay: rgba(0, 0, 0, 0.66);
+    --color-selection: rgba(41, 151, 255, 0.28);
+
+    --shadow-xs:
+      0 1px 2px rgba(0, 0, 0, 0.3);
+
+    --shadow-sm:
+      0 2px 8px rgba(0, 0, 0, 0.28);
+
+    --shadow-md:
+      0 8px 24px rgba(0, 0, 0, 0.36);
+
+    --shadow-lg:
+      0 16px 40px rgba(0, 0, 0, 0.44);
+
+    --shadow-accent:
+      0 8px 24px rgba(41, 151, 255, 0.24);
+
+    --focus-ring:
+      0 0 0 3px rgba(41, 151, 255, 0.38);
+
+    --glass-background: rgba(28, 28, 30, 0.76);
+    --glass-border: rgba(255, 255, 255, 0.12);
+
+    /* Chart semantic colors */
+    --color-chart-green: #4ade80;
+    --color-chart-purple: #a78bfa;
+    --color-chart-orange: #fb923c;
+    --color-chart-pink: #f472b6;
+    --color-chart-teal: #2dd4bf;
+  }
+}
