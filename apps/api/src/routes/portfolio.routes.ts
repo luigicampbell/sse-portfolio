@@ -1,4 +1,7 @@
-import type { PortfolioService } from "../services/portfolio.service.ts";
+import {
+  type PortfolioService,
+  ProjectNotFoundError,
+} from "../services/portfolio.service.ts";
 
 function json(
   data: unknown,
@@ -24,13 +27,53 @@ export async function handlePortfolioRoute(
   const url = new URL(request.url);
 
   if (
-    request.method !== "GET" ||
-    url.pathname !== "/api/portfolio"
+    request.method === "GET" &&
+    url.pathname === "/api/portfolio"
   ) {
-    return null;
+    return json(
+      await service.getPortfolioPage(),
+    );
   }
 
-  return json(
-    await service.getPortfolioPage(),
+  if (
+    request.method === "GET" &&
+    url.pathname === "/api/projects"
+  ) {
+    return json(
+      await service.getProjects(),
+    );
+  }
+
+  const projectMatch = url.pathname.match(
+    /^\/api\/projects\/([^/]+)$/,
   );
+
+  if (
+    request.method === "GET" &&
+    projectMatch
+  ) {
+    try {
+      const slug = decodeURIComponent(
+        projectMatch[1],
+      );
+
+      return json(
+        await service.getProject(slug),
+      );
+    } catch (error) {
+      if (
+        error instanceof
+          ProjectNotFoundError
+      ) {
+        return json(
+          { error: "Project not found." },
+          { status: 404 },
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  return null;
 }
