@@ -1,0 +1,217 @@
+.experience {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-block: var(--section-spacing);
+}
+
+.experience__heading {
+  display: flex;
+  max-width: var(--content-width);
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.experience__eyebrow {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.experience__title {
+  margin: 0;
+}
+
+.experience__description {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.experience__timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.experience__timeline::before {
+  position: absolute;
+  top: 1.75rem;
+  bottom: 1.75rem;
+  left: 0.5rem;
+  width: 1px;
+  background: var(--color-border);
+  content: "";
+}
+
+.experience__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+.experience__marker {
+  position: relative;
+  z-index: 1;
+
+  width: 1rem;
+  height: 1rem;
+  margin-top: var(--space-6);
+
+  border: 3px solid var(--color-background);
+  border-radius: 50%;
+
+  background: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.experience__content {
+  min-width: 0;
+  padding: var(--space-6);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+
+  transition:
+    border-color var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard),
+    transform var(--duration-normal) var(--ease-standard);
+}
+
+.experience__content:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.experience__item-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.experience__position {
+  min-width: 0;
+}
+
+.experience__role {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--font-size-xl);
+}
+
+.experience__organization {
+  margin: var(--space-1) 0 0;
+  color: var(--color-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.experience__dates {
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.experience__dates span {
+  margin-inline: var(--space-1);
+}
+
+.experience__summary {
+  max-width: 48rem;
+  margin: var(--space-5) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.experience__highlights {
+  display: flex;
+  padding-left: 1.25rem;
+  margin: var(--space-5) 0 0;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.experience__highlight {
+  padding-left: var(--space-1);
+  color: var(--color-text-secondary);
+}
+
+.experience__highlight::marker {
+  color: var(--color-accent);
+}
+
+.experience__empty {
+  margin: 0;
+  padding: var(--space-6);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+
+@media (min-width: 42rem) {
+  .experience__timeline::before {
+    left: 0.6rem;
+  }
+
+  .experience__item {
+    grid-template-columns: 1.2rem minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  .experience__marker {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .experience__content {
+    padding: var(--space-8);
+  }
+
+  .experience__item-heading {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 41.99rem) {
+  .experience {
+    gap: var(--space-10);
+  }
+
+  .experience__timeline {
+    gap: var(--space-5);
+  }
+
+  .experience__content {
+    padding: var(--space-5);
+  }
+
+  .experience__marker {
+    margin-top: var(--space-5);
+  }
+
+  .experience__dates {
+    white-space: normal;
+  }
+}
+
+@media (hover: none) {
+  .experience__content:hover {
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
+    transform: none;
+  }
+}
