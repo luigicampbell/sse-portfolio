@@ -6,7 +6,7 @@ export async function handleCvRoute(
 ): Promise<Response | null> {
   const url = new URL(request.url);
 
-  if (url.pathname !== "/api/cv") {
+  if (url.pathname !== "/api/v1/cv") {
     return null;
   }
 

@@ -28,7 +28,7 @@ export async function handlePortfolioRoute(
 
   if (
     request.method === "GET" &&
-    url.pathname === "/api/portfolio"
+    url.pathname === "/api/v1/portfolio"
   ) {
     return json(
       await service.getPortfolioPage(),
@@ -37,7 +37,7 @@ export async function handlePortfolioRoute(
 
   if (
     request.method === "GET" &&
-    url.pathname === "/api/projects"
+    url.pathname === "/api/v1/projects"
   ) {
     return json(
       await service.getProjects(),
@@ -45,7 +45,7 @@ export async function handlePortfolioRoute(
   }
 
   const projectMatch = url.pathname.match(
-    /^\/api\/projects\/([^/]+)$/,
+    /^\/api\/v1\/projects\/([^/]+)$/,
   );
 
   if (
