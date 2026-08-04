@@ -1,7 +1,8 @@
 import { env } from "./config/env.ts";
 import { cvService, portfolioService } from "./dependencies.ts";
-import { handleCvRoute } from "./routes/cv.routes.ts";
-import { handlePortfolioRoute } from "./routes/portfolio.routes.ts";
+import { handleCvRoute } from "./routes/v1/cv.routes.ts";
+import { handleHealthRoute } from "./routes/v1/health.routes.ts";
+import { handlePortfolioRoute } from "./routes/v1/portfolio.routes.ts";
 
 function json(
   data: unknown,
@@ -27,6 +28,12 @@ Deno.serve(
   },
   async (request) => {
     try {
+      const healthResponse = handleHealthRoute(request);
+
+      if (healthResponse) {
+        return healthResponse;
+      }
+
       const cvResponse = await handleCvRoute(
         request,
         cvService,
