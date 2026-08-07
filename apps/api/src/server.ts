@@ -1,68 +1,28 @@
+import { Application } from "@oak/oak/application";
+
 import { env } from "./config/env.ts";
-import { cvService, portfolioService } from "./dependencies.ts";
-import { handleCvRoute } from "./routes/v1/cv.routes.ts";
-import { handleHealthRoute } from "./routes/v1/health.routes.ts";
-import { handlePortfolioRoute } from "./routes/v1/portfolio.routes.ts";
+import { createRouter } from "./router.ts";
 
-function json(
-  data: unknown,
-  init: ResponseInit = {},
-): Response {
-  const headers = new Headers(init.headers);
+const app = new Application();
 
-  headers.set(
-    "content-type",
-    "application/json; charset=utf-8",
-  );
+const router = createRouter();
 
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers,
-  });
-}
+app.use(router.routes());
+app.use(router.allowedMethods());
 
-Deno.serve(
-  {
-    hostname: "0.0.0.0",
-    port: env.apiPort,
-  },
-  async (request) => {
-    try {
-      const healthResponse = handleHealthRoute(request);
+app.use((context) => {
+  context.response.status = 404;
+  context.response.type = "application/json";
+  context.response.body = {
+    error: "Not found.",
+  };
+});
 
-      if (healthResponse) {
-        return healthResponse;
-      }
-
-      const cvResponse = await handleCvRoute(
-        request,
-        cvService,
-      );
-
-      if (cvResponse) {
-        return cvResponse;
-      }
-
-      const response = await handlePortfolioRoute(
-        request,
-        portfolioService,
-      );
-
-      if (response) {
-        return response;
-      }
-
-      return json(
-        { error: "Not found." },
-        { status: 404 },
-      );
-    } catch (error) {
-      console.error(error);
-
-      return json(
-        { error: "Internal server error." },
-        { status: 500 },
-      );
-    }
-  },
+console.log(
+  `API listening on http://localhost:${env.apiPort}`,
 );
+
+await app.listen({
+  hostname: "0.0.0.0",
+  port: env.apiPort,
+});
