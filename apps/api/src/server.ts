@@ -1,18 +1,26 @@
-import { Application } from "@oak/oak/application";
+import { Application } from "@oak/oak";
 
 import { env } from "./config/env.ts";
+
+import { errorMiddleware } from "./middleware/error.middleware.ts";
+import { securityMiddleware } from "./middleware/security.middleware.ts";
+import { timingMiddleware } from "./middleware/timing.middleware.ts";
+
 import { createRouter } from "./router.ts";
 
 const app = new Application();
 
 const router = createRouter();
 
+app.use(timingMiddleware);
+app.use(securityMiddleware);
+app.use(errorMiddleware);
+
 app.use(router.routes());
 app.use(router.allowedMethods());
 
 app.use((context) => {
   context.response.status = 404;
-  context.response.type = "application/json";
   context.response.body = {
     error: "Not found.",
   };
