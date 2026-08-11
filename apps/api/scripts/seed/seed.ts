@@ -9,19 +9,20 @@ import type {
   VolunteerExperience,
 } from "@domain/mod.ts";
 
-import { env } from "../src/config/env.ts";
+import { env } from "../../src/config/env.ts";
 
-import { DenoKvPortfolioRepository } from "../src/repositories/deno-kv-portfolio.repository.ts";
-import type { PortfolioRepository } from "../src/repositories/portfolio.repository.ts";
-import { PostgresPortfolioRepository } from "../src/repositories/postgres-portfolio.repository.ts";
+import { DenoKvPortfolioRepository } from "../../src/repositories/deno-kv-portfolio.repository.ts";
+import type { PortfolioRepository } from "../../src/repositories/portfolio.repository.ts";
+import { PostgresPortfolioRepository } from "../../src/repositories/postgres-portfolio.repository.ts";
 
-import { type SeedPayload, SeedService } from "../src/services/seed.service.ts";
+import { SeedService } from "../../src/services/seed.service.ts";
+import { SeedPayload } from "@domain/mod.ts";
 
 async function readJson<T>(
   relativePath: string,
 ): Promise<T> {
   const url = new URL(
-    `../../../content/${relativePath}`,
+    `../../../../content/${relativePath}`,
     import.meta.url,
   );
 
