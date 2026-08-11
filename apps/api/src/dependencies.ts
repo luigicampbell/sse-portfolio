@@ -5,6 +5,7 @@ import type { PortfolioRepository } from "./repositories/portfolio.repository.ts
 import { PostgresPortfolioRepository } from "./repositories/postgres-portfolio.repository.ts";
 import { CvService } from "./services/cv.service.ts";
 import { PortfolioService } from "./services/portfolio.service.ts";
+import { SeedService } from "./services/seed.service.ts";
 
 function createRepository(): PortfolioRepository {
   switch (env.storageDriver) {
@@ -34,6 +35,10 @@ function createRepository(): PortfolioRepository {
 }
 
 export const portfolioRepository = createRepository();
+
+export const seedService = new SeedService(
+  portfolioRepository,
+);
 
 export const portfolioService = new PortfolioService(
   portfolioRepository,
