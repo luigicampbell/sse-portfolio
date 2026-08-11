@@ -9,6 +9,7 @@ export function registerHealthRoutes(
     "/api/v1/health",
     (context) => {
       context.response.status = 200;
+
       context.response.type = "application/json";
 
       context.response.body = {

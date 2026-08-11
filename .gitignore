@@ -1,11 +1,21 @@
 .env
+
 node_modules/
 dist/
 apps/web/dist/
-apps/api/scripts
-content
+apps/web/.vite
+
+# Local history reconstruction tooling
+apps/api/scripts/history/
+
+# Private portfolio source content
+content/
+
+# Local database state
 data/
 *.kv
 *.kv-shm
 *.kv-wal
+
 .DS_Store
+.vscode/

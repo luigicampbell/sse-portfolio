@@ -14,8 +14,7 @@ export function registerPortfolioRoutes(
     async (context) => {
       context.response.status = 200;
       context.response.type = "application/json";
-      context.response.body =
-        await service.getPortfolioPage();
+      context.response.body = await service.getPortfolioPage();
     },
   );
 
@@ -24,8 +23,7 @@ export function registerPortfolioRoutes(
     async (context) => {
       context.response.status = 200;
       context.response.type = "application/json";
-      context.response.body =
-        await service.getProjects();
+      context.response.body = await service.getProjects();
     },
   );
 
@@ -39,8 +37,7 @@ export function registerPortfolioRoutes(
 
         context.response.status = 200;
         context.response.type = "application/json";
-        context.response.body =
-          await service.getProject(slug);
+        context.response.body = await service.getProject(slug);
       } catch (error) {
         if (
           error instanceof

@@ -11,6 +11,11 @@ export function registerCvRoutes(
     async (context) => {
       const document = await service.generate();
 
+      /*
+       * Copy into a standard ArrayBuffer-backed Uint8Array.
+       * This preserves the workaround we already needed for
+       * ArrayBufferLike / BodyInit typing around generated PDFs.
+       */
       const body = new Uint8Array(
         document.bytes,
       );
@@ -24,9 +29,7 @@ export function registerCvRoutes(
 
       context.response.headers.set(
         "content-disposition",
-        `attachment; filename="${
-          escapeFileName(document.fileName)
-        }"`,
+        `attachment; filename="${escapeFileName(document.fileName)}"`,
       );
 
       context.response.headers.set(
