@@ -27,5 +27,5 @@ export {
   hasSupportedSeedSchemaVersion,
   SUPPORTED_SEED_SCHEMA_VERSION,
 } from "./seed-manifest.ts";
-
+export type { SeedPayload } from "./seed-payload.ts";
 export type { SeedManifest } from "./seed-manifest.ts";

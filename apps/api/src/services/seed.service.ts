@@ -1,13 +1,4 @@
-import type {
-  Credential,
-  Education,
-  Experience,
-  Profile,
-  Project,
-  SeedManifest,
-  Skill,
-  VolunteerExperience,
-} from "@domain/mod.ts";
+import type { SeedPayload } from "@domain/mod.ts";
 
 import {
   hasValidMetadataCollection,
@@ -18,17 +9,6 @@ import {
 import type {
   PortfolioRepository,
 } from "../repositories/portfolio.repository.ts";
-
-export interface SeedPayload {
-  manifest: SeedManifest;
-  profile: Profile;
-  projects: Project[];
-  skills: Skill[];
-  experience: Experience[];
-  education: Education[];
-  credentials: Credential[];
-  volunteer: VolunteerExperience[];
-}
 
 export interface SeedServicePort {
   seed(

@@ -5,6 +5,7 @@ import type {
   Profile,
   Project,
   SeedManifest,
+  SeedPayload,
   Skill,
   VolunteerExperience,
 } from "@domain/mod.ts";
@@ -13,7 +14,7 @@ import {
   DenoKvPortfolioRepository,
 } from "../src/repositories/deno-kv-portfolio.repository.ts";
 
-import { type SeedPayload, SeedService } from "../src/services/seed.service.ts";
+import { SeedService } from "../src/services/seed.service.ts";
 
 const TEST_TIMESTAMP = "2026-08-10T00:00:00.000Z";
 

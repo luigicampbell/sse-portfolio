@@ -1,52 +1,14 @@
 import { Application } from "@oak/oak/application";
 import { Router } from "@oak/oak/router";
-import {
-  errorMiddleware,
-} from "../src/middleware/error.middleware.ts";
+import { errorMiddleware } from "../src/middleware/error.middleware.ts";
 
-import type {
-  SeedPayload,
-  SeedServicePort,
-} from "../src/services/seed.service.ts";
+import type { SeedServicePort } from "../src/services/seed.service.ts";
 
 import { registerSeedRoutes } from "../src/routes/internal/seed.routes.ts";
+import { SeedPayload } from "@domain/mod.ts";
+import { TEST_SEED_PAYLOAD } from "./fixtures/seed.mock.ts";
 
 const TEST_TOKEN = "test-seed-token";
-
-const TEST_PAYLOAD: SeedPayload = {
-  manifest: {
-    seedVersion: 0,
-    schemaVersion: 0,
-    contentVersion: "0.0.0",
-  },
-
-  profile: {
-    id: "profile-main",
-    name: "Test Developer",
-    eyebrow: "Portfolio",
-    headline: "Software Developer",
-    summary: [
-      {
-        text: "Test portfolio profile.",
-      },
-    ],
-    actions: [],
-    metrics: [],
-    socials: [],
-    published: true,
-    featured: true,
-    tags: [],
-    createdAt: "2026-08-10T22:57:00.000Z",
-    updatedAt: "2026-08-10T22:57:00.000Z",
-  },
-
-  projects: [],
-  skills: [],
-  experience: [],
-  education: [],
-  credentials: [],
-  volunteer: [],
-};
 
 Deno.test(
   "POST /internal/seed returns 401 without authorization",
@@ -74,7 +36,7 @@ Deno.test(
             "content-type": "application/json",
           },
           body: JSON.stringify(
-            TEST_PAYLOAD,
+            TEST_SEED_PAYLOAD,
           ),
         },
       );
@@ -133,7 +95,7 @@ Deno.test(
             "content-type": "application/json",
           },
           body: JSON.stringify(
-            TEST_PAYLOAD,
+            TEST_SEED_PAYLOAD,
           ),
         },
       );
@@ -193,7 +155,7 @@ Deno.test(
       );
 
       const invalidPayload = {
-        ...TEST_PAYLOAD,
+        ...TEST_SEED_PAYLOAD,
 
         /*
          * Valid JSON, but not a valid Profile.
@@ -338,10 +300,10 @@ Deno.test(
       );
 
       const incompatiblePayload: SeedPayload = {
-        ...TEST_PAYLOAD,
+        ...TEST_SEED_PAYLOAD,
 
         manifest: {
-          ...TEST_PAYLOAD.manifest,
+          ...TEST_SEED_PAYLOAD.manifest,
 
           /*
            * Structurally valid, but intentionally newer
@@ -407,8 +369,7 @@ Deno.test(
 Deno.test(
   "POST /internal/seed returns 500 when seeding fails",
   async () => {
-    const originalToken =
-      Deno.env.get("SEED_TOKEN");
+    const originalToken = Deno.env.get("SEED_TOKEN");
 
     Deno.env.set(
       "SEED_TOKEN",
@@ -426,28 +387,24 @@ Deno.test(
         },
       };
 
-      const app =
-        createTestApplication(
-          service,
-        );
+      const app = createTestApplication(
+        service,
+      );
 
-      const response =
-        await handleRequest(
-          app,
-          "/internal/seed",
-          {
-            method: "POST",
-            headers: {
-              authorization:
-                `Bearer ${TEST_TOKEN}`,
-              "content-type":
-                "application/json",
-            },
-            body: JSON.stringify(
-              TEST_PAYLOAD,
-            ),
+      const response = await handleRequest(
+        app,
+        "/internal/seed",
+        {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${TEST_TOKEN}`,
+            "content-type": "application/json",
           },
-        );
+          body: JSON.stringify(
+            TEST_SEED_PAYLOAD,
+          ),
+        },
+      );
 
       if (
         response.status !== 500
@@ -457,10 +414,9 @@ Deno.test(
         );
       }
 
-      const body =
-        await response.json() as {
-          error: string;
-        };
+      const body = await response.json() as {
+        error: string;
+      };
 
       if (
         body.error !==
@@ -516,7 +472,7 @@ Deno.test(
             "content-type": "application/json",
           },
           body: JSON.stringify(
-            TEST_PAYLOAD,
+            TEST_SEED_PAYLOAD,
           ),
         },
       );
@@ -538,7 +494,7 @@ Deno.test(
       if (
         receivedPayload
           .profile.id !==
-          TEST_PAYLOAD.profile.id
+          TEST_SEED_PAYLOAD.profile.id
       ) {
         throw new Error(
           "Expected seed payload to be passed to SeedService.",
