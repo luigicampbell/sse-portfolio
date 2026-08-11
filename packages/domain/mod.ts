@@ -23,4 +23,9 @@ export type { VolunteerExperience } from "./volunteer-experience.ts";
 
 export type { PortfolioPageResponse } from "./portfolio-page.ts";
 
+export {
+  hasSupportedSeedSchemaVersion,
+  SUPPORTED_SEED_SCHEMA_VERSION,
+} from "./seed-manifest.ts";
+
 export type { SeedManifest } from "./seed-manifest.ts";
