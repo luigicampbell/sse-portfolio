@@ -4,7 +4,7 @@ export interface Metadata {
   updatedAt: string;
   published: boolean;
   featured: boolean;
-  tags: string[];
+  tags?: string[];
 }
 
 export interface OrderedMetadata extends Metadata {

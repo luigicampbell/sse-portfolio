@@ -2,6 +2,14 @@ import type { Metadata } from "./metadata.ts";
 import type { Profile } from "./profile.ts";
 import type { SeedManifest } from "./seed-manifest.ts";
 
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+
+    this.name = "ValidationError";
+  }
+}
+
 export function isIsoDateTime(
   value: string,
 ): boolean {
@@ -11,11 +19,14 @@ export function isIsoDateTime(
     new Date(timestamp).toISOString() === value;
 }
 
-export function hasValidMetadata(
+export function assertValidMetadata(
   value: unknown,
-): value is Metadata {
+  path = "metadata",
+): asserts value is Metadata {
   if (!isRecord(value)) {
-    return false;
+    throw new ValidationError(
+      `${path} must be an object.`,
+    );
   }
 
   const {
@@ -29,158 +40,344 @@ export function hasValidMetadata(
     typeof id !== "string" ||
     id.length === 0
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.id must be a non-empty string.`,
+    );
   }
 
   if (
-    typeof createdAt !== "string" ||
+    typeof createdAt !== "string"
+  ) {
+    throw new ValidationError(
+      `${path}.createdAt must be a string.`,
+    );
+  }
+
+  if (
+    !isIsoDateTime(createdAt)
+  ) {
+    throw new ValidationError(
+      `${path}.createdAt is not a valid ISO datetime: ${createdAt}`,
+    );
+  }
+
+  if (
     typeof updatedAt !== "string"
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.updatedAt must be a string.`,
+    );
   }
 
   if (
-    !isIsoDateTime(createdAt) ||
     !isIsoDateTime(updatedAt)
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.updatedAt is not a valid ISO datetime: ${updatedAt}`,
+    );
   }
 
-  if (updatedAt < createdAt) {
-    return false;
+  if (
+    updatedAt < createdAt
+  ) {
+    throw new ValidationError(
+      `${path}.updatedAt cannot be earlier than createdAt.`,
+    );
   }
 
-  return isStringArray(tags);
+  if (
+    tags !== undefined &&
+    !isStringArray(tags)
+  ) {
+    throw new ValidationError(
+      `${path}.tags must be an array of strings, when provided.`,
+    );
+  }
 }
 
-export function hasValidProfile(
+export function hasValidMetadata(
   value: unknown,
-): value is Profile {
-  if (
-    !hasValidMetadata(value) ||
-    !isRecord(value)
-  ) {
+): value is Metadata {
+  try {
+    assertValidMetadata(
+      value,
+    );
+
+    return true;
+  } catch {
     return false;
+  }
+}
+
+export function assertValidProfile(
+  value: unknown,
+  path = "profile",
+): asserts value is Profile {
+  assertValidMetadata(
+    value,
+    path,
+  );
+
+  if (!isRecord(value)) {
+    throw new ValidationError(
+      `${path} must be an object.`,
+    );
   }
 
   if (
     typeof value.name !== "string" ||
     value.name.length === 0
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.name must be a non-empty string.`,
+    );
   }
 
   if (
-    typeof value.eyebrow !== "string" ||
+    typeof value.eyebrow !== "string"
+  ) {
+    throw new ValidationError(
+      `${path}.eyebrow must be a string.`,
+    );
+  }
+
+  if (
     typeof value.headline !== "string"
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.headline must be a string.`,
+    );
   }
 
   if (
-    !Array.isArray(value.summary) ||
-    !value.summary.every(
-      hasValidRichTextRun,
+    !Array.isArray(
+      value.summary,
     )
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.summary must be an array.`,
+    );
+  }
+
+  value.summary.forEach(
+    (run, index) => {
+      assertValidRichTextRun(
+        run,
+        `${path}.summary[${index}]`,
+      );
+    },
+  );
+
+  if (
+    !Array.isArray(
+      value.actions,
+    )
+  ) {
+    throw new ValidationError(
+      `${path}.actions must be an array.`,
+    );
   }
 
   if (
-    !Array.isArray(value.actions) ||
-    !Array.isArray(value.metrics) ||
-    !Array.isArray(value.socials)
+    !Array.isArray(
+      value.metrics,
+    )
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.metrics must be an array.`,
+    );
+  }
+
+  if (
+    !Array.isArray(
+      value.socials,
+    )
+  ) {
+    throw new ValidationError(
+      `${path}.socials must be an array.`,
+    );
   }
 
   if (
     value.location !== undefined &&
     typeof value.location !== "string"
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.location must be a string when provided.`,
+    );
   }
 
   if (
     value.email !== undefined &&
     typeof value.email !== "string"
   ) {
+    throw new ValidationError(
+      `${path}.email must be a string when provided.`,
+    );
+  }
+}
+
+export function hasValidProfile(
+  value: unknown,
+): value is Profile {
+  try {
+    assertValidProfile(
+      value,
+    );
+
+    return true;
+  } catch {
     return false;
   }
+}
 
-  return true;
+export function assertValidSeedManifest(
+  value: unknown,
+  path = "manifest",
+): asserts value is SeedManifest {
+  if (!isRecord(value)) {
+    throw new ValidationError(
+      `${path} must be an object.`,
+    );
+  }
+
+  if (
+    !Number.isInteger(
+      value.seedVersion,
+    )
+  ) {
+    throw new ValidationError(
+      `${path}.seedVersion must be an integer.`,
+    );
+  }
+
+  if (
+    !Number.isInteger(
+      value.schemaVersion,
+    )
+  ) {
+    throw new ValidationError(
+      `${path}.schemaVersion must be an integer.`,
+    );
+  }
+
+  if (
+    typeof value.contentVersion !==
+      "string" ||
+    value.contentVersion.length === 0
+  ) {
+    throw new ValidationError(
+      `${path}.contentVersion must be a non-empty string.`,
+    );
+  }
 }
 
 export function hasValidSeedManifest(
   value: unknown,
 ): value is SeedManifest {
-  if (!isRecord(value)) {
+  try {
+    assertValidSeedManifest(
+      value,
+    );
+
+    return true;
+  } catch {
     return false;
   }
+}
 
-  return Number.isInteger(
-    value.seedVersion,
-  ) &&
-    Number.isInteger(
-      value.schemaVersion,
-    ) &&
-    typeof value.contentVersion ===
-      "string" &&
-    value.contentVersion.length > 0;
+export function assertValidMetadataCollection(
+  value: unknown,
+  name: string,
+): asserts value is Metadata[] {
+  if (!Array.isArray(value)) {
+    throw new ValidationError(
+      `${name} must be an array.`,
+    );
+  }
+
+  value.forEach(
+    (item, index) => {
+      assertValidMetadata(
+        item,
+        `${name}[${index}]`,
+      );
+    },
+  );
 }
 
 export function hasValidMetadataCollection(
   value: unknown,
 ): value is Metadata[] {
-  return Array.isArray(value) &&
-    value.every(
-      hasValidMetadata,
+  try {
+    assertValidMetadataCollection(
+      value,
+      "collection",
     );
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-function hasValidRichTextRun(
+function assertValidRichTextRun(
   value: unknown,
-): boolean {
+  path: string,
+): void {
   if (!isRecord(value)) {
-    return false;
+    throw new ValidationError(
+      `${path} must be an object.`,
+    );
   }
 
   if (
-    typeof value.text !== "string"
+    typeof value.text !==
+      "string"
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.text must be a string.`,
+    );
   }
 
   if (
     value.emphasis !== undefined &&
     typeof value.emphasis !== "boolean"
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.emphasis must be a boolean when provided.`,
+    );
   }
 
   if (
     value.link !== undefined &&
     typeof value.link !== "string"
   ) {
-    return false;
+    throw new ValidationError(
+      `${path}.link must be a string when provided.`,
+    );
   }
-
-  return true;
 }
 
 function isStringArray(
   value: unknown,
 ): value is string[] {
-  return Array.isArray(value) &&
+  return Array.isArray(
+    value,
+  ) &&
     value.every(
-      (item) => typeof item === "string",
+      (item) =>
+        typeof item === "string",
     );
 }
 
 function isRecord(
   value: unknown,
 ): value is Record<string, unknown> {
-  return typeof value === "object" &&
+  return typeof value ===
+      "object" &&
     value !== null &&
-    !Array.isArray(value);
+    !Array.isArray(
+      value,
+    );
 }
