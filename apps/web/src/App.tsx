@@ -2,6 +2,9 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import type { PortfolioPageResponse } from "@domain/mod.ts";
 import { AppShell } from "./components/AppShell.tsx";
 import { AppSkeleton } from "./components/AppSkeleton.tsx";
+import {
+  useDocumentSectionTitle,
+} from "./lib/use-document-section-title.ts";
 import { getPortfolio } from "./lib/api.ts";
 import { Hero } from "./sections/Hero.tsx";
 
@@ -20,6 +23,9 @@ export function App() {
   const [state, setState] = useState<LoadState>({
     status: "loading",
   });
+  useDocumentSectionTitle(
+  state.status === "ready",
+);
 
   useEffect(() => {
     const controller = new AbortController();

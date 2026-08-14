@@ -10,7 +10,7 @@ export function Hero({ profile }: HeroProps) {
   const initials = getInitials(profile.name);
 
   return (
-    <section className="hero">
+    <section id="home" className="hero">
       <div className="hero__main">
         <div className="hero__identity">
           <div className="hero__media">

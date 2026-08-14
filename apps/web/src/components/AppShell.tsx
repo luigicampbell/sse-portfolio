@@ -4,7 +4,7 @@ import "./AppShell.css";
 
 export function AppShell({ children }: PropsWithChildren) {
   return (
-    <div id="home" className="app-shell">
+    <div className="app-shell">
       <header className="site-header">
         <a
           className="site-header__brand"
