@@ -1,41 +1,92 @@
-import type { Skill } from "@domain/mod.ts";
+import type {
+  Skill,
+} from "@domain/mod.ts";
 
-interface SkillCategorySummary {
+export interface SkillCategorySummary {
   category: Skill["category"];
   label: string;
-  average: number;
+  count: number;
+  breadth: number;
 }
 
-const categoryLabels: Record<Skill["category"], string> = {
-  "languages": "TypeScript",
-  frontend: "Frontend",
-  backend: "Backend",
-  data: "Data",
-  cloud: "Cloud",
-  salesforce: "Salesforce",
-  leadership: "Leadership",
-};
+const categoryLabels:
+  Record<
+    Skill["category"],
+    string
+  > = {
+    languages: "Languages",
+    backend: "Backend",
+    frontend: "Frontend",
+    data: "Data",
+    cloud: "Cloud",
+    salesforce: "Salesforce",
+    leadership: "Leadership",
+    "dev-ops": "DevOps",
+  };
 
 export function summarizeSkillCategories(
   skills: Skill[],
 ): SkillCategorySummary[] {
-  const groupedSkills = new Map<Skill["category"], number[]>();
+  const counts =
+    new Map<
+      Skill["category"],
+      number
+    >();
 
   for (const skill of skills) {
-    const existing = groupedSkills.get(skill.category) ?? [];
-    existing.push(skill.score);
-    groupedSkills.set(skill.category, existing);
+    counts.set(
+      skill.category,
+      (
+        counts.get(
+          skill.category,
+        ) ?? 0
+      ) + 1,
+    );
   }
 
-  return [...groupedSkills.entries()]
-    .map(([category, scores]) => {
-      const total = scores.reduce((sum, score) => sum + score, 0);
+  const summaries =
+    [...counts.entries()]
+      .map(
+        ([
+          category,
+          count,
+        ]) => ({
+          category,
+          label:
+            categoryLabels[
+              category
+            ],
+          count,
+        }),
+      )
+      .sort(
+        (
+          left,
+          right,
+        ) =>
+          right.count -
+          left.count,
+      );
 
-      return {
-        category,
-        label: categoryLabels[category],
-        average: Math.round(total / scores.length),
-      };
-    })
-    .sort((left, right) => right.average - left.average);
+  const maximumCount =
+    Math.max(
+      ...summaries.map(
+        (summary) =>
+          summary.count,
+      ),
+      1,
+    );
+
+  return summaries.map(
+    (summary) => ({
+      ...summary,
+      breadth:
+        Math.round(
+          (
+            summary.count /
+            maximumCount
+          ) * 100,
+        ),
+    }),
+  );
 }
