@@ -61,11 +61,13 @@ export const env = {
     Deno.env.get("API_PORT"),
     3001,
   ),
+
   storageDriver: parseStorageDriver(
     Deno.env.get("STORAGE_DRIVER"),
   ),
-  kvPath: Deno.env.get("DENO_KV_PATH") ??
-    "./data/portfolio.local.kv",
+
+  kvPath: Deno.env.get("DENO_KV_PATH"),
+
   siteUrl: parseSiteUrl(
     Deno.env.get("SITE_URL"),
   ),
