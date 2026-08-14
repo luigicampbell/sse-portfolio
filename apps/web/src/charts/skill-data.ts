@@ -15,6 +15,7 @@ const categoryLabels: Record<
   backend: "Backend",
   frontend: "Frontend",
   data: "Data",
+  engineering: "Engineering",
   cloud: "Cloud",
   salesforce: "Salesforce",
   leadership: "Leadership",

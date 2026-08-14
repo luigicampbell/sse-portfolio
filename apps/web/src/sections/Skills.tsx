@@ -7,10 +7,11 @@ const SKILL_CATEGORY_ORDER: readonly SkillCategory[] = [
   "frontend",
   "backend",
   "data",
+  "engineering",
   "cloud",
   "salesforce",
   "leadership",
-  "dev-ops"
+  "dev-ops",
 ];
 
 interface SkillsProps {
@@ -127,17 +128,21 @@ function formatSkillCategory(
     case "data":
       return "Data";
 
-case "cloud":
-  return "Cloud";
+    case "engineering":
+      return "Engineering";
 
-case "dev-ops":
-  return "DevOps";
+    case "cloud":
+      return "Cloud";
+
+    case "dev-ops":
+      return "DevOps";
 
     case "salesforce":
       return "Salesforce";
 
     case "leadership":
       return "Leadership";
+
     default:
       return category;
   }
