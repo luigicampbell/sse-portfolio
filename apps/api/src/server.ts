@@ -12,19 +12,77 @@ const app = new Application();
 
 const router = createRouter();
 
-app.use(timingMiddleware);
-app.use(securityMiddleware);
-app.use(errorMiddleware);
+const WEB_DIST_ROOT =
+  new URL(
+    "../../web/dist/",
+    import.meta.url,
+  ).pathname;
 
-app.use(router.routes());
-app.use(router.allowedMethods());
+app.use(
+  timingMiddleware,
+);
 
-app.use((context) => {
-  context.response.status = 404;
-  context.response.body = {
-    error: "Not found.",
-  };
-});
+app.use(
+  securityMiddleware,
+);
+
+app.use(
+  errorMiddleware,
+);
+
+app.use(
+  router.routes(),
+);
+
+app.use(
+  router.allowedMethods(),
+);
+
+app.use(
+  async (context, next) => {
+    if (
+      context.request.method !== "GET" &&
+      context.request.method !== "HEAD"
+    ) {
+      await next();
+      return;
+    }
+
+    try {
+      await context.send({
+        root: WEB_DIST_ROOT,
+      });
+
+      return;
+    } catch {
+      /*
+       * Static file not found.
+       * Fall through to the SPA shell.
+       */
+    }
+
+    try {
+      await context.send({
+        root: WEB_DIST_ROOT,
+        path: "index.html",
+      });
+
+      return;
+    } catch {
+      await next();
+    }
+  },
+);
+
+app.use(
+  (context) => {
+    context.response.status = 404;
+
+    context.response.body = {
+      error: "Not found.",
+    };
+  },
+);
 
 console.log(
   `API listening on http://localhost:${env.apiPort}`,
