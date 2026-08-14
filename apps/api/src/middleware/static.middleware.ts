@@ -18,19 +18,32 @@ export const staticMiddleware:
       context.request.method !== "HEAD"
     ) {
       await next();
+
       return;
     }
 
-    const pathname =
-      context.request.url.pathname;
+    try {
+      await context.send({
+        root: WEB_DIST_ROOT,
+        index: "index.html",
+      });
+
+      return;
+    } catch (error) {
+      if (!isNotFoundError(error)) {
+        throw error;
+      }
+    }
 
     if (
-      pathname === "/"
+      !isSpaNavigationRequest(
+        context.request.url.pathname,
+        context.request.headers.get(
+          "accept",
+        ),
+      )
     ) {
-      await context.send({
-        root: WEB_DIST_ROOT,
-        path: "index.html",
-      });
+      await next();
 
       return;
     }
@@ -38,33 +51,58 @@ export const staticMiddleware:
     try {
       await context.send({
         root: WEB_DIST_ROOT,
-      });
-
-      return;
-    } catch (error) {
-      if (
-        !(error instanceof
-          Deno.errors.NotFound)
-      ) {
-        throw error;
-      }
-    }
-
-    try {
-      await context.send({
-        root: WEB_DIST_ROOT,
         path: "index.html",
       });
-
-      return;
     } catch (error) {
-      if (
-        !(error instanceof
-          Deno.errors.NotFound)
-      ) {
+      if (!isNotFoundError(error)) {
         throw error;
       }
-    }
 
-    await next();
+      await next();
+    }
   };
+
+function isSpaNavigationRequest(
+  pathname: string,
+  accept: string | null,
+): boolean {
+  if (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/internal/")
+  ) {
+    return false;
+  }
+
+  if (
+    /\/[^/]*\.[^/]+$/.test(
+      pathname,
+    )
+  ) {
+    return false;
+  }
+
+  return accept?.includes(
+    "text/html",
+  ) ?? false;
+}
+
+function isNotFoundError(
+  error: unknown,
+): boolean {
+  if (
+    error instanceof
+      Deno.errors.NotFound
+  ) {
+    return true;
+  }
+
+  if (
+    typeof error !== "object" ||
+    error === null ||
+    !("status" in error)
+  ) {
+    return false;
+  }
+
+  return error.status === 404;
+}
