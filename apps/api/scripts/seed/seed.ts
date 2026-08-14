@@ -22,9 +22,7 @@ import { DenoKvPortfolioRepository } from "../../src/repositories/deno-kv-portfo
 import type { PortfolioRepository } from "../../src/repositories/portfolio.repository.ts";
 import { PostgresPortfolioRepository } from "../../src/repositories/postgres-portfolio.repository.ts";
 
-import {
-  SeedService,
-} from "../../src/services/seed.service.ts";
+import { SeedService } from "../../src/services/seed.service.ts";
 
 async function readJson<T>(
   relativePath: string,
@@ -34,8 +32,7 @@ async function readJson<T>(
     import.meta.url,
   );
 
-  const source =
-    await Deno.readTextFile(url);
+  const source = await Deno.readTextFile(url);
 
   return JSON.parse(source) as T;
 }
@@ -47,8 +44,7 @@ function createRepository(): PortfolioRepository {
     );
   }
 
-  const databaseUrl =
-    Deno.env.get("DATABASE_URL");
+  const databaseUrl = Deno.env.get("DATABASE_URL");
 
   if (!databaseUrl) {
     throw new Error(
@@ -162,16 +158,13 @@ function validateSeedPayload(
 }
 
 async function seed(): Promise<void> {
-  const repository =
-    createRepository();
+  const repository = createRepository();
 
-  const service =
-    new SeedService(
-      repository,
-    );
+  const service = new SeedService(
+    repository,
+  );
 
-  const payload =
-    await readSeedPayload();
+  const payload = await readSeedPayload();
 
   try {
     validateSeedPayload(

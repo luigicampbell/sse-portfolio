@@ -366,8 +366,7 @@ function isStringArray(
     value,
   ) &&
     value.every(
-      (item) =>
-        typeof item === "string",
+      (item) => typeof item === "string",
     );
 }
 
