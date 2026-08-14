@@ -12,38 +12,69 @@ export interface SkillCategorySummary {
   breadth: number;
 }
 
+interface SkillCategoryMetrics {
+  category: Skill["category"];
+
+  count: number;
+
+  subcategoryCount: number;
+}
+
+const MAX_BREADTH = 100;
+
 export function summarizeSkillCategories(
   skills: Skill[],
 ): SkillCategorySummary[] {
-  const counts = new Map<
-    Skill["category"],
-    number
-  >();
+  const metrics = collectCategoryMetrics(
+    skills,
+  );
 
-  for (const skill of skills) {
-    counts.set(
-      skill.category,
-      (
-        counts.get(
-          skill.category,
-        ) ?? 0
-      ) + 1,
-    );
-  }
+  const maximumFlatCount = Math.max(
+    ...metrics
+      .filter(
+        (metric) =>
+          metric
+            .subcategoryCount ===
+            0,
+      )
+      .map(
+        (metric) => metric.count,
+      ),
+    1,
+  );
 
-  const summaries = [...counts.entries()]
+  const maximumSubcategoryCount = Math.max(
+    ...metrics
+      .filter(
+        (metric) =>
+          metric
+            .subcategoryCount >
+            0,
+      )
+      .map(
+        (metric) =>
+          metric
+            .subcategoryCount,
+      ),
+    1,
+  );
+
+  return metrics
     .map(
-      ([
-        category,
-        count,
-      ]) => ({
-        category,
+      (metric) => ({
+        category: metric.category,
 
         label: SKILL_CATEGORY_LABELS[
-          category
+          metric.category
         ],
 
-        count,
+        count: metric.count,
+
+        breadth: calculateBreadth(
+          metric,
+          maximumFlatCount,
+          maximumSubcategoryCount,
+        ),
       }),
     )
     .sort(
@@ -51,27 +82,105 @@ export function summarizeSkillCategories(
         left,
         right,
       ) =>
-        right.count -
-        left.count,
+        right.breadth -
+        left.breadth,
     );
+}
 
-  const maximumCount = Math.max(
-    ...summaries.map(
-      (summary) => summary.count,
-    ),
-    1,
-  );
+function collectCategoryMetrics(
+  skills: Skill[],
+): SkillCategoryMetrics[] {
+  const categories = new Map<
+    Skill["category"],
+    {
+      count: number;
+      subcategories: Set<string>;
+    }
+  >();
 
-  return summaries.map(
-    (summary) => ({
-      ...summary,
+  for (const skill of skills) {
+    const existing = categories.get(
+      skill.category,
+    ) ?? {
+      count: 0,
+      subcategories: new Set<string>(),
+    };
 
-      breadth: Math.round(
-        (
-          summary.count /
-          maximumCount
-        ) * 100,
-      ),
+    existing.count += 1;
+
+    if (
+      skill.subcategory
+    ) {
+      existing
+        .subcategories
+        .add(
+          skill.subcategory,
+        );
+    }
+
+    categories.set(
+      skill.category,
+      existing,
+    );
+  }
+
+  return [
+    ...categories.entries(),
+  ].map(
+    ([
+      category,
+      value,
+    ]) => ({
+      category,
+
+      count: value.count,
+
+      subcategoryCount: value
+        .subcategories
+        .size,
     }),
+  );
+}
+
+function calculateBreadth(
+  metric: SkillCategoryMetrics,
+  maximumFlatCount: number,
+  maximumSubcategoryCount: number,
+): number {
+  if (
+    metric.category ===
+      "engineering"
+  ) {
+    return MAX_BREADTH;
+  }
+
+  if (
+    metric.subcategoryCount >
+      0
+  ) {
+    return normalizeBreadth(
+      metric.subcategoryCount,
+      maximumSubcategoryCount,
+    );
+  }
+
+  return normalizeBreadth(
+    metric.count,
+    maximumFlatCount,
+  );
+}
+
+function normalizeBreadth(
+  value: number,
+  maximum: number,
+): number {
+  return Math.min(
+    MAX_BREADTH,
+    Math.round(
+      (
+        value /
+        maximum
+      ) * MAX_BREADTH,
+    ),
   );
 }
