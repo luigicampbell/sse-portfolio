@@ -1,18 +1,16 @@
-import type { Skill, SkillCategory } from "@domain/mod.ts";
+import {
+  SKILL_CATEGORIES,
+  SKILL_CATEGORY_LABELS,
+  SKILL_SUBCATEGORY_LABELS,
+} from "@domain/mod.ts";
+
+import type {
+  Skill,
+  SkillCategory,
+  SkillSubcategory,
+} from "@domain/mod.ts";
 
 import "./Skills.css";
-
-const SKILL_CATEGORY_ORDER: readonly SkillCategory[] = [
-  "languages",
-  "frontend",
-  "backend",
-  "data",
-  "engineering",
-  "cloud",
-  "salesforce",
-  "leadership",
-  "dev-ops",
-];
 
 interface SkillsProps {
   skills: Skill[];
@@ -21,10 +19,16 @@ interface SkillsProps {
 export default function Skills({
   skills,
 }: SkillsProps) {
-  const groupedSkills = groupSkillsByCategory(skills);
+  const groupedSkills =
+    groupSkillsByCategory(
+      skills,
+    );
 
   return (
-    <section id="skills" className="skills">
+    <section
+      id="skills"
+      className="skills"
+    >
       <div className="skills__heading">
         <p className="skills__eyebrow">
           Capabilities
@@ -35,53 +39,44 @@ export default function Skills({
         </h2>
 
         <p className="skills__description">
-          Technologies, disciplines, and responsibilities I use to design,
-          build, and deliver maintainable software.
+          Technologies, disciplines,
+          and responsibilities I use
+          to design, build, and
+          deliver maintainable
+          software.
         </p>
       </div>
 
       {groupedSkills.size > 0
         ? (
           <div className="skills__groups">
-            {SKILL_CATEGORY_ORDER.map((category) => {
-              const categorySkills = groupedSkills.get(category);
+            {SKILL_CATEGORIES.map(
+              (category) => {
+                const categorySkills =
+                  groupedSkills.get(
+                    category,
+                  );
 
-              if (!categorySkills?.length) {
-                return null;
-              }
+                if (
+                  !categorySkills
+                    ?.length
+                ) {
+                  return null;
+                }
 
-              const categoryLabel = formatSkillCategory(category);
-              const headingId = `skills-${category}`;
-
-              return (
-                <div
-                  className="skill-group"
-                  key={category}
-                  aria-labelledby={headingId}
-                >
-                  <h3
-                    id={headingId}
-                    className="skill-group__title"
-                  >
-                    {categoryLabel}
-                  </h3>
-
-                  <ul
-                    className="skill-group__chips"
-                    aria-label={`${categoryLabel} skills`}
-                  >
-                    {categorySkills.map((skill) => (
-                      <li
-                        key={skill.id}
-                        className={`skill-chip skill-chip--${category}`}
-                      >
-                        {skill.label}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
+                return (
+                  <SkillGroup
+                    key={category}
+                    category={
+                      category
+                    }
+                    skills={
+                      categorySkills
+                    }
+                  />
+                );
+              },
+            )}
           </div>
         )
         : (
@@ -93,57 +88,225 @@ export default function Skills({
   );
 }
 
+interface SkillGroupProps {
+  category:
+    SkillCategory;
+
+  skills:
+    Skill[];
+}
+
+function SkillGroup({
+  category,
+  skills,
+}: SkillGroupProps) {
+  const categoryLabel =
+    SKILL_CATEGORY_LABELS[
+      category
+    ];
+
+  const headingId =
+    `skills-${category}`;
+
+  const directSkills =
+    skills.filter(
+      (skill) =>
+        skill.subcategory ===
+          undefined,
+    );
+
+  const subgroups =
+    groupSkillsBySubcategory(
+      skills,
+    );
+
+  return (
+    <div
+      className="skill-group"
+      aria-labelledby={
+        headingId
+      }
+    >
+      <h3
+        id={headingId}
+        className="skill-group__title"
+      >
+        {categoryLabel}
+      </h3>
+
+      {directSkills.length > 0 &&
+        (
+          <SkillChipList
+            category={
+              category
+            }
+            label={
+              `${categoryLabel} skills`
+            }
+            skills={
+              directSkills
+            }
+          />
+        )}
+
+      {subgroups.size > 0 &&
+        (
+          <div className="skill-group__subgroups">
+            {[
+              ...subgroups
+                .entries(),
+            ].map(
+              ([
+                subcategory,
+                subgroupSkills,
+              ]) => (
+                <div
+                  className="skill-subgroup"
+                  key={
+                    subcategory
+                  }
+                >
+                  <h4 className="skill-subgroup__title">
+                    {
+                      SKILL_SUBCATEGORY_LABELS[
+                        subcategory
+                      ]
+                    }
+                  </h4>
+
+                  <SkillChipList
+                    category={
+                      category
+                    }
+                    label={`${
+                      SKILL_SUBCATEGORY_LABELS[
+                        subcategory
+                      ]
+                    } skills`}
+                    skills={
+                      subgroupSkills
+                    }
+                  />
+                </div>
+              ),
+            )}
+          </div>
+        )}
+    </div>
+  );
+}
+
+interface SkillChipListProps {
+  category:
+    SkillCategory;
+
+  label:
+    string;
+
+  skills:
+    Skill[];
+}
+
+function SkillChipList({
+  category,
+  label,
+  skills,
+}: SkillChipListProps) {
+  return (
+    <ul
+      className="skill-group__chips"
+      aria-label={label}
+    >
+      {skills.map(
+        (skill) => (
+          <li
+            key={skill.id}
+            className={
+              `skill-chip skill-chip--${category}`
+            }
+          >
+            {skill.label}
+          </li>
+        ),
+      )}
+    </ul>
+  );
+}
+
 function groupSkillsByCategory(
   skills: Skill[],
-): Map<SkillCategory, Skill[]> {
-  const grouped = new Map<SkillCategory, Skill[]>();
+): Map<
+  SkillCategory,
+  Skill[]
+> {
+  const grouped =
+    new Map<
+      SkillCategory,
+      Skill[]
+    >();
 
   for (const skill of skills) {
-    const categorySkills = grouped.get(skill.category);
+    const categorySkills =
+      grouped.get(
+        skill.category,
+      );
 
     if (categorySkills) {
-      categorySkills.push(skill);
+      categorySkills.push(
+        skill,
+      );
+
       continue;
     }
 
-    grouped.set(skill.category, [skill]);
+    grouped.set(
+      skill.category,
+      [
+        skill,
+      ],
+    );
   }
 
   return grouped;
 }
 
-function formatSkillCategory(
-  category: SkillCategory,
-): string {
-  switch (category) {
-    case "languages":
-      return "Languages";
+function groupSkillsBySubcategory(
+  skills: Skill[],
+): Map<
+  SkillSubcategory,
+  Skill[]
+> {
+  const grouped =
+    new Map<
+      SkillSubcategory,
+      Skill[]
+    >();
 
-    case "frontend":
-      return "Frontend";
+  for (const skill of skills) {
+    if (!skill.subcategory) {
+      continue;
+    }
 
-    case "backend":
-      return "Backend";
+    const subgroupSkills =
+      grouped.get(
+        skill.subcategory,
+      );
 
-    case "data":
-      return "Data";
+    if (subgroupSkills) {
+      subgroupSkills.push(
+        skill,
+      );
 
-    case "engineering":
-      return "Engineering";
+      continue;
+    }
 
-    case "cloud":
-      return "Cloud";
-
-    case "dev-ops":
-      return "DevOps";
-
-    case "salesforce":
-      return "Salesforce";
-
-    case "leadership":
-      return "Leadership";
-
-    default:
-      return category;
+    grouped.set(
+      skill.subcategory,
+      [
+        skill,
+      ],
+    );
   }
+
+  return grouped;
 }

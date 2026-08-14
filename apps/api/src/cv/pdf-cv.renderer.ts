@@ -1,24 +1,20 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
+import {
+  SKILL_CATEGORIES,
+  SKILL_CATEGORY_LABELS,
+  SKILL_SUBCATEGORY_LABELS,
+} from "@domain/mod.ts";
+
 import type {
   Credential,
   PortfolioPageResponse,
   Skill,
   SkillCategory,
+  SkillSubcategory,
 } from "@domain/mod.ts";
+
 import type { CvRenderer } from "./cv-renderer.ts";
 import { PDF_MUTED_COLOR, PdfLayout } from "./pdf-layout.ts";
-
-const SKILL_CATEGORY_ORDER: readonly SkillCategory[] = [
-  "languages",
-  "backend",
-  "frontend",
-  "data",
-  "engineering",
-  "cloud",
-  "salesforce",
-  "leadership",
-  "dev-ops",
-];
 
 export class PdfCvRenderer implements CvRenderer {
   async render(portfolio: PortfolioPageResponse): Promise<Uint8Array> {
@@ -219,35 +215,129 @@ function renderProjects(
 
 function renderSkills(
   layout: PdfLayout,
-  portfolio: PortfolioPageResponse,
+  portfolio:
+    PortfolioPageResponse,
 ): void {
-  const groupedSkills = groupSkillsByCategory(portfolio.skills.items);
+  const groupedSkills =
+    groupSkillsByCategory(
+      portfolio.skills.items,
+    );
 
-  if (groupedSkills.size === 0) return;
+  if (
+    groupedSkills.size === 0
+  ) {
+    return;
+  }
 
-  layout.drawSectionHeading("Skills");
+  layout.drawSectionHeading(
+    "Skills",
+  );
 
-  for (const category of SKILL_CATEGORY_ORDER) {
-    const skills = groupedSkills.get(category);
+  for (
+    const category
+      of SKILL_CATEGORIES
+  ) {
+    const skills =
+      groupedSkills.get(
+        category,
+      );
 
-    if (!skills?.length) continue;
+    if (!skills?.length) {
+      continue;
+    }
 
-    layout.ensureSpace(42);
+    layout.ensureSpace(
+      42,
+    );
 
-    layout.drawText(formatSkillCategory(category), {
-      font: layout.fonts.bold,
-      size: 9.5,
-      lineHeight: 14,
-      gapAfter: 2,
-    });
-
-    layout.drawChipGroup(
-      skills.map((skill) => skill.label),
+    layout.drawText(
+      SKILL_CATEGORY_LABELS[
+        category
+      ],
       {
-        size: 8.5,
-        gapAfter: 8,
+        font:
+          layout.fonts.bold,
+
+        size:
+          9.5,
+
+        lineHeight:
+          14,
+
+        gapAfter:
+          2,
       },
     );
+
+    const directSkills =
+      skills.filter(
+        (skill) =>
+          skill.subcategory ===
+            undefined,
+      );
+
+    if (
+      directSkills.length > 0
+    ) {
+      layout.drawChipGroup(
+        directSkills.map(
+          (skill) =>
+            skill.label,
+        ),
+        {
+          size:
+            8.5,
+
+          gapAfter:
+            8,
+        },
+      );
+    }
+
+    const subgroups =
+      groupSkillsBySubcategory(
+        skills,
+      );
+
+    for (
+      const [
+        subcategory,
+        subgroupSkills,
+      ] of subgroups
+    ) {
+      layout.drawText(
+        SKILL_SUBCATEGORY_LABELS[
+          subcategory
+        ],
+        {
+          size:
+            8.5,
+
+          lineHeight:
+            12,
+
+          color:
+            PDF_MUTED_COLOR,
+
+          gapAfter:
+            2,
+        },
+      );
+
+      layout.drawChipGroup(
+        subgroupSkills.map(
+          (skill) =>
+            skill.label,
+        ),
+        {
+          size:
+            8.5,
+
+          gapAfter:
+            6,
+        },
+      );
+    }
   }
 }
 
@@ -416,27 +506,45 @@ function groupSkillsByCategory(
   return grouped;
 }
 
-function formatSkillCategory(category: SkillCategory): string {
-  switch (category) {
-    case "languages":
-      return "Languages";
-    case "backend":
-      return "Backend";
-    case "frontend":
-      return "Frontend";
-    case "data":
-      return "Data";
-    case "cloud":
-      return "Cloud";
-    case "salesforce":
-      return "Salesforce";
-    case "leadership":
-      return "Leadership";
-    case "dev-ops":
-      return "DevOps";
-    default:
-      return category;
+function groupSkillsBySubcategory(
+  skills: Skill[],
+): Map<
+  SkillSubcategory,
+  Skill[]
+> {
+  const grouped =
+    new Map<
+      SkillSubcategory,
+      Skill[]
+    >();
+
+  for (const skill of skills) {
+    if (!skill.subcategory) {
+      continue;
+    }
+
+    const existing =
+      grouped.get(
+        skill.subcategory,
+      );
+
+    if (existing) {
+      existing.push(
+        skill,
+      );
+
+      continue;
+    }
+
+    grouped.set(
+      skill.subcategory,
+      [
+        skill,
+      ],
+    );
   }
+
+  return grouped;
 }
 
 function formatCredentialDate(
