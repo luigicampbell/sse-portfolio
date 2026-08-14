@@ -24,27 +24,42 @@ import { PostgresPortfolioRepository } from "../../src/repositories/postgres-por
 
 import { SeedService } from "../../src/services/seed.service.ts";
 
+const DEFAULT_CONTENT_DIRECTORY = new URL(
+  "../../../../content/",
+  import.meta.url,
+);
+
 async function readJson<T>(
+  contentDirectory: URL,
   relativePath: string,
 ): Promise<T> {
   const url = new URL(
-    `../../../../content/${relativePath}`,
-    import.meta.url,
+    relativePath,
+    contentDirectory,
   );
 
-  const source = await Deno.readTextFile(url);
+  const source = await Deno.readTextFile(
+    url,
+  );
 
-  return JSON.parse(source) as T;
+  return JSON.parse(
+    source,
+  ) as T;
 }
 
 function createRepository(): PortfolioRepository {
-  if (env.storageDriver === "kv") {
+  if (
+    env.storageDriver ===
+      "kv"
+  ) {
     return new DenoKvPortfolioRepository(
       env.kvPath,
     );
   }
 
-  const databaseUrl = Deno.env.get("DATABASE_URL");
+  const databaseUrl = Deno.env.get(
+    "DATABASE_URL",
+  );
 
   if (!databaseUrl) {
     throw new Error(
@@ -57,7 +72,13 @@ function createRepository(): PortfolioRepository {
   );
 }
 
-async function readSeedPayload(): Promise<SeedPayload> {
+export async function readSeedPayload(
+  contentDirectory: string | URL = resolveContentDirectory(),
+): Promise<SeedPayload> {
+  const directory = toDirectoryUrl(
+    contentDirectory,
+  );
+
   const [
     manifest,
     profile,
@@ -69,34 +90,44 @@ async function readSeedPayload(): Promise<SeedPayload> {
     volunteer,
   ] = await Promise.all([
     readJson<SeedManifest>(
+      directory,
       "manifest.json",
     ),
 
     readJson<Profile>(
+      directory,
       "profile.json",
     ),
 
     readJson<Project[]>(
+      directory,
       "projects.json",
     ),
 
     readJson<Skill[]>(
+      directory,
       "skills.json",
     ),
 
     readJson<Experience[]>(
+      directory,
       "experience.json",
     ),
 
     readJson<Education[]>(
+      directory,
       "education.json",
     ),
 
     readJson<Credential[]>(
+      directory,
       "credentials.json",
     ),
 
-    readJson<VolunteerExperience[]>(
+    readJson<
+      VolunteerExperience[]
+    >(
+      directory,
       "volunteer.json",
     ),
   ]);
@@ -157,6 +188,91 @@ function validateSeedPayload(
   );
 }
 
+function resolveContentDirectory(): URL {
+  const configured = Deno.env.get(
+    "SEED_CONTENT_DIR",
+  );
+
+  if (!configured) {
+    return DEFAULT_CONTENT_DIRECTORY;
+  }
+
+  return toDirectoryUrl(
+    configured,
+  );
+}
+
+function toDirectoryUrl(
+  value: string | URL,
+): URL {
+  if (
+    value instanceof URL
+  ) {
+    return ensureTrailingSlash(
+      value,
+    );
+  }
+
+  const url = value.startsWith(
+      "file:",
+    )
+    ? new URL(value)
+    : new URL(
+      `file://${
+        resolveAbsolutePath(
+          value,
+        )
+      }`,
+    );
+
+  return ensureTrailingSlash(
+    url,
+  );
+}
+
+function resolveAbsolutePath(
+  path: string,
+): string {
+  if (
+    path.startsWith("/")
+  ) {
+    return path;
+  }
+
+  const cwd = Deno.cwd()
+    .replace(
+      /\/+$/,
+      "",
+    );
+
+  const relative = path.replace(
+    /^\.?\//,
+    "",
+  );
+
+  return `${cwd}/${relative}`;
+}
+
+function ensureTrailingSlash(
+  url: URL,
+): URL {
+  if (
+    url.pathname.endsWith(
+      "/",
+    )
+  ) {
+    return url;
+  }
+
+  const normalized = new URL(
+    url.href,
+  );
+
+  normalized.pathname += "/";
+
+  return normalized;
+}
+
 async function seed(): Promise<void> {
   const repository = createRepository();
 
@@ -203,7 +319,9 @@ if (import.meta.main) {
   try {
     await seed();
   } catch (error) {
-    if (error instanceof Error) {
+    if (
+      error instanceof Error
+    ) {
       console.error(
         `${error.name}: ${error.message}`,
       );

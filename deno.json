@@ -78,6 +78,7 @@
     "test:health": "deno test --allow-env --allow-read --allow-write apps/api/tests/health.routes.test.ts",
     "test:middleware": "deno test --allow-env --allow-read --allow-write apps/api/tests/middleware.test.ts",
     "test:portfolio": "deno test --allow-read --allow-write apps/api/tests/portfolio.routes.test.ts",
+    "test:seed-local": "deno test --allow-env --allow-read --allow-write apps/api/tests/seed.local.test.ts",
     "test:seed-push": "deno test --allow-env apps/api/tests/seed.push.test.ts",
     "test:seed-routes": "deno test --allow-env apps/api/tests/seed.routes.test.ts",
     "test:seed-service": "deno test --allow-env --allow-read --allow-write apps/api/tests/seed.service.test.ts",
