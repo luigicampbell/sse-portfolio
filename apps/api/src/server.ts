@@ -12,11 +12,7 @@ const app = new Application();
 
 const router = createRouter();
 
-const WEB_DIST_ROOT =
-  new URL(
-    "../../web/dist/",
-    import.meta.url,
-  ).pathname;
+const WEB_DIST_ROOT = `${Deno.cwd()}/apps/web/dist`;
 
 app.use(
   timingMiddleware,
