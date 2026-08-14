@@ -1,25 +1,14 @@
-import type {
-  ChartData,
-  ChartOptions,
-} from "chart.js";
+import type { ChartData, ChartOptions } from "chart.js";
 
-import {
-  Doughnut,
-} from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 
-import type {
-  Skill,
-} from "@domain/mod.ts";
+import type { Skill } from "@domain/mod.ts";
 
 import "./register.ts";
 
-import {
-  summarizeSkillCategories,
-} from "./skill-data.ts";
+import { summarizeSkillCategories } from "./skill-data.ts";
 
-import {
-  useChartTheme,
-} from "./use-chart-theme.ts";
+import { useChartTheme } from "./use-chart-theme.ts";
 
 interface SkillsDoughnutProps {
   skills: Skill[];
@@ -28,113 +17,88 @@ interface SkillsDoughnutProps {
 export function SkillsDoughnut({
   skills,
 }: SkillsDoughnutProps) {
-  const theme =
-    useChartTheme();
+  const theme = useChartTheme();
 
-  const categories =
-    summarizeSkillCategories(
-      skills,
-    );
+  const categories = summarizeSkillCategories(
+    skills,
+  );
 
-  const data:
-    ChartData<"doughnut"> = {
-      labels:
-        categories.map(
-          (category) =>
-            category.label,
+  const data: ChartData<"doughnut"> = {
+    labels: categories.map(
+      (category) => category.label,
+    ),
+
+    datasets: [
+      {
+        label: "Skill count",
+
+        data: categories.map(
+          (category) => category.count,
         ),
 
-      datasets: [
-        {
-          label:
-            "Skill count",
-
-          data:
-            categories.map(
-              (category) =>
-                category.count,
-            ),
-
-          backgroundColor:
-            categories.map(
-              (
-                _,
-                index,
-              ) =>
+        backgroundColor: categories.map(
+          (
+            _,
+            index,
+          ) =>
+            theme
+              .categoryColors[
+                index %
                 theme
-                  .categoryColors[
-                    index %
-                      theme
-                        .categoryColors
-                        .length
-                  ],
-            ),
+                  .categoryColors
+                  .length
+              ],
+        ),
 
-          borderColor:
-            theme.surface,
+        borderColor: theme.surface,
 
-          borderWidth:
-            4,
+        borderWidth: 4,
 
-          hoverOffset:
-            6,
+        hoverOffset: 6,
+      },
+    ],
+  };
+
+  const options: ChartOptions<"doughnut"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    cutout: "68%",
+
+    animation: {
+      duration: 500,
+    },
+
+    plugins: {
+      legend: {
+        position: "bottom",
+
+        labels: {
+          color: theme.text,
+
+          padding: 18,
+
+          usePointStyle: true,
+
+          pointStyle: "circle",
         },
-      ],
-    };
-
-  const options:
-    ChartOptions<"doughnut"> = {
-      responsive: true,
-      maintainAspectRatio:
-        false,
-
-      cutout:
-        "68%",
-
-      animation: {
-        duration:
-          500,
       },
 
-      plugins: {
-        legend: {
-          position:
-            "bottom",
+      tooltip: {
+        callbacks: {
+          label(
+            context,
+          ) {
+            const value = context.parsed;
 
-          labels: {
-            color:
-              theme.text,
+            const suffix = value === 1 ? "skill" : "skills";
 
-            padding:
-              18,
-
-            usePointStyle:
-              true,
-
-            pointStyle:
-              "circle",
-          },
-        },
-
-        tooltip: {
-          callbacks: {
-            label(
-              context,
-            ) {
-              const value =
-                context.parsed;
-
-              const suffix =
-                value === 1
-                  ? "skill"
-                  : "skills";
-
-              return `${context.label}: ${value} ${suffix}`;
-            },
+            return `${context.label}: ${value} ${suffix}`;
           },
         },
       },
-    };
+    },
+  };
 
   return (
     <div className="chart-panel">
@@ -148,8 +112,7 @@ export function SkillsDoughnut({
         </h3>
 
         <p>
-          Skill coverage grouped by
-          engineering discipline.
+          Skill coverage grouped by engineering discipline.
         </p>
       </div>
 

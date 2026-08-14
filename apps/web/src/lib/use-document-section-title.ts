@@ -1,9 +1,6 @@
-import {
-  useEffect,
-} from "react";
+import { useEffect } from "react";
 
-const SITE_NAME =
-  "Luigi Campbell";
+const SITE_NAME = "Luigi Campbell";
 
 const SECTION_TITLES = {
   home: "Home",
@@ -12,42 +9,37 @@ const SECTION_TITLES = {
   skills: "Skills",
 } as const;
 
-type SectionId =
-  keyof typeof SECTION_TITLES;
+type SectionId = keyof typeof SECTION_TITLES;
 
 export function useDocumentSectionTitle(
   enabled: boolean,
 ): void {
   useEffect(() => {
     if (!enabled) {
-      document.title =
-        SITE_NAME;
+      document.title = SITE_NAME;
 
       return;
     }
 
-    const sections =
-      Object.keys(
-        SECTION_TITLES,
+    const sections = Object.keys(
+      SECTION_TITLES,
+    )
+      .map(
+        (id) =>
+          document.getElementById(
+            id,
+          ),
       )
-        .map(
-          (id) =>
-            document.getElementById(
-              id,
-            ),
-        )
-        .filter(
-          (
-            element,
-          ): element is HTMLElement =>
-            element !== null,
-        );
+      .filter(
+        (
+          element,
+        ): element is HTMLElement => element !== null,
+      );
 
     if (
       sections.length === 0
     ) {
-      document.title =
-        `${SITE_NAME} | Home`;
+      document.title = `${SITE_NAME} | Home`;
 
       return;
     }
@@ -61,54 +53,48 @@ export function useDocumentSectionTitle(
         return;
       }
 
-      const sectionId =
-        id as SectionId;
+      const sectionId = id as SectionId;
 
-      document.title =
-        `${SITE_NAME} | ${SECTION_TITLES[sectionId]}`;
+      document.title = `${SITE_NAME} | ${SECTION_TITLES[sectionId]}`;
     };
 
-    const observer =
-      new IntersectionObserver(
-        (entries) => {
-          const visible =
-            entries
-              .filter(
-                (entry) =>
-                  entry.isIntersecting,
-              )
-              .sort(
-                (
-                  left,
-                  right,
-                ) =>
-                  right
-                    .intersectionRatio -
-                  left
-                    .intersectionRatio,
-              )[0];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter(
+            (entry) => entry.isIntersecting,
+          )
+          .sort(
+            (
+              left,
+              right,
+            ) =>
+              right
+                .intersectionRatio -
+              left
+                .intersectionRatio,
+          )[0];
 
-          if (!visible) {
-            return;
-          }
+        if (!visible) {
+          return;
+        }
 
-          setTitle(
-            visible.target.id,
-          );
-        },
-        {
-          rootMargin:
-            "-20% 0px -55% 0px",
+        setTitle(
+          visible.target.id,
+        );
+      },
+      {
+        rootMargin: "-20% 0px -55% 0px",
 
-          threshold: [
-            0,
-            0.25,
-            0.5,
-            0.75,
-            1,
-          ],
-        },
-      );
+        threshold: [
+          0,
+          0.25,
+          0.5,
+          0.75,
+          1,
+        ],
+      },
+    );
 
     for (
       const section of sections
@@ -118,21 +104,19 @@ export function useDocumentSectionTitle(
       );
     }
 
-    const handleHashChange =
-      () => {
-        const id =
-          globalThis.location.hash
-            .replace(
-              /^#/,
-              "",
-            );
+    const handleHashChange = () => {
+      const id = globalThis.location.hash
+        .replace(
+          /^#/,
+          "",
+        );
 
-        if (id) {
-          setTitle(
-            id,
-          );
-        }
-      };
+      if (id) {
+        setTitle(
+          id,
+        );
+      }
+    };
 
     globalThis.addEventListener(
       "hashchange",

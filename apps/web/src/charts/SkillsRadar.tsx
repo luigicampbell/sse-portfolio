@@ -1,25 +1,14 @@
-import type {
-  ChartData,
-  ChartOptions,
-} from "chart.js";
+import type { ChartData, ChartOptions } from "chart.js";
 
-import {
-  Radar,
-} from "react-chartjs-2";
+import { Radar } from "react-chartjs-2";
 
-import type {
-  Skill,
-} from "@domain/mod.ts";
+import type { Skill } from "@domain/mod.ts";
 
 import "./register.ts";
 
-import {
-  summarizeSkillCategories,
-} from "./skill-data.ts";
+import { summarizeSkillCategories } from "./skill-data.ts";
 
-import {
-  useChartTheme,
-} from "./use-chart-theme.ts";
+import { useChartTheme } from "./use-chart-theme.ts";
 
 interface SkillsRadarProps {
   skills: Skill[];
@@ -28,131 +17,101 @@ interface SkillsRadarProps {
 export function SkillsRadar({
   skills,
 }: SkillsRadarProps) {
-  const theme =
-    useChartTheme();
+  const theme = useChartTheme();
 
-  const categories =
-    summarizeSkillCategories(
-      skills,
-    );
+  const categories = summarizeSkillCategories(
+    skills,
+  );
 
-  const data:
-    ChartData<"radar"> = {
-      labels:
-        categories.map(
-          (category) =>
-            category.label,
+  const data: ChartData<"radar"> = {
+    labels: categories.map(
+      (category) => category.label,
+    ),
+
+    datasets: [
+      {
+        label: "Relative breadth",
+
+        data: categories.map(
+          (category) => category.breadth,
         ),
 
-      datasets: [
-        {
-          label:
-            "Relative breadth",
+        borderColor: theme.primary,
 
-          data:
-            categories.map(
-              (category) =>
-                category.breadth,
-            ),
+        backgroundColor: theme.primaryFill,
 
-          borderColor:
-            theme.primary,
+        pointBackgroundColor: theme.primary,
 
-          backgroundColor:
-            theme.primaryFill,
+        pointBorderColor: theme.surface,
 
-          pointBackgroundColor:
-            theme.primary,
+        pointHoverRadius: 6,
 
-          pointBorderColor:
-            theme.surface,
+        borderWidth: 2,
 
-          pointHoverRadius:
-            6,
-
-          borderWidth:
-            2,
-
-          fill:
-            true,
-        },
-      ],
-    };
-
-  const options:
-    ChartOptions<"radar"> = {
-      responsive:
-        true,
-
-      maintainAspectRatio:
-        false,
-
-      animation: {
-        duration:
-          500,
+        fill: true,
       },
+    ],
+  };
 
-      scales: {
-        r: {
-          beginAtZero:
-            true,
+  const options: ChartOptions<"radar"> = {
+    responsive: true,
 
-          min:
-            0,
+    maintainAspectRatio: false,
 
-          max:
-            100,
+    animation: {
+      duration: 500,
+    },
 
-          ticks: {
-            display:
-              false,
+    scales: {
+      r: {
+        beginAtZero: true,
 
-            stepSize:
-              20,
-          },
+        min: 0,
 
-          grid: {
-            color:
-              theme.grid,
-          },
+        max: 100,
 
-          angleLines: {
-            color:
-              theme.grid,
-          },
+        ticks: {
+          display: false,
 
-          pointLabels: {
-            color:
-              theme.text,
+          stepSize: 20,
+        },
 
-            font: {
-              size:
-                12,
+        grid: {
+          color: theme.grid,
+        },
 
-              weight:
-                600,
-            },
+        angleLines: {
+          color: theme.grid,
+        },
+
+        pointLabels: {
+          color: theme.text,
+
+          font: {
+            size: 12,
+
+            weight: 600,
           },
         },
       },
+    },
 
-      plugins: {
-        legend: {
-          display:
-            false,
-        },
+    plugins: {
+      legend: {
+        display: false,
+      },
 
-        tooltip: {
-          callbacks: {
-            label(
-              context,
-            ) {
-              return `${context.dataset.label}: ${context.parsed.r}/100`;
-            },
+      tooltip: {
+        callbacks: {
+          label(
+            context,
+          ) {
+            return `${context.dataset.label}: ${context.parsed.r}/100`;
           },
         },
       },
-    };
+    },
+  };
 
   return (
     <div className="chart-panel">
@@ -166,9 +125,8 @@ export function SkillsRadar({
         </h3>
 
         <p>
-          Relative breadth across the
-          skill categories represented
-          in this portfolio.
+          Relative breadth across the skill categories represented in this
+          portfolio.
         </p>
       </div>
 

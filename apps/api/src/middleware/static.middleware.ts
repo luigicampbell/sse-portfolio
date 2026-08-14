@@ -1,66 +1,62 @@
-import type {
-  Middleware,
-} from "@oak/oak/middleware";
+import type { Middleware } from "@oak/oak/middleware";
 
-const WEB_DIST_ROOT =
-  new URL(
-    "../../../web/dist/",
-    import.meta.url,
-  ).pathname;
+const WEB_DIST_ROOT = new URL(
+  "../../../web/dist/",
+  import.meta.url,
+).pathname;
 
-export const staticMiddleware:
-  Middleware = async (
-    context,
-    next,
-  ) => {
-    if (
-      context.request.method !== "GET" &&
-      context.request.method !== "HEAD"
-    ) {
-      await next();
+export const staticMiddleware: Middleware = async (
+  context,
+  next,
+) => {
+  if (
+    context.request.method !== "GET" &&
+    context.request.method !== "HEAD"
+  ) {
+    await next();
 
-      return;
+    return;
+  }
+
+  try {
+    await context.send({
+      root: WEB_DIST_ROOT,
+      index: "index.html",
+    });
+
+    return;
+  } catch (error) {
+    if (!isNotFoundError(error)) {
+      throw error;
+    }
+  }
+
+  if (
+    !isSpaNavigationRequest(
+      context.request.url.pathname,
+      context.request.headers.get(
+        "accept",
+      ),
+    )
+  ) {
+    await next();
+
+    return;
+  }
+
+  try {
+    await context.send({
+      root: WEB_DIST_ROOT,
+      path: "index.html",
+    });
+  } catch (error) {
+    if (!isNotFoundError(error)) {
+      throw error;
     }
 
-    try {
-      await context.send({
-        root: WEB_DIST_ROOT,
-        index: "index.html",
-      });
-
-      return;
-    } catch (error) {
-      if (!isNotFoundError(error)) {
-        throw error;
-      }
-    }
-
-    if (
-      !isSpaNavigationRequest(
-        context.request.url.pathname,
-        context.request.headers.get(
-          "accept",
-        ),
-      )
-    ) {
-      await next();
-
-      return;
-    }
-
-    try {
-      await context.send({
-        root: WEB_DIST_ROOT,
-        path: "index.html",
-      });
-    } catch (error) {
-      if (!isNotFoundError(error)) {
-        throw error;
-      }
-
-      await next();
-    }
-  };
+    await next();
+  }
+};
 
 function isSpaNavigationRequest(
   pathname: string,
