@@ -1,6 +1,10 @@
 import type { Middleware } from "@oak/oak/middleware";
 
-const WEB_DIST_ROOT = `${Deno.cwd()}/apps/web/dist`;
+const WEB_DIST_ROOT =
+  new URL(
+    "../../../web/dist/",
+    import.meta.url,
+  ).pathname;
 
 export const staticMiddleware: Middleware = async (
   context,
