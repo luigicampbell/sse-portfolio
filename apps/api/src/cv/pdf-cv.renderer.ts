@@ -215,13 +215,11 @@ function renderProjects(
 
 function renderSkills(
   layout: PdfLayout,
-  portfolio:
-    PortfolioPageResponse,
+  portfolio: PortfolioPageResponse,
 ): void {
-  const groupedSkills =
-    groupSkillsByCategory(
-      portfolio.skills.items,
-    );
+  const groupedSkills = groupSkillsByCategory(
+    portfolio.skills.items,
+  );
 
   if (
     groupedSkills.size === 0
@@ -234,13 +232,11 @@ function renderSkills(
   );
 
   for (
-    const category
-      of SKILL_CATEGORIES
+    const category of SKILL_CATEGORIES
   ) {
-    const skills =
-      groupedSkills.get(
-        category,
-      );
+    const skills = groupedSkills.get(
+      category,
+    );
 
     if (!skills?.length) {
       continue;
@@ -255,49 +251,40 @@ function renderSkills(
         category
       ],
       {
-        font:
-          layout.fonts.bold,
+        font: layout.fonts.bold,
 
-        size:
-          9.5,
+        size: 9.5,
 
-        lineHeight:
-          14,
+        lineHeight: 14,
 
-        gapAfter:
-          2,
+        gapAfter: 2,
       },
     );
 
-    const directSkills =
-      skills.filter(
-        (skill) =>
-          skill.subcategory ===
-            undefined,
-      );
+    const directSkills = skills.filter(
+      (skill) =>
+        skill.subcategory ===
+          undefined,
+    );
 
     if (
       directSkills.length > 0
     ) {
       layout.drawChipGroup(
         directSkills.map(
-          (skill) =>
-            skill.label,
+          (skill) => skill.label,
         ),
         {
-          size:
-            8.5,
+          size: 8.5,
 
-          gapAfter:
-            8,
+          gapAfter: 8,
         },
       );
     }
 
-    const subgroups =
-      groupSkillsBySubcategory(
-        skills,
-      );
+    const subgroups = groupSkillsBySubcategory(
+      skills,
+    );
 
     for (
       const [
@@ -310,31 +297,24 @@ function renderSkills(
           subcategory
         ],
         {
-          size:
-            8.5,
+          size: 8.5,
 
-          lineHeight:
-            12,
+          lineHeight: 12,
 
-          color:
-            PDF_MUTED_COLOR,
+          color: PDF_MUTED_COLOR,
 
-          gapAfter:
-            2,
+          gapAfter: 2,
         },
       );
 
       layout.drawChipGroup(
         subgroupSkills.map(
-          (skill) =>
-            skill.label,
+          (skill) => skill.label,
         ),
         {
-          size:
-            8.5,
+          size: 8.5,
 
-          gapAfter:
-            6,
+          gapAfter: 6,
         },
       );
     }
@@ -512,21 +492,19 @@ function groupSkillsBySubcategory(
   SkillSubcategory,
   Skill[]
 > {
-  const grouped =
-    new Map<
-      SkillSubcategory,
-      Skill[]
-    >();
+  const grouped = new Map<
+    SkillSubcategory,
+    Skill[]
+  >();
 
   for (const skill of skills) {
     if (!skill.subcategory) {
       continue;
     }
 
-    const existing =
-      grouped.get(
-        skill.subcategory,
-      );
+    const existing = grouped.get(
+      skill.subcategory,
+    );
 
     if (existing) {
       existing.push(

@@ -97,11 +97,11 @@
     1px
     solid
     color-mix(
-      in srgb,
-      var(--skill-chip-color)
-        var(--skill-chip-border-strength),
-      transparent
-    );
+    in srgb,
+    var(--skill-chip-color)
+    var(--skill-chip-border-strength),
+    transparent
+  );
 
   border-radius:
     var(--radius-pill);
@@ -110,11 +110,11 @@
 
   background:
     color-mix(
-      in srgb,
-      var(--skill-chip-color)
-        var(--skill-chip-fill-strength),
-      transparent
-    );
+    in srgb,
+    var(--skill-chip-color)
+    var(--skill-chip-fill-strength),
+    transparent
+  );
 
   color:
     var(--skill-chip-color);
@@ -133,21 +133,21 @@
 
   transition:
     background
-      var(--duration-fast)
-      var(--ease-standard),
+    var(--duration-fast)
+    var(--ease-standard),
     border-color
-      var(--duration-fast)
-      var(--ease-standard);
+    var(--duration-fast)
+    var(--ease-standard);
 }
 
 .skill-chip:hover {
   background:
     color-mix(
-      in srgb,
-      var(--skill-chip-color)
-        var(--skill-chip-fill-hover-strength),
-      transparent
-    );
+    in srgb,
+    var(--skill-chip-color)
+    var(--skill-chip-fill-hover-strength),
+    transparent
+  );
 }
 
 .skills__empty {
@@ -208,9 +208,9 @@
   .skills__groups {
     grid-template-columns:
       repeat(
-        2,
-        minmax(0, 1fr)
-      );
+      2,
+      minmax(0, 1fr)
+    );
   }
 }
 
@@ -218,9 +218,9 @@
   .skills__groups {
     grid-template-columns:
       repeat(
-        3,
-        minmax(0, 1fr)
-      );
+      3,
+      minmax(0, 1fr)
+    );
   }
 }
 
@@ -228,17 +228,17 @@
   .skill-chip:hover {
     background:
       color-mix(
-        in srgb,
-        var(--skill-chip-color)
-          var(--skill-chip-fill-strength),
-        transparent
-      );
+      in srgb,
+      var(--skill-chip-color)
+      var(--skill-chip-fill-strength),
+      transparent
+    );
   }
 }
 
 @media (
   prefers-reduced-motion:
-    reduce
+  reduce
 ) {
   .skill-chip {
     transition: none;

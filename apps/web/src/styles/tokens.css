@@ -147,7 +147,7 @@
   --glass-border: rgba(255, 255, 255, 0.65);
   --glass-blur: 20px;
 
-    /* Skill category semantics */
+  /* Skill category semantics */
   --color-skill-languages:
     var(--color-chart-teal);
 

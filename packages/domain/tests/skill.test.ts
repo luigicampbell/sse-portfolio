@@ -43,12 +43,8 @@ Deno.test(
       throw new Error(
         [
           "Unexpected engineering subcategories.",
-          `Expected: ${
-            JSON.stringify(expected)
-          }`,
-          `Actual: ${
-            JSON.stringify(actual)
-          }`,
+          `Expected: ${JSON.stringify(expected)}`,
+          `Actual: ${JSON.stringify(actual)}`,
         ].join("\n"),
       );
     }
@@ -75,12 +71,8 @@ Deno.test(
       throw new Error(
         [
           "Unexpected cloud subcategories.",
-          `Expected: ${
-            JSON.stringify(expected)
-          }`,
-          `Actual: ${
-            JSON.stringify(actual)
-          }`,
+          `Expected: ${JSON.stringify(expected)}`,
+          `Actual: ${JSON.stringify(actual)}`,
         ].join("\n"),
       );
     }

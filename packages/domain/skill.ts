@@ -1,6 +1,4 @@
-import type {
-  OrderedMetadata,
-} from "./metadata.ts";
+import type { OrderedMetadata } from "./metadata.ts";
 
 export const SKILL_CATEGORIES = [
   "languages",
@@ -14,41 +12,30 @@ export const SKILL_CATEGORIES = [
   "dev-ops",
 ] as const;
 
-export type SkillCategory =
-  typeof SKILL_CATEGORIES[number];
+export type SkillCategory = typeof SKILL_CATEGORIES[number];
 
-export const SKILL_CATEGORY_LABELS:
-  Record<
-    SkillCategory,
-    string
-  > = {
-    languages:
-      "Languages",
+export const SKILL_CATEGORY_LABELS: Record<
+  SkillCategory,
+  string
+> = {
+  languages: "Languages",
 
-    frontend:
-      "Frontend",
+  frontend: "Frontend",
 
-    backend:
-      "Backend",
+  backend: "Backend",
 
-    data:
-      "Data",
+  data: "Data",
 
-    engineering:
-      "Software Engineering",
+  engineering: "Software Engineering",
 
-    cloud:
-      "Cloud",
+  cloud: "Cloud",
 
-    salesforce:
-      "Salesforce",
+  salesforce: "Salesforce",
 
-    leadership:
-      "Leadership",
+  leadership: "Leadership",
 
-    "dev-ops":
-      "DevOps",
-  };
+  "dev-ops": "DevOps",
+};
 
 export const SKILL_SUBCATEGORIES = {
   engineering: [
@@ -66,51 +53,37 @@ export const SKILL_SUBCATEGORIES = {
   ],
 } as const;
 
-type SkillSubcategoryMap =
-  typeof SKILL_SUBCATEGORIES;
+type SkillSubcategoryMap = typeof SKILL_SUBCATEGORIES;
 
-export type SkillSubcategory =
-  SkillSubcategoryMap[
-    keyof SkillSubcategoryMap
-  ][number];
+export type SkillSubcategory = SkillSubcategoryMap[
+  keyof SkillSubcategoryMap
+][number];
 
-export const SKILL_SUBCATEGORY_LABELS:
-  Record<
-    SkillSubcategory,
-    string
-  > = {
-    architecture:
-      "Architecture",
+export const SKILL_SUBCATEGORY_LABELS: Record<
+  SkillSubcategory,
+  string
+> = {
+  architecture: "Architecture",
 
-    principles:
-      "Principles & Practices",
+  principles: "Principles & Practices",
 
-    algorithms:
-      "Algorithms & Structures",
+  algorithms: "Algorithms & Structures",
 
-    data:
-      "Data Engineering",
+  data: "Data Engineering",
 
-    testing:
-      "Testing & Quality",
+  testing: "Testing & Quality",
 
-    platforms:
-      "Platforms",
+  platforms: "Platforms",
 
-    compute:
-      "Compute",
+  compute: "Compute",
 
-    "containers-orchestration":
-      "Containers & Orchestration",
-  };
+  "containers-orchestration": "Containers & Orchestration",
+};
 
-export interface Skill
-  extends OrderedMetadata {
+export interface Skill extends OrderedMetadata {
   label: string;
 
-  category:
-    SkillCategory;
+  category: SkillCategory;
 
-  subcategory?:
-    SkillSubcategory;
+  subcategory?: SkillSubcategory;
 }

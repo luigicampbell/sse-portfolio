@@ -4,11 +4,7 @@ import {
   SKILL_SUBCATEGORY_LABELS,
 } from "@domain/mod.ts";
 
-import type {
-  Skill,
-  SkillCategory,
-  SkillSubcategory,
-} from "@domain/mod.ts";
+import type { Skill, SkillCategory, SkillSubcategory } from "@domain/mod.ts";
 
 import "./Skills.css";
 
@@ -19,10 +15,9 @@ interface SkillsProps {
 export default function Skills({
   skills,
 }: SkillsProps) {
-  const groupedSkills =
-    groupSkillsByCategory(
-      skills,
-    );
+  const groupedSkills = groupSkillsByCategory(
+    skills,
+  );
 
   return (
     <section
@@ -39,11 +34,8 @@ export default function Skills({
         </h2>
 
         <p className="skills__description">
-          Technologies, disciplines,
-          and responsibilities I use
-          to design, build, and
-          deliver maintainable
-          software.
+          Technologies, disciplines, and responsibilities I use to design,
+          build, and deliver maintainable software.
         </p>
       </div>
 
@@ -52,10 +44,9 @@ export default function Skills({
           <div className="skills__groups">
             {SKILL_CATEGORIES.map(
               (category) => {
-                const categorySkills =
-                  groupedSkills.get(
-                    category,
-                  );
+                const categorySkills = groupedSkills.get(
+                  category,
+                );
 
                 if (
                   !categorySkills
@@ -67,12 +58,8 @@ export default function Skills({
                 return (
                   <SkillGroup
                     key={category}
-                    category={
-                      category
-                    }
-                    skills={
-                      categorySkills
-                    }
+                    category={category}
+                    skills={categorySkills}
                   />
                 );
               },
@@ -89,43 +76,35 @@ export default function Skills({
 }
 
 interface SkillGroupProps {
-  category:
-    SkillCategory;
+  category: SkillCategory;
 
-  skills:
-    Skill[];
+  skills: Skill[];
 }
 
 function SkillGroup({
   category,
   skills,
 }: SkillGroupProps) {
-  const categoryLabel =
-    SKILL_CATEGORY_LABELS[
-      category
-    ];
+  const categoryLabel = SKILL_CATEGORY_LABELS[
+    category
+  ];
 
-  const headingId =
-    `skills-${category}`;
+  const headingId = `skills-${category}`;
 
-  const directSkills =
-    skills.filter(
-      (skill) =>
-        skill.subcategory ===
-          undefined,
-    );
+  const directSkills = skills.filter(
+    (skill) =>
+      skill.subcategory ===
+        undefined,
+  );
 
-  const subgroups =
-    groupSkillsBySubcategory(
-      skills,
-    );
+  const subgroups = groupSkillsBySubcategory(
+    skills,
+  );
 
   return (
     <div
       className="skill-group"
-      aria-labelledby={
-        headingId
-      }
+      aria-labelledby={headingId}
     >
       <h3
         id={headingId}
@@ -137,15 +116,9 @@ function SkillGroup({
       {directSkills.length > 0 &&
         (
           <SkillChipList
-            category={
-              category
-            }
-            label={
-              `${categoryLabel} skills`
-            }
-            skills={
-              directSkills
-            }
+            category={category}
+            label={`${categoryLabel} skills`}
+            skills={directSkills}
           />
         )}
 
@@ -162,30 +135,22 @@ function SkillGroup({
               ]) => (
                 <div
                   className="skill-subgroup"
-                  key={
-                    subcategory
-                  }
+                  key={subcategory}
                 >
                   <h4 className="skill-subgroup__title">
-                    {
-                      SKILL_SUBCATEGORY_LABELS[
-                        subcategory
-                      ]
-                    }
+                    {SKILL_SUBCATEGORY_LABELS[
+                      subcategory
+                    ]}
                   </h4>
 
                   <SkillChipList
-                    category={
-                      category
-                    }
+                    category={category}
                     label={`${
                       SKILL_SUBCATEGORY_LABELS[
                         subcategory
                       ]
                     } skills`}
-                    skills={
-                      subgroupSkills
-                    }
+                    skills={subgroupSkills}
                   />
                 </div>
               ),
@@ -197,14 +162,11 @@ function SkillGroup({
 }
 
 interface SkillChipListProps {
-  category:
-    SkillCategory;
+  category: SkillCategory;
 
-  label:
-    string;
+  label: string;
 
-  skills:
-    Skill[];
+  skills: Skill[];
 }
 
 function SkillChipList({
@@ -221,9 +183,7 @@ function SkillChipList({
         (skill) => (
           <li
             key={skill.id}
-            className={
-              `skill-chip skill-chip--${category}`
-            }
+            className={`skill-chip skill-chip--${category}`}
           >
             {skill.label}
           </li>
@@ -239,17 +199,15 @@ function groupSkillsByCategory(
   SkillCategory,
   Skill[]
 > {
-  const grouped =
-    new Map<
-      SkillCategory,
-      Skill[]
-    >();
+  const grouped = new Map<
+    SkillCategory,
+    Skill[]
+  >();
 
   for (const skill of skills) {
-    const categorySkills =
-      grouped.get(
-        skill.category,
-      );
+    const categorySkills = grouped.get(
+      skill.category,
+    );
 
     if (categorySkills) {
       categorySkills.push(
@@ -276,21 +234,19 @@ function groupSkillsBySubcategory(
   SkillSubcategory,
   Skill[]
 > {
-  const grouped =
-    new Map<
-      SkillSubcategory,
-      Skill[]
-    >();
+  const grouped = new Map<
+    SkillSubcategory,
+    Skill[]
+  >();
 
   for (const skill of skills) {
     if (!skill.subcategory) {
       continue;
     }
 
-    const subgroupSkills =
-      grouped.get(
-        skill.subcategory,
-      );
+    const subgroupSkills = grouped.get(
+      skill.subcategory,
+    );
 
     if (subgroupSkills) {
       subgroupSkills.push(

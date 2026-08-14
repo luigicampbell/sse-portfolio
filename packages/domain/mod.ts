@@ -16,11 +16,7 @@ export {
   SKILL_SUBCATEGORY_LABELS,
 } from "./skill.ts";
 
-export type {
-  Skill,
-  SkillCategory,
-  SkillSubcategory,
-} from "./skill.ts";
+export type { Skill, SkillCategory, SkillSubcategory } from "./skill.ts";
 
 export type { Experience } from "./experience.ts";
 

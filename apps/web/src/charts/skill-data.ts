@@ -1,33 +1,24 @@
-import {
-  SKILL_CATEGORY_LABELS,
-} from "@domain/mod.ts";
+import { SKILL_CATEGORY_LABELS } from "@domain/mod.ts";
 
-import type {
-  Skill,
-} from "@domain/mod.ts";
+import type { Skill } from "@domain/mod.ts";
 
 export interface SkillCategorySummary {
-  category:
-    Skill["category"];
+  category: Skill["category"];
 
-  label:
-    string;
+  label: string;
 
-  count:
-    number;
+  count: number;
 
-  breadth:
-    number;
+  breadth: number;
 }
 
 export function summarizeSkillCategories(
   skills: Skill[],
 ): SkillCategorySummary[] {
-  const counts =
-    new Map<
-      Skill["category"],
-      number
-    >();
+  const counts = new Map<
+    Skill["category"],
+    number
+  >();
 
   for (const skill of skills) {
     counts.set(
@@ -40,52 +31,47 @@ export function summarizeSkillCategories(
     );
   }
 
-  const summaries =
-    [...counts.entries()]
-      .map(
-        ([
-          category,
-          count,
-        ]) => ({
-          category,
+  const summaries = [...counts.entries()]
+    .map(
+      ([
+        category,
+        count,
+      ]) => ({
+        category,
 
-          label:
-            SKILL_CATEGORY_LABELS[
-              category
-            ],
+        label: SKILL_CATEGORY_LABELS[
+          category
+        ],
 
-          count,
-        }),
-      )
-      .sort(
-        (
-          left,
-          right,
-        ) =>
-          right.count -
-          left.count,
-      );
-
-  const maximumCount =
-    Math.max(
-      ...summaries.map(
-        (summary) =>
-          summary.count,
-      ),
-      1,
+        count,
+      }),
+    )
+    .sort(
+      (
+        left,
+        right,
+      ) =>
+        right.count -
+        left.count,
     );
+
+  const maximumCount = Math.max(
+    ...summaries.map(
+      (summary) => summary.count,
+    ),
+    1,
+  );
 
   return summaries.map(
     (summary) => ({
       ...summary,
 
-      breadth:
-        Math.round(
-          (
-            summary.count /
-            maximumCount
-          ) * 100,
-        ),
+      breadth: Math.round(
+        (
+          summary.count /
+          maximumCount
+        ) * 100,
+      ),
     }),
   );
 }
