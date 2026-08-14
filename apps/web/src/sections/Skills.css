@@ -114,6 +114,12 @@
   border-color: rgb(249 168 212 / 28%);
 }
 
+.skill-chip--engineering {
+  color: #f8f8f8;
+  background: rgb(178, 34, 34/ 18%);
+  border-color: rgb(120, 6, 6 / 28%);
+}
+
 .skill-chip--cloud {
   color: #fdba74;
   background: rgb(154 52 18 / 18%);
@@ -130,6 +136,12 @@
   color: #fde68a;
   background: rgb(133 77 14 / 18%);
   border-color: rgb(253 230 138 / 30%);
+}
+
+.skill-chip--dev-ops {
+  color: #f1f0ef;
+  background: rgb(75, 0, 130);
+  border-color: rgb(109, 90, 207/ 30%);
 }
 
 @media (min-width: 42rem) {
