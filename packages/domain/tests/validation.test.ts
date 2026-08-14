@@ -1,6 +1,13 @@
-import { assertValidMetadata, ValidationError } from "../validation.ts";
+import {
+  assertValidMetadata,
+  assertValidOrderedMetadata,
+  ValidationError,
+} from "../validation.ts";
 
-import { VALID_METADATA } from "./fixtures/metadata.mock.ts";
+import {
+  VALID_METADATA,
+  VALID_ORDERED_METADATA,
+} from "./fixtures/metadata.mock.ts";
 
 Deno.test(
   "assertValidMetadata accepts valid metadata",
@@ -76,6 +83,72 @@ Deno.test(
           "metadata",
         ),
       "metadata.tags must be an array of strings when provided.",
+    );
+  },
+);
+
+Deno.test(
+  "assertValidOrderedMetadata accepts valid ordered metadata",
+  () => {
+    assertValidOrderedMetadata(
+      VALID_ORDERED_METADATA,
+    );
+  },
+);
+
+Deno.test(
+  "assertValidOrderedMetadata rejects metadata without order",
+  () => {
+    const {
+      order: _order,
+      ...value
+    } = VALID_ORDERED_METADATA;
+
+    assertValidationError(
+      () =>
+        assertValidOrderedMetadata(
+          value,
+          "metadata",
+        ),
+      "metadata.order must be a finite number.",
+    );
+  },
+);
+
+Deno.test(
+  "assertValidOrderedMetadata rejects non-numeric order",
+  () => {
+    const value = {
+      ...VALID_ORDERED_METADATA,
+      order: "first",
+    };
+
+    assertValidationError(
+      () =>
+        assertValidOrderedMetadata(
+          value,
+          "metadata",
+        ),
+      "metadata.order must be a finite number.",
+    );
+  },
+);
+
+Deno.test(
+  "assertValidOrderedMetadata rejects non-finite order",
+  () => {
+    const value = {
+      ...VALID_ORDERED_METADATA,
+      order: Number.NaN,
+    };
+
+    assertValidationError(
+      () =>
+        assertValidOrderedMetadata(
+          value,
+          "metadata",
+        ),
+      "metadata.order must be a finite number.",
     );
   },
 );

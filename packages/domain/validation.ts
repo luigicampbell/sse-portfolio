@@ -1,4 +1,4 @@
-import type { Metadata } from "./metadata.ts";
+import type { Metadata, OrderedMetadata } from "./metadata.ts";
 import type { Profile } from "./profile.ts";
 import type { SeedManifest } from "./seed-manifest.ts";
 
@@ -120,6 +120,51 @@ export function hasValidMetadata(
 ): value is Metadata {
   try {
     assertValidMetadata(
+      value,
+    );
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function assertValidOrderedMetadata(
+  value: unknown,
+  path = "metadata",
+): asserts value is OrderedMetadata {
+  if (!isRecord(value)) {
+    throw new ValidationError(
+      `${path} must be an object.`,
+    );
+  }
+
+  const {
+    order,
+  } = value;
+
+  assertValidMetadata(
+    value,
+    path,
+  );
+
+  if (
+    typeof order !== "number" ||
+    !Number.isFinite(
+      order,
+    )
+  ) {
+    throw new ValidationError(
+      `${path}.order must be a finite number.`,
+    );
+  }
+}
+
+export function hasValidOrderedMetadata(
+  value: unknown,
+): value is OrderedMetadata {
+  try {
+    assertValidOrderedMetadata(
       value,
     );
 
