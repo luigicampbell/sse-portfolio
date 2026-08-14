@@ -96,14 +96,14 @@ export function assertValidMetadata(
     );
   }
 
-  if (
-    typeof featured !==
-      "boolean"
-  ) {
-    throw new ValidationError(
-      `${path}.featured must be a boolean.`,
-    );
-  }
+if (
+  featured !== undefined &&
+  typeof featured !== "boolean"
+) {
+  throw new ValidationError(
+    `${path}.featured must be a boolean when provided.`,
+  );
+}
 
   if (
     tags !== undefined &&

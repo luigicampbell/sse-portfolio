@@ -38,20 +38,16 @@ Deno.test(
 );
 
 Deno.test(
-  "assertValidMetadata rejects metadata without featured",
+  "assertValidMetadata accepts metadata without featured",
   () => {
     const {
       featured: _featured,
       ...value
     } = VALID_METADATA;
 
-    assertValidationError(
-      () =>
-        assertValidMetadata(
-          value,
-          "metadata",
-        ),
-      "metadata.featured must be a boolean.",
+    assertValidMetadata(
+      value,
+      "metadata",
     );
   },
 );

@@ -3,7 +3,7 @@ export interface Metadata {
   createdAt: string;
   updatedAt: string;
   published: boolean;
-  featured: boolean;
+  featured?: boolean;
   tags?: string[];
 }
 

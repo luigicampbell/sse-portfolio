@@ -13,9 +13,11 @@ const SKILL_CATEGORY_ORDER: readonly SkillCategory[] = [
   "backend",
   "frontend",
   "data",
+  "engineering",
   "cloud",
   "salesforce",
   "leadership",
+  "dev-ops",
 ];
 
 export class PdfCvRenderer implements CvRenderer {

@@ -5,6 +5,7 @@ export const SKILL_CATEGORIES = [
   "backend",
   "frontend",
   "data",
+  "engineering",
   "cloud",
   "salesforce",
   "leadership",
