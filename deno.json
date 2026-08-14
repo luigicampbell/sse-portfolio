@@ -69,18 +69,19 @@
     "seed": "deno run --env-file=.env --allow-env --allow-read --allow-write apps/api/scripts/seed/seed.ts",
     "history:check": "deno run --allow-read --allow-run apps/api/scripts/history/replay-history.ts",
     "history:apply": "deno run --allow-read --allow-run apps/api/scripts/history/replay-history.ts --apply",
+    "test": "deno test --allow-env --allow-read --allow-write apps packages",
     "test:api": "deno test --allow-env --allow-read --allow-write apps/api/tests",
     "test:cv": "deno test --allow-read --allow-write apps/api/tests/cv.routes.test.ts",
     "test:health": "deno test --allow-env --allow-read --allow-write apps/api/tests/health.routes.test.ts",
-    "test:middleware": "deno test --allow-env --allow-read --allow-write apps/api/tests/health.routes.test.ts",
+    "test:middleware": "deno test --allow-env --allow-read --allow-write apps/api/tests/middleware.test.ts",
     "test:portfolio": "deno test --allow-read --allow-write apps/api/tests/portfolio.routes.test.ts",
     "test:seed-push": "deno test --allow-env apps/api/tests/seed.push.test.ts",
     "test:seed-routes": "deno test --allow-env apps/api/tests/seed.routes.test.ts",
-    "test:seed-service": "deno test --allow-env --allow-write --allow-read apps/api/tests/seed.service.test.ts",
+    "test:seed-service": "deno test --allow-env --allow-read --allow-write apps/api/tests/seed.service.test.ts",
     "test:sitemap": "deno test --allow-env --allow-read --allow-write apps/api/tests/sitemap.routes.test.ts",
-    "build:web": "deno run --env-file=.env -A npm:vite build --config apps/web/vite.config.ts",
-    "check": "deno check apps/api/src/server.ts apps/api/scripts/seed.ts apps/web/src/main.tsx apps/web/vite.config.ts",
+    "build:web": "deno run -A npm:vite build --config apps/web/vite.config.ts",
+    "check": "deno check apps/api/src/server.ts apps/api/scripts/seed/seed.ts apps/api/scripts/seed/seed.push.ts apps/web/src/main.tsx apps/web/vite.config.ts",
     "fmt": "deno fmt apps packages content",
-    "verify": "deno fmt apps packages content --check && deno lint && deno task check"
+    "verify": "deno fmt apps packages content --check && deno lint && deno task check && deno task test"
   }
 }
