@@ -17,6 +17,13 @@ type LoadState =
   | { status: "ready"; data: PortfolioPageResponse }
   | { status: "error"; message: string };
 
+const SkillsCharts = lazy(
+  () =>
+    import(
+      "./charts/SkillsCharts.tsx"
+    ),
+);
+
 export function App() {
   const [state, setState] = useState<LoadState>({
     status: "loading",
@@ -99,7 +106,17 @@ export function App() {
       <Suspense
         fallback={<AppSkeleton label="Loading skills" />}
       >
-        <Skills skills={data.skills.items} />
+        <Suspense
+          fallback={<AppSkeleton label="Loading skills" />}
+        >
+          <Skills
+            skills={data.skills.items}
+          />
+
+          <SkillsCharts
+            skills={data.skills.items}
+          />
+        </Suspense>
       </Suspense>
     </AppShell>
   );

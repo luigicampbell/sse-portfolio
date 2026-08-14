@@ -61,6 +61,7 @@ export function SkillsDoughnut({
 
   const options: ChartOptions<"doughnut"> = {
     responsive: true,
+
     maintainAspectRatio: false,
 
     cutout: "68%",
