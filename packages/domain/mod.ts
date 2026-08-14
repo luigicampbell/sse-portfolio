@@ -9,9 +9,18 @@ export type {
 
 export type { Project, ProjectLink } from "./project.ts";
 
-export { SKILL_CATEGORIES } from "./skill.ts";
+export {
+  SKILL_CATEGORIES,
+  SKILL_CATEGORY_LABELS,
+  SKILL_SUBCATEGORIES,
+  SKILL_SUBCATEGORY_LABELS,
+} from "./skill.ts";
 
-export type { Skill, SkillCategory } from "./skill.ts";
+export type {
+  Skill,
+  SkillCategory,
+  SkillSubcategory,
+} from "./skill.ts";
 
 export type { Experience } from "./experience.ts";
 
