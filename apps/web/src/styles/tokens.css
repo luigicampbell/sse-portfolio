@@ -147,6 +147,43 @@
   --glass-border: rgba(255, 255, 255, 0.65);
   --glass-blur: 20px;
 
+    /* Skill category semantics */
+  --color-skill-languages:
+    var(--color-chart-teal);
+
+  --color-skill-frontend:
+    var(--color-chart-green);
+
+  --color-skill-backend:
+    var(--color-chart-purple);
+
+  --color-skill-data:
+    var(--color-chart-pink);
+
+  --color-skill-engineering:
+    var(--color-danger);
+
+  --color-skill-cloud:
+    var(--color-chart-orange);
+
+  --color-skill-salesforce:
+    var(--color-chart-primary);
+
+  --color-skill-leadership:
+    var(--color-warning);
+
+  --color-skill-dev-ops:
+    var(--color-chart-purple);
+
+  --skill-chip-fill-strength:
+    14%;
+
+  --skill-chip-fill-hover-strength:
+    20%;
+
+  --skill-chip-border-strength:
+    32%;
+
   /* Chart semantic colors */
   --color-chart-text: var(--color-text);
   --color-chart-text-secondary: var(--color-text-secondary);

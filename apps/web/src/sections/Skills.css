@@ -11,7 +11,7 @@
 
 .skills__heading {
   display: flex;
-  max-width: 44rem;
+  max-width: var(--content-width);
   flex-direction: column;
   gap: var(--space-2);
 }
@@ -21,7 +21,7 @@
   color: var(--color-accent);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
 }
 
@@ -55,6 +55,25 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.skill-group__subgroups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.skill-subgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skill-subgroup__title {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
 .skill-group__chips {
   display: flex;
   padding: 0;
@@ -65,24 +84,70 @@
 }
 
 .skill-chip {
+  --skill-chip-color:
+    var(--color-accent);
+
   display: inline-flex;
-  min-height: 2rem;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
+  min-height: var(--space-8);
+  padding:
+    var(--space-2)
+    var(--space-3);
+
+  border:
+    1px
+    solid
+    color-mix(
+      in srgb,
+      var(--skill-chip-color)
+        var(--skill-chip-border-strength),
+      transparent
+    );
+
+  border-radius:
+    var(--radius-pill);
+
   align-items: center;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--skill-chip-color)
+        var(--skill-chip-fill-strength),
+      transparent
+    );
+
+  color:
+    var(--skill-chip-color);
+
+  font-family:
+    var(--font-family-mono);
+
+  font-size:
+    var(--font-size-xs);
+
+  font-weight:
+    var(--font-weight-semibold);
+
+  line-height:
+    var(--line-height-tight);
+
   transition:
-    transform var(--duration-fast) var(--ease-standard),
-    filter var(--duration-fast) var(--ease-standard);
+    background
+      var(--duration-fast)
+      var(--ease-standard),
+    border-color
+      var(--duration-fast)
+      var(--ease-standard);
 }
 
 .skill-chip:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+  background:
+    color-mix(
+      in srgb,
+      var(--skill-chip-color)
+        var(--skill-chip-fill-hover-strength),
+      transparent
+    );
 }
 
 .skills__empty {
@@ -91,57 +156,48 @@
 }
 
 .skill-chip--languages {
-  color: #7dd3fc;
-  background: rgb(14 116 144 / 18%);
-  border-color: rgb(125 211 252 / 28%);
+  --skill-chip-color:
+    var(--color-skill-languages);
 }
 
 .skill-chip--frontend {
-  color: #86efac;
-  background: rgb(22 101 52 / 18%);
-  border-color: rgb(134 239 172 / 28%);
+  --skill-chip-color:
+    var(--color-skill-frontend);
 }
 
 .skill-chip--backend {
-  color: #c4b5fd;
-  background: rgb(91 33 182 / 18%);
-  border-color: rgb(196 181 253 / 28%);
+  --skill-chip-color:
+    var(--color-skill-backend);
 }
 
 .skill-chip--data {
-  color: #f9a8d4;
-  background: rgb(157 23 77 / 18%);
-  border-color: rgb(249 168 212 / 28%);
+  --skill-chip-color:
+    var(--color-skill-data);
 }
 
 .skill-chip--engineering {
-  color: #f8f8f8;
-  background: rgb(178, 34, 34/ 18%);
-  border-color: rgb(120, 6, 6 / 28%);
+  --skill-chip-color:
+    var(--color-skill-engineering);
 }
 
 .skill-chip--cloud {
-  color: #fdba74;
-  background: rgb(154 52 18 / 18%);
-  border-color: rgb(253 186 116 / 28%);
+  --skill-chip-color:
+    var(--color-skill-cloud);
 }
 
 .skill-chip--salesforce {
-  color: #7dd3fc;
-  background: rgb(3 105 161 / 22%);
-  border-color: rgb(56 189 248 / 32%);
+  --skill-chip-color:
+    var(--color-skill-salesforce);
 }
 
 .skill-chip--leadership {
-  color: #fde68a;
-  background: rgb(133 77 14 / 18%);
-  border-color: rgb(253 230 138 / 30%);
+  --skill-chip-color:
+    var(--color-skill-leadership);
 }
 
 .skill-chip--dev-ops {
-  color: #f1f0ef;
-  background: rgb(75, 0, 130);
-  border-color: rgb(109, 90, 207/ 30%);
+  --skill-chip-color:
+    var(--color-skill-dev-ops);
 }
 
 @media (min-width: 42rem) {
@@ -150,30 +206,41 @@
   }
 
   .skills__groups {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
   }
 }
 
 @media (min-width: 64rem) {
   .skills__groups {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
   }
 }
 
 @media (hover: none) {
   .skill-chip:hover {
-    border-color: var(--color-border);
-    background: var(--color-surface);
-    transform: none;
+    background:
+      color-mix(
+        in srgb,
+        var(--skill-chip-color)
+          var(--skill-chip-fill-strength),
+        transparent
+      );
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (
+  prefers-reduced-motion:
+    reduce
+) {
   .skill-chip {
     transition: none;
-  }
-
-  .skill-chip:hover {
-    transform: none;
   }
 }
