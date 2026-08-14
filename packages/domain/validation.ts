@@ -33,6 +33,8 @@ export function assertValidMetadata(
     id,
     createdAt,
     updatedAt,
+    published,
+    featured,
     tags,
   } = value;
 
@@ -86,11 +88,29 @@ export function assertValidMetadata(
   }
 
   if (
+    typeof published !==
+      "boolean"
+  ) {
+    throw new ValidationError(
+      `${path}.published must be a boolean.`,
+    );
+  }
+
+  if (
+    typeof featured !==
+      "boolean"
+  ) {
+    throw new ValidationError(
+      `${path}.featured must be a boolean.`,
+    );
+  }
+
+  if (
     tags !== undefined &&
     !isStringArray(tags)
   ) {
     throw new ValidationError(
-      `${path}.tags must be an array of strings, when provided.`,
+      `${path}.tags must be an array of strings when provided.`,
     );
   }
 }
