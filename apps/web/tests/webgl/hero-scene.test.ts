@@ -1,5 +1,6 @@
 import {
   calculatePixelRatio,
+  normalizePointer,
   shouldRenderHeroScene,
 } from "../../src/webgl/hero-scene.ts";
 
@@ -72,6 +73,56 @@ Deno.test(
     if (!actual) {
       throw new Error(
         "Expected hero scene to be enabled.",
+      );
+    }
+  },
+);
+
+Deno.test(
+  "normalizePointer maps the center of a viewport to the origin",
+  () => {
+    const actual = normalizePointer(
+      150,
+      100,
+      {
+        left: 50,
+        top: 50,
+        width: 200,
+        height: 100,
+      },
+    );
+
+    if (
+      actual.x !== 0 ||
+      actual.y !== 0
+    ) {
+      throw new Error(
+        `Expected { x: 0, y: 0 }, received ${JSON.stringify(actual)}.`,
+      );
+    }
+  },
+);
+
+Deno.test(
+  "normalizePointer clamps values to normalized device coordinates",
+  () => {
+    const actual = normalizePointer(
+      500,
+      -100,
+      {
+        left: 0,
+        top: 0,
+        width: 200,
+        height: 100,
+      },
+    );
+
+    if (
+      actual.x !== 1 ||
+      actual.y !== 1
+    ) {
+      throw new Error(
+        `Expected { x: 1, y: 1 }, received ${JSON.stringify(actual)}.`,
       );
     }
   },

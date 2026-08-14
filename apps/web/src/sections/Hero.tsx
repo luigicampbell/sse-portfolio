@@ -1,6 +1,15 @@
+import { lazy, Suspense } from "react";
+
 import type { Profile, ProfileImageSource, RichTextRun } from "@domain/mod.ts";
 
 import "./Hero.css";
+
+const HeroScene = lazy(
+  () =>
+    import(
+      "../webgl/HeroScene.tsx"
+    ),
+);
 
 interface HeroProps {
   profile: Profile;
@@ -11,6 +20,9 @@ export function Hero({ profile }: HeroProps) {
 
   return (
     <section id="home" className="hero">
+      <Suspense fallback={null}>
+        <HeroScene />
+      </Suspense>
       <div className="hero__main">
         <div className="hero__identity">
           <div className="hero__media">

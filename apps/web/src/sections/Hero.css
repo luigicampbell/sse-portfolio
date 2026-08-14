@@ -1,13 +1,16 @@
 .hero {
+  position: relative;
   display: grid;
+  overflow: clip;
   gap: var(--space-8);
   padding-block: var(--space-8);
+  isolation: isolate;
 }
 
-.hero__main {
-  display: grid;
-  min-width: 0;
-  gap: var(--space-5);
+.hero__main,
+.hero__metrics {
+  position: relative;
+  z-index: var(--layer-content);
 }
 
 /* Identity */
