@@ -1,6 +1,6 @@
 import type { Skill } from "@domain/mod.ts";
 
-import { summarizeSkillCategories } from "../src/charts/skill-data.ts";
+import { summarizeSkillCategories } from "../../src/charts/skill-data.ts";
 
 Deno.test(
   "summarizeSkillCategories derives count and relative breadth",
