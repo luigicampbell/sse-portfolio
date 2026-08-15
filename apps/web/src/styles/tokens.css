@@ -92,6 +92,8 @@
   --duration-fast: 140ms;
   --duration-normal: 220ms;
   --duration-slow: 360ms;
+  --border-width-medium: 0.125rem;
+  --duration-loading: 0.8s;
   /* WebGL Motion */
   --hero-scene-opacity: 0.72;
 

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 
 import type { Profile, ProfileImageSource, RichTextRun } from "@domain/mod.ts";
+import { DownloadAction } from "../DownloadAction.tsx";
 
 import "./Hero.css";
 
@@ -89,21 +90,42 @@ export function Hero({ profile }: HeroProps) {
               className="hero__actions"
               aria-label="Portfolio actions"
             >
-              {profile.actions.map((action: Profile["actions"][number]) => (
-                <a
-                  className={[
+              {profile.actions.map(
+                (action) => {
+                  const className = [
                     "hero__action",
                     `hero__action--${action.variant}`,
-                  ].join(" ")}
-                  href={action.href}
-                  download={action.download
-                    ? `${toFileName(profile.name)}-cv.pdf`
-                    : undefined}
-                  key={action.id}
-                >
-                  {action.label}
-                </a>
-              ))}
+                  ].join(" ");
+
+                  if (
+                    action.download
+                  ) {
+                    return (
+                      <DownloadAction
+                        key={action.id}
+                        className={className}
+                        href={action.href}
+                        label={action.label}
+                        fileName={`${
+                          toFileName(
+                            profile.name,
+                          )
+                        }-cv.pdf`}
+                      />
+                    );
+                  }
+
+                  return (
+                    <a
+                      className={className}
+                      href={action.href}
+                      key={action.id}
+                    >
+                      {action.label}
+                    </a>
+                  );
+                },
+              )}
             </div>
           )}
 

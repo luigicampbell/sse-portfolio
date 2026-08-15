@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { PortfolioPageResponse } from "@domain/mod.ts";
 import { AppShell } from "./components/AppShell.tsx";
-import { AppSkeleton } from "./components/AppSkeleton.tsx";
+import { Loading } from "./components/Loading.tsx";
 import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
 import { getPortfolio } from "./lib/api.ts";
 import { Hero } from "./sections/Hero.tsx";
@@ -55,7 +55,10 @@ export function App() {
   if (state.status === "loading") {
     return (
       <AppShell>
-        <AppSkeleton label="Loading portfolio" />
+        <Loading
+          label="Loading portfolio"
+          variant="page"
+        />
       </AppShell>
     );
   }
@@ -90,7 +93,9 @@ export function App() {
     <AppShell>
       <Hero profile={data.hero.profile} />
 
-      <Suspense fallback={<AppSkeleton label="Loading projects" />}>
+      <Suspense
+        fallback={<Loading variant="inline" label="Loading projects" />}
+      >
         <Projects
           featuredProjects={data.projects.featured}
           projects={data.projects.all}
@@ -98,25 +103,21 @@ export function App() {
       </Suspense>
 
       <Suspense
-        fallback={<AppSkeleton label="Loading experience" />}
+        fallback={<Loading variant="inline" label="Loading experience" />}
       >
         <Experience experience={data.experience.items} />
       </Suspense>
 
       <Suspense
-        fallback={<AppSkeleton label="Loading skills" />}
+        fallback={<Loading label="Loading skills" />}
       >
-        <Suspense
-          fallback={<AppSkeleton label="Loading skills" />}
-        >
-          <Skills
-            skills={data.skills.items}
-          />
+        <Skills
+          skills={data.skills.items}
+        />
 
-          <SkillsCharts
-            skills={data.skills.items}
-          />
-        </Suspense>
+        <SkillsCharts
+          skills={data.skills.items}
+        />
       </Suspense>
     </AppShell>
   );
