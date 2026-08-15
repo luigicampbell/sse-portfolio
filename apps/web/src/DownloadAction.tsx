@@ -3,6 +3,7 @@ import { useState } from "react";
 import { downloadFile } from "./lib/download.ts";
 
 import { Loading } from "./components/Loading.tsx";
+import "./DownloadAction.css";
 
 interface DownloadActionProps {
   href: string;
@@ -64,11 +65,22 @@ export function DownloadAction({
       onClick={handleDownload}
       aria-busy={state === "loading"}
     >
-      {state === "loading"
-        ? <Loading label="Preparing résumé" />
-        : state === "error"
-        ? "Try résumé again"
-        : label}
+      <span
+        className={state === "loading"
+          ? "download-action__label download-action__label--hidden"
+          : "download-action__label"}
+      >
+        {state === "error" ? "Try again later..." : label}
+      </span>
+
+      {state === "loading" && (
+        <span className="download-action__loading">
+          <Loading
+            label="Preparing Resume"
+            variant="control"
+          />
+        </span>
+      )}
     </button>
   );
 }
