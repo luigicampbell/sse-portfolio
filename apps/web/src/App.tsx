@@ -1,34 +1,45 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { PortfolioPageResponse } from "@domain/mod.ts";
-import { AppShell } from "./components/AppShell.tsx";
-import { Loading } from "./components/Loading.tsx";
-import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
-import { getPortfolio } from "./lib/api.ts";
-import { Hero } from "./sections/Hero.tsx";
-import { AppSkeleton } from "./components/AppSkeleton.tsx";
 
-const Projects = lazy(() => import("./sections/Projects.tsx"));
-const Skills = lazy(() => import("./sections/Skills.tsx"));
+import { AppShell } from "./components/AppShell.tsx";
+import { AppSkeleton } from "./components/AppSkeleton.tsx";
+import { Loading } from "./components/Loading.tsx";
+import { getPortfolio } from "./lib/api.ts";
+import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
+import { Hero } from "./sections/Hero.tsx";
+
+const Projects = lazy(
+  () => import("./sections/Projects.tsx"),
+);
+
 const Experience = lazy(
   () => import("./sections/Experience.tsx"),
 );
 
-type LoadState =
-  | { status: "loading" }
-  | { status: "ready"; data: PortfolioPageResponse }
-  | { status: "error"; message: string };
+const Skills = lazy(
+  () => import("./sections/Skills.tsx"),
+);
 
 const SkillsCharts = lazy(
-  () =>
-    import(
-      "./charts/SkillsCharts.tsx"
-    ),
+  () => import("./charts/SkillsCharts.tsx"),
 );
+
+type LoadState =
+  | { status: "loading" }
+  | {
+    status: "ready";
+    data: PortfolioPageResponse;
+  }
+  | {
+    status: "error";
+    message: string;
+  };
 
 export function App() {
   const [state, setState] = useState<LoadState>({
     status: "loading",
   });
+
   useDocumentSectionTitle(
     state.status === "ready",
   );
@@ -38,19 +49,29 @@ export function App() {
 
     getPortfolio(controller.signal)
       .then((data) => {
-        setState({ status: "ready", data });
+        setState({
+          status: "ready",
+          data,
+        });
       })
       .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
+        if (controller.signal.aborted) {
+          return;
+        }
 
         const message = error instanceof Error
           ? error.message
           : "Unable to load the portfolio.";
 
-        setState({ status: "error", message });
+        setState({
+          status: "error",
+          message,
+        });
       });
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   if (state.status === "loading") {
@@ -60,7 +81,10 @@ export function App() {
   if (state.status === "error") {
     return (
       <AppShell>
-        <section className="app-status" role="alert">
+        <section
+          className="app-status"
+          role="alert"
+        >
           <p className="app-status__eyebrow">
             Connection problem
           </p>
@@ -85,10 +109,17 @@ export function App() {
 
   return (
     <AppShell>
-      <Hero profile={data.hero.profile} />
+      <Hero
+        profile={data.hero.profile}
+      />
 
       <Suspense
-        fallback={<Loading variant="inline" label="Loading projects" />}
+        fallback={
+          <Loading
+            variant="inline"
+            label="Loading projects"
+          />
+        }
       >
         <Projects
           featuredProjects={data.projects.featured}
@@ -97,18 +128,39 @@ export function App() {
       </Suspense>
 
       <Suspense
-        fallback={<Loading variant="inline" label="Loading experience" />}
+        fallback={
+          <Loading
+            variant="inline"
+            label="Loading experience"
+          />
+        }
       >
-        <Experience experience={data.experience.items} />
+        <Experience
+          experience={data.experience.items}
+        />
       </Suspense>
 
       <Suspense
-        fallback={<Loading label="Loading skills" />}
+        fallback={
+          <Loading
+            variant="inline"
+            label="Loading skills"
+          />
+        }
       >
         <Skills
           skills={data.skills.items}
         />
+      </Suspense>
 
+      <Suspense
+        fallback={
+          <Loading
+            variant="inline"
+            label="Loading skill charts"
+          />
+        }
+      >
         <SkillsCharts
           skills={data.skills.items}
         />
