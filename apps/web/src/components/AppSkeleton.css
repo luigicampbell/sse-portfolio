@@ -1,0 +1,590 @@
+.app-skeleton {
+  width: min(
+    calc(100% - (var(--page-gutter) * 2)),
+    var(--container-width)
+  );
+  margin-inline: auto;
+  padding-top: var(--space-8);
+  padding-bottom: var(--section-spacing);
+}
+
+/* Hero */
+
+.app-skeleton__hero {
+  display: grid;
+  gap: var(--space-8);
+  padding-block: var(--space-8);
+}
+
+.app-skeleton__main {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-5);
+}
+
+/* Shared skeleton primitive */
+
+.app-skeleton__line {
+  width: 100%;
+  min-height: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+/* Identity */
+
+.app-skeleton__identity {
+  display: grid;
+  margin-top: var(--space-1);
+  grid-template-columns:
+    auto
+    minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.app-skeleton__media {
+  display: flex;
+  min-width: 0;
+  padding-right: var(--space-4);
+  align-items: center;
+  justify-content: flex-start;
+  transform:
+    translateY(
+    var(--space-1)
+  );
+}
+
+.app-skeleton__avatar {
+  display: block;
+  width: var(--hero-avatar-size);
+  aspect-ratio: 1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.app-skeleton__identity-content {
+  display: flex;
+  min-width: 0;
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Portfolio */
+
+.app-skeleton__line--eyebrow {
+  width: 30%;
+  min-height: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+/* Name */
+
+.app-skeleton__name {
+  display: flex;
+  margin-bottom: var(--space-2);
+  flex-direction: column;
+  gap: 0;
+  font-size:
+    clamp(
+    2.75rem,
+    14vw,
+    4.25rem
+  );
+  line-height: 1;
+  transform:
+    translateY(
+    calc(var(--space-1) * 0.5)
+  );
+}
+
+.app-skeleton__line--first-name,
+.app-skeleton__line--last-name {
+  height: 0.8em;
+  min-height: 0;
+  margin-block: 0.1em;
+  border-radius: var(--radius-md);
+}
+
+.app-skeleton__line--first-name {
+  width: 50%;
+}
+
+.app-skeleton__line--last-name {
+  width: 92%;
+}
+
+/* Professional title */
+
+.app-skeleton__titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transform:
+    translateY(
+    var(--space-1)
+  );
+}
+
+.app-skeleton__line--title-primary {
+  width: 94%;
+  min-height: var(--space-3);
+}
+
+.app-skeleton__line--title-secondary {
+  width: 52%;
+  min-height: var(--space-3);
+}
+
+/* Summary */
+
+.app-skeleton__summary {
+  display: flex;
+  padding-block: var(--space-5);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.app-skeleton__line--summary-full {
+  width: 100%;
+  min-height: var(--space-3);
+}
+
+.app-skeleton__line--summary-short {
+  width: 58%;
+  min-height: var(--space-3);
+}
+
+/* Footer */
+
+.app-skeleton__footer {
+  display: grid;
+  min-width: 0;
+  justify-items: stretch;
+  gap: var(--space-5);
+}
+
+/* Actions */
+
+.app-skeleton__actions {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--space-3);
+  transform:
+    translateY(
+    calc(var(--space-1) * -1)
+  );
+}
+
+.app-skeleton__action {
+  width: 100%;
+  min-height: var(--control-height);
+  border-radius: var(--radius-pill);
+}
+
+/* Socials */
+
+.app-skeleton__socials {
+  width: 100%;
+}
+
+.app-skeleton__social-control {
+  width: 100%;
+  min-height: var(--control-height);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Location */
+
+.app-skeleton__details {
+  display: flex;
+  min-height: var(--space-5);
+  align-items: center;
+}
+
+.app-skeleton__line--location {
+  width: 42%;
+  min-height: var(--space-3);
+}
+
+/* Metrics */
+
+.app-skeleton__metrics {
+  display: grid;
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  grid-template-columns:
+    repeat(
+    2,
+    minmax(0, 1fr)
+  );
+  gap: var(--space-3);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-skeleton__metric {
+  display: flex;
+  min-width: 0;
+  min-height:
+    var(--hero-metric-min-height);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--color-surface-secondary);
+}
+
+.app-skeleton__line--metric-value {
+  width: 42%;
+  min-height: var(--space-6);
+}
+
+.app-skeleton__line--metric-label {
+  width: 68%;
+  min-height: var(--space-3);
+}
+
+/* Shimmer */
+
+.app-skeleton__avatar,
+.app-skeleton__line,
+.app-skeleton__action,
+.app-skeleton__social-control {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface-secondary);
+}
+
+.app-skeleton__avatar::after,
+.app-skeleton__line::after,
+.app-skeleton__action::after,
+.app-skeleton__social-control::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+    90deg,
+    transparent,
+    var(--skeleton-shimmer-color),
+    transparent
+  );
+  content: "";
+  transform: translateX(-100%);
+  animation:
+    app-skeleton-shimmer
+    var(--duration-skeleton-shimmer)
+    var(--ease-standard)
+    infinite;
+}
+
+@keyframes app-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Narrow mobile */
+
+@media (max-width: 24rem) {
+  .app-skeleton__identity {
+    grid-template-columns:
+      var(--hero-avatar-size-compact)
+      minmax(0, 1fr);
+  }
+
+  .app-skeleton__media {
+    padding-right: var(--space-3);
+  }
+
+  .app-skeleton__avatar {
+    width:
+      var(--hero-avatar-size-compact);
+  }
+
+  .app-skeleton__identity-content {
+    min-height:
+      var(--hero-avatar-size-compact);
+    padding-left: var(--space-3);
+  }
+
+  .app-skeleton__line--eyebrow {
+    width: 34%;
+  }
+
+  .app-skeleton__name {
+    font-size:
+      var(--font-size-2xl);
+  }
+
+  .app-skeleton__line--first-name {
+    width: 52%;
+  }
+
+  .app-skeleton__line--last-name {
+    width: 96%;
+  }
+
+  .app-skeleton__line--title-primary {
+    width: 96%;
+  }
+
+  .app-skeleton__line--title-secondary {
+    width: 58%;
+  }
+}
+
+/* Narrow metrics */
+
+@media (max-width: 30rem) {
+  .app-skeleton__metrics {
+    grid-template-columns:
+      minmax(0, 1fr);
+  }
+}
+
+/* Tablet */
+
+@media (min-width: 48rem) {
+  .app-skeleton {
+    padding-top:
+      calc(
+      var(--header-height) +
+      var(--space-12)
+    );
+  }
+
+  .app-skeleton__hero {
+    padding-block:
+      var(--space-12);
+  }
+
+  /*
+   * Match the real tablet Hero:
+   * 16rem media column + flexible identity copy.
+   */
+
+  .app-skeleton__identity {
+    grid-template-columns:
+      var(--hero-avatar-size-expanded)
+      minmax(0, 1fr);
+  }
+
+  .app-skeleton__media {
+    padding-right: 0;
+  }
+
+  .app-skeleton__avatar {
+    width:
+      var(--hero-avatar-size-expanded);
+    border-radius:
+      var(--radius-xl);
+  }
+
+  .app-skeleton__identity-content {
+    min-height:
+      var(--hero-avatar-size-expanded);
+    padding-left:
+      var(--space-8);
+  }
+
+  /*
+   * Tablet Hero renders "Luigi Campbell"
+   * on one physical line.
+   *
+   * Grid is deliberate here instead of flex:
+   * it guarantees both skeleton segments occupy
+   * one row and cannot fall back into the
+   * mobile column layout.
+   */
+
+  .app-skeleton__name {
+    display: grid;
+    width: max-content;
+    max-width: 100%;
+    grid-template-columns:
+      2.75em
+      4.75em;
+    align-items: center;
+    column-gap: var(--space-2);
+    font-size:
+      var(--font-size-hero);
+  }
+
+  .app-skeleton__line--first-name,
+  .app-skeleton__line--last-name {
+    width: 100%;
+  }
+
+  /*
+   * Loaded tablet headline is one line.
+   */
+
+  .app-skeleton__line--title-primary {
+    width: 68%;
+  }
+
+  .app-skeleton__line--title-secondary {
+    display: none;
+  }
+
+  /*
+   * Loaded tablet summary is two visual lines
+   * at this width rather than the four-line
+   * mobile representation.
+   */
+
+  .app-skeleton__summary {
+    padding-block: var(--space-6);
+  }
+
+  .app-skeleton__line--summary-3,
+  .app-skeleton__line--summary-4 {
+    display: none;
+  }
+
+  .app-skeleton__line--summary-2 {
+    width: 92%;
+  }
+}
+
+/* Desktop */
+
+@media (min-width: 64rem) {
+  /*
+   * Match Hero's two-column desktop layout.
+   */
+
+  .app-skeleton__hero {
+    grid-template-columns:
+      minmax(0, 2fr)
+      minmax(
+      var(--hero-avatar-size-expanded),
+      0.8fr
+    );
+    align-items: stretch;
+    column-gap: var(--space-10);
+  }
+
+  .app-skeleton__main {
+    gap: var(--space-8);
+  }
+
+  /*
+   * Name and headline remain single-line
+   * representations on desktop.
+   */
+
+  .app-skeleton__name {
+    grid-template-columns:
+      2.75em
+      4.75em;
+  }
+
+  .app-skeleton__line--title-primary {
+    width: 76%;
+  }
+
+  /*
+   * Desktop Hero increases summary font size
+   * and the narrower main column can produce
+   * another wrapped line.
+   *
+   * Represent three lines instead of tablet's
+   * two or mobile's four.
+   */
+
+  .app-skeleton__summary {
+    gap: var(--space-5);
+  }
+
+  .app-skeleton__line--summary-3 {
+    display: block;
+    width: 84%;
+  }
+
+  .app-skeleton__line--summary-4 {
+    display: none;
+  }
+
+  .app-skeleton__line--summary-full,
+  .app-skeleton__line--summary-short {
+    min-height: var(--space-4);
+  }
+
+  /*
+   * Desktop footer/actions match the loaded
+   * Hero's fit-content action row.
+   */
+
+  .app-skeleton__footer {
+    justify-items: start;
+  }
+
+  .app-skeleton__actions {
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    transform: none;
+  }
+
+  .app-skeleton__action {
+    width:
+      var(--skeleton-action-width);
+  }
+
+  .app-skeleton__socials {
+    width: 100%;
+  }
+
+  /*
+   * Desktop metrics move into the right column
+   * and become a single vertical stack.
+   */
+
+  .app-skeleton__metrics {
+    grid-template-columns:
+      minmax(0, 1fr);
+    align-content: center;
+    padding: var(--space-4);
+  }
+
+  .app-skeleton__metric {
+    min-height:
+      var(
+      --hero-metric-min-height-desktop
+    );
+    padding: var(--space-5);
+    gap: var(--space-3);
+  }
+
+  .app-skeleton__line--metric-value {
+    min-height: var(--space-8);
+  }
+
+  .app-skeleton__line--metric-label {
+    min-height: var(--space-4);
+  }
+}
+
+/* Accessibility */
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .app-skeleton__avatar::after,
+  .app-skeleton__line::after,
+  .app-skeleton__action::after,
+  .app-skeleton__social-control::after {
+    animation: none;
+  }
+}

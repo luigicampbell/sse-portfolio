@@ -24,21 +24,12 @@
   --font-size-2xl: 2rem;
   --font-size-3xl: clamp(2.25rem, 5vw, 3.5rem);
   --font-size-4xl: clamp(3rem, 6vw, 5rem);
-  --font-size-eyebrow: clamp(
-    var(--font-size-base),
-    var(--font-size-md),
-    var(--font-size-lg)
-  );
-  --font-size-hero: clamp(
-    var(--font-size-lg),
-    var(--font-size-xl),
-    var(--font-size-2xl)
-  );
-  --font-size-headline: clamp(
-    var(--font-size-2xl),
-    var(--font-size-3xl),
-    var(--font-size-4xl)
-  );
+  --font-size-mobile-body: 0.9375rem;
+
+  /* Semantic typography aliases */
+  --font-size-eyebrow: var(--font-size-md);
+  --font-size-hero: var(--font-size-xl);
+  --font-size-headline: var(--font-size-3xl);
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
@@ -148,6 +139,32 @@
   --glass-background: rgba(255, 255, 255, 0.76);
   --glass-border: rgba(255, 255, 255, 0.65);
   --glass-blur: 20px;
+
+  /* Skeletons */
+  --skeleton-shimmer-color:
+    color-mix(
+      in srgb,
+      var(--color-surface)
+        70%,
+      transparent
+    );
+
+  --duration-skeleton-shimmer:
+    1.5s;
+  --skeleton-action-width: 9rem;
+  --skeleton-social-width:
+    var(--space-20);
+
+  /* Hero */
+  --hero-avatar-size: 6.5rem;
+  --hero-avatar-size-compact: 5.5rem;
+  --hero-avatar-size-expanded: 16rem;
+  --hero-action-primary-min-width: 9.5rem;
+
+  --control-height: 2.75rem;
+
+  --hero-metric-min-height: 7rem;
+  --hero-metric-min-height-desktop: 7.5rem;
 
   /* Skill category semantics */
   --color-skill-languages:

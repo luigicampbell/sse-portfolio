@@ -5,6 +5,7 @@ import { Loading } from "./components/Loading.tsx";
 import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
 import { getPortfolio } from "./lib/api.ts";
 import { Hero } from "./sections/Hero.tsx";
+import { AppSkeleton } from "./components/AppSkeleton.tsx";
 
 const Projects = lazy(() => import("./sections/Projects.tsx"));
 const Skills = lazy(() => import("./sections/Skills.tsx"));
@@ -53,14 +54,7 @@ export function App() {
   }, []);
 
   if (state.status === "loading") {
-    return (
-      <AppShell>
-        <Loading
-          label="Loading portfolio"
-          variant="page"
-        />
-      </AppShell>
-    );
+    return <AppSkeleton label="Loading portfolio" />;
   }
 
   if (state.status === "error") {

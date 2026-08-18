@@ -201,7 +201,7 @@ hr {
 
 @media (max-width: 47.99rem) {
   body {
-    font-size: 0.9375rem;
+    font-size: var(--font-size-mobile-body);
   }
 
   h1 {
