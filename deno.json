@@ -15,9 +15,7 @@
     "vite": "npm:vite@latest",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^6.0.5",
     "chart.js": "npm:chart.js@^4",
-    "react-chartjs-2": "npm:react-chartjs-2@^5",
-    "three": "npm:three@^0.179.1",
-    "@types/three": "npm:@types/three@^0.179.0"
+    "react-chartjs-2": "npm:react-chartjs-2@^5"
   },
   "compilerOptions": {
     "lib": [
