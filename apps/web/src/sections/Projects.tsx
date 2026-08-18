@@ -93,7 +93,7 @@ function ProjectCard({
   );
 
   const visibleTechnologies = project.technologies.slice(0, 5);
-  const visibleTags = project.tags.slice(0, 2);
+  const visibleTags = project.tags?.slice(0, 2) ?? [];
 
   const detailUrl = `/projects/${encodeURIComponent(project.slug)}`;
 
