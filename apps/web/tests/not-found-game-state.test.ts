@@ -349,3 +349,59 @@ Deno.test(
     }
   },
 );
+
+Deno.test(
+  "physics step removes obstacles after they move off-screen",
+  () => {
+    const runningState: GameState = {
+      ...startGame(createInitialGameState()),
+      obstacles: [
+        {
+          id: "off-screen",
+          x: 1,
+        },
+        {
+          id: "visible",
+          x: 5,
+        },
+      ],
+    };
+
+    const nextState = stepGame(
+      runningState,
+      0.5,
+    );
+
+    if (nextState.obstacles.length !== 1) {
+      throw new Error(
+        `Expected 1 remaining obstacle, received ${nextState.obstacles.length}.`,
+      );
+    }
+
+    const remainingObstacle = nextState.obstacles[0];
+
+    if (!remainingObstacle) {
+      throw new Error(
+        "Expected a visible obstacle to remain.",
+      );
+    }
+
+    if (remainingObstacle.id !== "visible") {
+      throw new Error(
+        `Expected "visible" obstacle to remain, received "${remainingObstacle.id}".`,
+      );
+    }
+
+    if (remainingObstacle.x !== 3) {
+      throw new Error(
+        `Expected remaining obstacle at x 3, received ${remainingObstacle.x}.`,
+      );
+    }
+
+    if (runningState.obstacles.length !== 2) {
+      throw new Error(
+        "stepGame() must not mutate the original obstacles array.",
+      );
+    }
+  },
+);

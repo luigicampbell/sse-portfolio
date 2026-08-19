@@ -78,13 +78,13 @@ export function stepGame(
     return state;
   }
 
-  const obstacles = state.obstacles.map(
-    (obstacle) => ({
+  const obstacles = state.obstacles
+    .map((obstacle) => ({
       ...obstacle,
       x: obstacle.x -
         OBSTACLE_SPEED * deltaSeconds,
-    }),
-  );
+    }))
+    .filter((obstacle) => obstacle.x >= 0);
 
   if (state.player.isGrounded) {
     return {
