@@ -21,7 +21,7 @@ const Skills = lazy(
 );
 
 const SkillsCharts = lazy(
-  () => import("./charts/SkillsCharts.tsx"),
+  () => import("./features/skills-charts/SkillsCharts.tsx"),
 );
 
 type LoadState =

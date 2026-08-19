@@ -1,5 +1,5 @@
 import type { Profile, ProfileImageSource, RichTextRun } from "@domain/mod.ts";
-import { DownloadAction } from "../DownloadAction.tsx";
+import { DownloadAction } from "../components/DownloadAction.tsx";
 
 import "./Hero.css";
 

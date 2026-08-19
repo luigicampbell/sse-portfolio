@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import { downloadFile } from "./lib/download.ts";
+import { downloadFile } from "../lib/download.ts";
 
-import { Loading } from "./components/Loading.tsx";
+import { Loading } from "./Loading.tsx";
 import "./DownloadAction.css";
 
 interface DownloadActionProps {
