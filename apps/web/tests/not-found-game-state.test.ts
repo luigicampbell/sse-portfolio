@@ -303,3 +303,49 @@ Deno.test(
     }
   },
 );
+
+Deno.test(
+  "physics step moves obstacles left while the game is running",
+  () => {
+    const runningState: GameState = {
+      ...startGame(createInitialGameState()),
+      obstacles: [
+        {
+          id: "obstacle-1",
+          x: 10,
+        },
+      ],
+    };
+
+    const nextState = stepGame(
+      runningState,
+      0.5,
+    );
+
+    const obstacle = nextState.obstacles[0];
+
+    if (!obstacle) {
+      throw new Error(
+        "Expected obstacle to remain in game state.",
+      );
+    }
+
+    if (obstacle.x >= 10) {
+      throw new Error(
+        `Expected obstacle to move left from x 10, received ${obstacle.x}.`,
+      );
+    }
+
+    if (runningState.obstacles[0]?.x !== 10) {
+      throw new Error(
+        "stepGame() must not mutate the original obstacle state.",
+      );
+    }
+
+    if (nextState.obstacles === runningState.obstacles) {
+      throw new Error(
+        "Expected physics step to return a new obstacles array.",
+      );
+    }
+  },
+);

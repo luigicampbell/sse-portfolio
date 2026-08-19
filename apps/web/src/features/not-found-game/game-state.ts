@@ -11,6 +11,7 @@ export type PlayerState = {
 
 export type ObstacleState = {
   id: string;
+  x: number;
 };
 
 export type GameState = {
@@ -64,6 +65,7 @@ export function jumpPlayer(
 }
 
 const GRAVITY = 2;
+const OBSTACLE_SPEED = 4;
 
 export function stepGame(
   state: GameState,
@@ -71,10 +73,24 @@ export function stepGame(
 ): GameState {
   if (
     deltaSeconds <= 0 ||
-    state.status !== "running" ||
-    state.player.isGrounded
+    state.status !== "running"
   ) {
     return state;
+  }
+
+  const obstacles = state.obstacles.map(
+    (obstacle) => ({
+      ...obstacle,
+      x: obstacle.x -
+        OBSTACLE_SPEED * deltaSeconds,
+    }),
+  );
+
+  if (state.player.isGrounded) {
+    return {
+      ...state,
+      obstacles,
+    };
   }
 
   const velocityY = state.player.velocityY +
@@ -92,6 +108,7 @@ export function stepGame(
         velocityY: 0,
         isGrounded: true,
       },
+      obstacles,
     };
   }
 
@@ -102,5 +119,6 @@ export function stepGame(
       y,
       velocityY,
     },
+    obstacles,
   };
 }
