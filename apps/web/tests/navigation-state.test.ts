@@ -1,4 +1,7 @@
-import { shouldDetachNavigation } from "../src/components/navigation-state.ts";
+import {
+  getActiveNavigationSection,
+  shouldDetachNavigation,
+} from "../src/components/navigation-state.ts";
 
 Deno.test(
   "navigation remains integrated at the top of the page",
@@ -90,3 +93,226 @@ Deno.test(
     }
   },
 );
+
+Deno.test(
+  "active navigation section is the section containing the activation line",
+  () => {
+    const active = getActiveNavigationSection(
+      [
+        {
+          id: "home",
+          top: -200,
+          bottom: 120,
+        },
+        {
+          id: "projects",
+          top: 120,
+          bottom: 720,
+        },
+        {
+          id: "experience",
+          top: 720,
+          bottom: 1320,
+        },
+        {
+          id: "skills",
+          top: 1320,
+          bottom: 1920,
+        },
+      ],
+      240,
+    );
+
+    assertActiveSection(
+      active,
+      "projects",
+    );
+  },
+);
+
+Deno.test(
+  "active navigation section changes when the next section crosses the activation line",
+  () => {
+    const active = getActiveNavigationSection(
+      [
+        {
+          id: "home",
+          top: -900,
+          bottom: -100,
+        },
+        {
+          id: "projects",
+          top: -100,
+          bottom: 200,
+        },
+        {
+          id: "experience",
+          top: 200,
+          bottom: 900,
+        },
+        {
+          id: "skills",
+          top: 900,
+          bottom: 1500,
+        },
+      ],
+      240,
+    );
+
+    assertActiveSection(
+      active,
+      "experience",
+    );
+  },
+);
+
+Deno.test(
+  "active navigation section remains on the preceding section through layout gaps",
+  () => {
+    const active = getActiveNavigationSection(
+      [
+        {
+          id: "home",
+          top: -800,
+          bottom: -100,
+        },
+        {
+          id: "projects",
+          top: -100,
+          bottom: 180,
+        },
+        {
+          id: "experience",
+          top: 320,
+          bottom: 900,
+        },
+        {
+          id: "skills",
+          top: 900,
+          bottom: 1500,
+        },
+      ],
+      240,
+    );
+
+    assertActiveSection(
+      active,
+      "projects",
+    );
+  },
+);
+
+Deno.test(
+  "active navigation section defaults to the first section before content reaches the activation line",
+  () => {
+    const active = getActiveNavigationSection(
+      [
+        {
+          id: "home",
+          top: 80,
+          bottom: 700,
+        },
+        {
+          id: "projects",
+          top: 700,
+          bottom: 1300,
+        },
+      ],
+      40,
+    );
+
+    assertActiveSection(
+      active,
+      "home",
+    );
+  },
+);
+
+Deno.test(
+  "active navigation section remains on the final section after its bounds pass the activation line",
+  () => {
+    const active = getActiveNavigationSection(
+      [
+        {
+          id: "home",
+          top: -2400,
+          bottom: -1800,
+        },
+        {
+          id: "projects",
+          top: -1800,
+          bottom: -1200,
+        },
+        {
+          id: "experience",
+          top: -1200,
+          bottom: -600,
+        },
+        {
+          id: "skills",
+          top: -600,
+          bottom: -40,
+        },
+      ],
+      240,
+    );
+
+    assertActiveSection(
+      active,
+      "skills",
+    );
+  },
+);
+
+Deno.test(
+  "active navigation section clamps a negative activation offset",
+  () => {
+    const active = getActiveNavigationSection(
+      [
+        {
+          id: "home",
+          top: -100,
+          bottom: 100,
+        },
+        {
+          id: "projects",
+          top: 100,
+          bottom: 700,
+        },
+      ],
+      -20,
+    );
+
+    assertActiveSection(
+      active,
+      "home",
+    );
+  },
+);
+
+Deno.test(
+  "active navigation section returns null when no sections are available",
+  () => {
+    const active = getActiveNavigationSection(
+      [],
+      240,
+    );
+
+    if (active !== null) {
+      throw new Error(
+        `Expected no active section, received "${active}".`,
+      );
+    }
+  },
+);
+
+function assertActiveSection(
+  actual: string | null,
+  expected: string,
+): void {
+  if (actual !== expected) {
+    throw new Error(
+      `Expected active section "${expected}", received "${actual}".`,
+    );
+  }
+}

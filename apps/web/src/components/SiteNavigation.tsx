@@ -1,30 +1,54 @@
 import { useEffect, useState } from "react";
 
-import { shouldDetachNavigation } from "./navigation-state.ts";
+import {
+  getActiveNavigationSection,
+  type NavigationSectionBounds,
+  shouldDetachNavigation,
+} from "./navigation-state.ts";
 
 import "./SiteNavigation.css";
 
 const NAVIGATION_DETACH_THRESHOLD_PX = 24;
 
+const NAVIGATION_ACTIVATION_VIEWPORT_RATIO = 0.3;
+
+const NAVIGATION_ACTIVATION_MAX_PX = 240;
+
+const HOME_NAVIGATION_ITEM = {
+  id: "home",
+  href: "#home",
+  ariaLabel: "Go to home",
+} as const;
+
 const NAVIGATION_ITEMS = [
   {
+    id: "projects",
     href: "#projects",
     label: "Projects",
     compactLabel: "Work",
     ariaLabel: "Go to projects",
   },
   {
+    id: "experience",
     href: "#experience",
     label: "Experience",
     compactLabel: "Career",
     ariaLabel: "Go to experience",
   },
   {
+    id: "skills",
     href: "#skills",
     label: "Skills",
     compactLabel: "Skills",
     ariaLabel: "Go to skills",
   },
+] as const;
+
+const NAVIGATION_SECTION_IDS = [
+  HOME_NAVIGATION_ITEM.id,
+  ...NAVIGATION_ITEMS.map(
+    (item) => item.id,
+  ),
 ] as const;
 
 export function SiteNavigation() {
@@ -33,10 +57,15 @@ export function SiteNavigation() {
     setIsDetached,
   ] = useState(false);
 
+  const [
+    activeSectionId,
+    setActiveSectionId,
+  ] = useState<string | null>("home");
+
   useEffect(() => {
     let animationFrameId: number | null = null;
 
-    const updateDetachedState = () => {
+    const updateNavigationState = () => {
       animationFrameId = null;
 
       setIsDetached(
@@ -45,35 +74,60 @@ export function SiteNavigation() {
           NAVIGATION_DETACH_THRESHOLD_PX,
         ),
       );
+
+      const sections = getNavigationSectionBounds();
+
+      const activeSection = getActiveNavigationSection(
+        sections,
+        getNavigationActivationOffset(),
+      );
+
+      setActiveSectionId(
+        activeSection,
+      );
     };
 
-    const handleScroll = () => {
-      if (animationFrameId !== null) {
+    const scheduleUpdate = () => {
+      if (
+        animationFrameId !== null
+      ) {
         return;
       }
 
       animationFrameId = globalThis.requestAnimationFrame(
-        updateDetachedState,
+        updateNavigationState,
       );
     };
 
-    updateDetachedState();
+    updateNavigationState();
 
     globalThis.addEventListener(
       "scroll",
-      handleScroll,
+      scheduleUpdate,
       {
         passive: true,
       },
     );
 
+    globalThis.addEventListener(
+      "resize",
+      scheduleUpdate,
+    );
+
     return () => {
       globalThis.removeEventListener(
         "scroll",
-        handleScroll,
+        scheduleUpdate,
       );
 
-      if (animationFrameId !== null) {
+      globalThis.removeEventListener(
+        "resize",
+        scheduleUpdate,
+      );
+
+      if (
+        animationFrameId !== null
+      ) {
         globalThis.cancelAnimationFrame(
           animationFrameId,
         );
@@ -89,8 +143,12 @@ export function SiteNavigation() {
     >
       <a
         className="site-navigation__brand"
-        href="#home"
-        aria-label="Go to home"
+        href={HOME_NAVIGATION_ITEM.href}
+        aria-label={HOME_NAVIGATION_ITEM.ariaLabel}
+        aria-current={activeSectionId ===
+            HOME_NAVIGATION_ITEM.id
+          ? "location"
+          : undefined}
       >
         <span
           className="site-navigation__brand-mark"
@@ -110,16 +168,18 @@ export function SiteNavigation() {
       <div className="site-navigation__links">
         {NAVIGATION_ITEMS.map(
           ({
+            id,
             href,
             label,
             compactLabel,
             ariaLabel,
           }) => (
             <a
-              key={href}
+              key={id}
               className="site-navigation__link"
               href={href}
               aria-label={ariaLabel}
+              aria-current={activeSectionId === id ? "location" : undefined}
             >
               <span
                 className="site-navigation__label site-navigation__label--full"
@@ -139,5 +199,39 @@ export function SiteNavigation() {
         )}
       </div>
     </nav>
+  );
+}
+
+function getNavigationSectionBounds(): NavigationSectionBounds[] {
+  const sections: NavigationSectionBounds[] = [];
+
+  for (
+    const id of NAVIGATION_SECTION_IDS
+  ) {
+    const element = globalThis.document
+      .getElementById(id);
+
+    if (!element) {
+      continue;
+    }
+
+    const bounds = element
+      .getBoundingClientRect();
+
+    sections.push({
+      id,
+      top: bounds.top,
+      bottom: bounds.bottom,
+    });
+  }
+
+  return sections;
+}
+
+function getNavigationActivationOffset(): number {
+  return Math.min(
+    globalThis.innerHeight *
+      NAVIGATION_ACTIVATION_VIEWPORT_RATIO,
+    NAVIGATION_ACTIVATION_MAX_PX,
   );
 }

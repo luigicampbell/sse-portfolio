@@ -194,8 +194,8 @@
 
 /* Current destination */
 
-.site-navigation__link[aria-current="page"],
-.site-navigation__link[aria-current="true"] {
+.site-navigation__brand[aria-current="location"],
+.site-navigation__link[aria-current="location"] {
   color:
     var(--color-accent);
 
@@ -214,7 +214,18 @@
     background:
       var(--color-surface-secondary);
   }
+
+  .site-navigation__brand[aria-current="location"]:hover,
+  .site-navigation__link[aria-current="location"]:hover {
+    color:
+      var(--color-accent);
+
+    background:
+      var(--color-accent-muted);
+  }
 }
+
+/* Active interaction */
 
 .site-navigation__brand:active,
 .site-navigation__link:active {
@@ -231,6 +242,15 @@
 
   background:
     var(--color-surface-secondary);
+}
+
+.site-navigation__brand[aria-current="location"]:focus-visible,
+.site-navigation__link[aria-current="location"]:focus-visible {
+  color:
+    var(--color-accent);
+
+  background:
+    var(--color-accent-muted);
 }
 
 /* Mobile — floating bottom tab bar */
@@ -309,6 +329,9 @@
     border-radius:
       var(--radius-lg);
 
+    color:
+      var(--color-text-secondary);
+
     font-size:
       var(--font-size-xs);
 
@@ -358,11 +381,17 @@
     display: inline;
   }
 
-  .site-navigation__brand:active,
-  .site-navigation__link:active {
+  .site-navigation__brand[aria-current="location"],
+  .site-navigation__link[aria-current="location"] {
+    color:
+      var(--color-accent);
+
     background:
       var(--color-accent-muted);
+  }
 
+  .site-navigation__brand:active,
+  .site-navigation__link:active {
     transform:
       scale(0.97);
   }
