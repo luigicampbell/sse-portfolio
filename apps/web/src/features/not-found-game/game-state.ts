@@ -12,6 +12,8 @@ export type PlayerState = {
 export type ObstacleState = {
   id: string;
   x: number;
+  width: number;
+  height: number;
 };
 
 export type GameState = {
@@ -78,17 +80,32 @@ export function stepGame(
     return state;
   }
 
-  const obstacles = state.obstacles
-    .map((obstacle) => ({
+  const movedObstacles = state.obstacles.map(
+    (obstacle) => ({
       ...obstacle,
       x: obstacle.x -
         OBSTACLE_SPEED * deltaSeconds,
-    }))
+    }),
+  );
+
+  const passedObstacleCount = movedObstacles
+    .filter((obstacle) => obstacle.x < 0)
+    .length;
+
+  const obstacles = movedObstacles
     .filter((obstacle) => obstacle.x >= 0);
 
-  if (state.player.isGrounded) {
+  const score = state.score + passedObstacleCount;
+
+  const collided = obstacles.some(
+    (obstacle) => hasCollision(state.player, obstacle),
+  );
+
+  if (collided) {
     return {
       ...state,
+      status: "game-over",
+      score,
       obstacles,
     };
   }
@@ -108,6 +125,7 @@ export function stepGame(
         velocityY: 0,
         isGrounded: true,
       },
+      score,
       obstacles,
     };
   }
@@ -119,6 +137,57 @@ export function stepGame(
       y,
       velocityY,
     },
+    score,
     obstacles,
   };
+}
+
+export function spawnObstacle(
+  state: GameState,
+  obstacle: ObstacleState,
+): GameState {
+  if (state.status !== "running") {
+    return state;
+  }
+
+  return {
+    ...state,
+    obstacles: [
+      ...state.obstacles,
+      obstacle,
+    ],
+  };
+}
+
+const PLAYER_X = 1;
+const PLAYER_WIDTH = 1;
+const PLAYER_HEIGHT = 1;
+
+export function hasCollision(
+  player: PlayerState,
+  obstacle: ObstacleState,
+): boolean {
+  const playerLeft = PLAYER_X;
+  const playerRight = PLAYER_X + PLAYER_WIDTH;
+
+  const obstacleLeft = obstacle.x;
+  const obstacleRight = obstacle.x + obstacle.width;
+
+  const playerTop = player.y - PLAYER_HEIGHT;
+
+  const playerBottom = player.y;
+
+  const obstacleTop = -obstacle.height;
+  const obstacleBottom = 0;
+
+  const overlapsHorizontally = playerRight > obstacleLeft &&
+    playerLeft < obstacleRight;
+
+  const overlapsVertically = playerBottom > obstacleTop &&
+    playerTop < obstacleBottom;
+
+  return (
+    overlapsHorizontally &&
+    overlapsVertically
+  );
 }
