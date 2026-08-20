@@ -4,36 +4,73 @@ export type GameStatus =
   | "game-over";
 
 export type PlayerState = {
-  y: number;
-  velocityY: number;
-  isGrounded: boolean;
+  readonly y: number;
+  readonly velocityY: number;
+  readonly isGrounded: boolean;
 };
 
 export type ObstacleState = {
-  id: string;
-  x: number;
-  width: number;
-  height: number;
+  readonly id: string;
+  readonly x: number;
+  readonly width: number;
+  readonly height: number;
 };
 
 export type GameState = {
-  status: GameStatus;
-  score: number;
-  player: PlayerState;
-  obstacles: ObstacleState[];
+  readonly status: GameStatus;
+  readonly score: number;
+  readonly player: PlayerState;
+  readonly obstacles: readonly ObstacleState[];
 };
+
+type PlayerHitbox = {
+  readonly x: number;
+  readonly width: number;
+  readonly height: number;
+};
+
+type GamePhysicsConfig = {
+  readonly groundY: number;
+  readonly jumpVelocity: number;
+  readonly gravity: number;
+  readonly obstacleSpeed: number;
+  readonly playerHitbox: PlayerHitbox;
+};
+
+type ObstacleStepResult = {
+  readonly activeObstacles: readonly ObstacleState[];
+  readonly passedObstacleCount: number;
+};
+
+type VerticalMotion = {
+  readonly y: number;
+  readonly velocityY: number;
+};
+
+type CollisionBounds = {
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly bottom: number;
+};
+
+const GAME_PHYSICS = {
+  groundY: 0,
+  jumpVelocity: -1,
+  gravity: 2,
+  obstacleSpeed: 4,
+  playerHitbox: {
+    x: 1,
+    width: 1,
+    height: 1,
+  },
+} as const satisfies GamePhysicsConfig;
 
 export function createInitialGameState(): GameState {
   return {
     status: "ready",
     score: 0,
-
-    player: {
-      y: 0,
-      velocityY: 0,
-      isGrounded: true,
-    },
-
+    player: createInitialPlayerState(),
     obstacles: [],
   };
 }
@@ -47,12 +84,10 @@ export function startGame(
   };
 }
 
-const JUMP_VELOCITY = -1;
-
 export function jumpPlayer(
   state: GameState,
 ): GameState {
-  if (!state.player.isGrounded) {
+  if (!canJump(state.player)) {
     return state;
   }
 
@@ -60,85 +95,52 @@ export function jumpPlayer(
     ...state,
     player: {
       ...state.player,
-      velocityY: JUMP_VELOCITY,
+      velocityY: GAME_PHYSICS.jumpVelocity,
       isGrounded: false,
     },
   };
 }
 
-const GRAVITY = 2;
-const OBSTACLE_SPEED = 4;
-
 export function stepGame(
   state: GameState,
   deltaSeconds: number,
 ): GameState {
-  if (
-    deltaSeconds <= 0 ||
-    state.status !== "running"
-  ) {
+  if (!canAdvanceGame(state, deltaSeconds)) {
     return state;
   }
 
-  const movedObstacles = state.obstacles.map(
-    (obstacle) => ({
-      ...obstacle,
-      x: obstacle.x -
-        OBSTACLE_SPEED * deltaSeconds,
-    }),
+  const obstacleStep = advanceObstacles(
+    state.obstacles,
+    deltaSeconds,
   );
 
-  const passedObstacleCount = movedObstacles
-    .filter((obstacle) => obstacle.x < 0)
-    .length;
-
-  const obstacles = movedObstacles
-    .filter((obstacle) => obstacle.x >= 0);
-
-  const score = state.score + passedObstacleCount;
-
-  const collided = obstacles.some(
-    (obstacle) => hasCollision(state.player, obstacle),
+  const nextScore = calculateScore(
+    state.score,
+    obstacleStep.passedObstacleCount,
   );
 
-  if (collided) {
+  if (
+    hasAnyCollision(
+      state.player,
+      obstacleStep.activeObstacles,
+    )
+  ) {
     return {
       ...state,
       status: "game-over",
-      score,
-      obstacles,
-    };
-  }
-
-  const velocityY = state.player.velocityY +
-    GRAVITY * deltaSeconds;
-
-  const y = state.player.y +
-    velocityY * deltaSeconds;
-
-  if (y >= 0) {
-    return {
-      ...state,
-      player: {
-        ...state.player,
-        y: 0,
-        velocityY: 0,
-        isGrounded: true,
-      },
-      score,
-      obstacles,
+      score: nextScore,
+      obstacles: obstacleStep.activeObstacles,
     };
   }
 
   return {
     ...state,
-    player: {
-      ...state.player,
-      y,
-      velocityY,
-    },
-    score,
-    obstacles,
+    score: nextScore,
+    player: advancePlayer(
+      state.player,
+      deltaSeconds,
+    ),
+    obstacles: obstacleStep.activeObstacles,
   };
 }
 
@@ -146,7 +148,7 @@ export function spawnObstacle(
   state: GameState,
   obstacle: ObstacleState,
 ): GameState {
-  if (state.status !== "running") {
+  if (!isGameRunning(state)) {
     return state;
   }
 
@@ -159,35 +161,228 @@ export function spawnObstacle(
   };
 }
 
-const PLAYER_X = 1;
-const PLAYER_WIDTH = 1;
-const PLAYER_HEIGHT = 1;
-
 export function hasCollision(
   player: PlayerState,
   obstacle: ObstacleState,
 ): boolean {
-  const playerLeft = PLAYER_X;
-  const playerRight = PLAYER_X + PLAYER_WIDTH;
-
-  const obstacleLeft = obstacle.x;
-  const obstacleRight = obstacle.x + obstacle.width;
-
-  const playerTop = player.y - PLAYER_HEIGHT;
-
-  const playerBottom = player.y;
-
-  const obstacleTop = -obstacle.height;
-  const obstacleBottom = 0;
-
-  const overlapsHorizontally = playerRight > obstacleLeft &&
-    playerLeft < obstacleRight;
-
-  const overlapsVertically = playerBottom > obstacleTop &&
-    playerTop < obstacleBottom;
-
-  return (
-    overlapsHorizontally &&
-    overlapsVertically
+  return boundsOverlap(
+    getPlayerBounds(player),
+    getObstacleBounds(obstacle),
   );
+}
+
+function createInitialPlayerState(): PlayerState {
+  return {
+    y: GAME_PHYSICS.groundY,
+    velocityY: 0,
+    isGrounded: true,
+  };
+}
+
+function isGameRunning(
+  state: GameState,
+): boolean {
+  return state.status === "running";
+}
+
+function isValidDeltaSeconds(
+  deltaSeconds: number,
+): boolean {
+  return Number.isFinite(deltaSeconds) &&
+    deltaSeconds > 0;
+}
+
+function canAdvanceGame(
+  state: GameState,
+  deltaSeconds: number,
+): boolean {
+  return isGameRunning(state) &&
+    isValidDeltaSeconds(deltaSeconds);
+}
+
+function canJump(
+  player: PlayerState,
+): boolean {
+  return player.isGrounded;
+}
+
+function advanceObstacles(
+  obstacles: readonly ObstacleState[],
+  deltaSeconds: number,
+): ObstacleStepResult {
+  const activeObstacles: ObstacleState[] = [];
+  let passedObstacleCount = 0;
+
+  for (const obstacle of obstacles) {
+    const movedObstacle = moveObstacle(
+      obstacle,
+      deltaSeconds,
+    );
+
+    if (isObstacleOffScreen(movedObstacle)) {
+      passedObstacleCount += 1;
+      continue;
+    }
+
+    activeObstacles.push(movedObstacle);
+  }
+
+  return {
+    activeObstacles,
+    passedObstacleCount,
+  };
+}
+
+function moveObstacle(
+  obstacle: ObstacleState,
+  deltaSeconds: number,
+): ObstacleState {
+  return {
+    ...obstacle,
+    x: obstacle.x -
+      GAME_PHYSICS.obstacleSpeed *
+        deltaSeconds,
+  };
+}
+
+function isObstacleOffScreen(
+  obstacle: ObstacleState,
+): boolean {
+  return obstacle.x < 0;
+}
+
+function calculateScore(
+  currentScore: number,
+  passedObstacleCount: number,
+): number {
+  return currentScore +
+    passedObstacleCount;
+}
+
+function advancePlayer(
+  player: PlayerState,
+  deltaSeconds: number,
+): PlayerState {
+  if (player.isGrounded) {
+    return player;
+  }
+
+  const motion = calculateVerticalMotion(
+    player,
+    deltaSeconds,
+  );
+
+  if (hasReachedGround(motion.y)) {
+    return landPlayer(player);
+  }
+
+  return {
+    ...player,
+    ...motion,
+  };
+}
+
+function calculateVerticalMotion(
+  player: PlayerState,
+  deltaSeconds: number,
+): VerticalMotion {
+  const velocityY = applyGravity(
+    player.velocityY,
+    deltaSeconds,
+  );
+
+  return {
+    velocityY,
+    y: moveVertically(
+      player.y,
+      velocityY,
+      deltaSeconds,
+    ),
+  };
+}
+
+function applyGravity(
+  velocityY: number,
+  deltaSeconds: number,
+): number {
+  return velocityY +
+    GAME_PHYSICS.gravity * deltaSeconds;
+}
+
+function moveVertically(
+  y: number,
+  velocityY: number,
+  deltaSeconds: number,
+): number {
+  return y +
+    velocityY * deltaSeconds;
+}
+
+function hasReachedGround(
+  y: number,
+): boolean {
+  return y >= GAME_PHYSICS.groundY;
+}
+
+function landPlayer(
+  player: PlayerState,
+): PlayerState {
+  return {
+    ...player,
+    y: GAME_PHYSICS.groundY,
+    velocityY: 0,
+    isGrounded: true,
+  };
+}
+
+function hasAnyCollision(
+  player: PlayerState,
+  obstacles: readonly ObstacleState[],
+): boolean {
+  return obstacles.some(
+    (obstacle) => hasCollision(player, obstacle),
+  );
+}
+
+function getPlayerBounds(
+  player: PlayerState,
+): CollisionBounds {
+  const {
+    x,
+    width,
+    height,
+  } = GAME_PHYSICS.playerHitbox;
+
+  return {
+    left: x,
+    right: x + width,
+    top: player.y - height,
+    bottom: player.y,
+  };
+}
+
+function getObstacleBounds(
+  obstacle: ObstacleState,
+): CollisionBounds {
+  return {
+    left: obstacle.x,
+    right: obstacle.x + obstacle.width,
+    top: GAME_PHYSICS.groundY -
+      obstacle.height,
+    bottom: GAME_PHYSICS.groundY,
+  };
+}
+
+function boundsOverlap(
+  first: CollisionBounds,
+  second: CollisionBounds,
+): boolean {
+  const overlapsHorizontally = first.right > second.left &&
+    first.left < second.right;
+
+  const overlapsVertically = first.bottom > second.top &&
+    first.top < second.bottom;
+
+  return overlapsHorizontally &&
+    overlapsVertically;
 }

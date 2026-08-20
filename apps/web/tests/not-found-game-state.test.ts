@@ -601,3 +601,32 @@ Deno.test(
     }
   },
 );
+
+Deno.test(
+  "physics does not advance for an invalid delta",
+  () => {
+    const state = startGame(
+      createInitialGameState(),
+    );
+
+    for (
+      const deltaSeconds of [
+        0,
+        -0.25,
+        Number.NaN,
+        Number.POSITIVE_INFINITY,
+      ]
+    ) {
+      const nextState = stepGame(
+        state,
+        deltaSeconds,
+      );
+
+      if (nextState !== state) {
+        throw new Error(
+          `Expected delta ${deltaSeconds} to leave state unchanged.`,
+        );
+      }
+    }
+  },
+);
