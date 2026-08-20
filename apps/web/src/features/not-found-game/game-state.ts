@@ -31,9 +31,11 @@ type PlayerHitbox = {
 
 type GamePhysicsConfig = {
   readonly groundY: number;
+  readonly worldLeftX: number;
   readonly jumpVelocity: number;
   readonly gravity: number;
   readonly obstacleSpeed: number;
+  readonly scorePerPassedObstacle: number;
   readonly playerHitbox: PlayerHitbox;
 };
 
@@ -54,11 +56,16 @@ type CollisionBounds = {
   readonly bottom: number;
 };
 
+const INITIAL_SCORE = 0;
+const RESTING_VERTICAL_VELOCITY = 0;
+
 const GAME_PHYSICS = {
   groundY: 0,
+  worldLeftX: 0,
   jumpVelocity: -1,
   gravity: 2,
   obstacleSpeed: 4,
+  scorePerPassedObstacle: 1,
   playerHitbox: {
     x: 1,
     width: 1,
@@ -69,7 +76,7 @@ const GAME_PHYSICS = {
 export function createInitialGameState(): GameState {
   return {
     status: "ready",
-    score: 0,
+    score: INITIAL_SCORE,
     player: createInitialPlayerState(),
     obstacles: [],
   };
@@ -78,6 +85,10 @@ export function createInitialGameState(): GameState {
 export function startGame(
   state: GameState,
 ): GameState {
+  if (!canStartGame(state)) {
+    return state;
+  }
+
   return {
     ...state,
     status: "running",
@@ -87,7 +98,7 @@ export function startGame(
 export function jumpPlayer(
   state: GameState,
 ): GameState {
-  if (!canJump(state.player)) {
+  if (!canJump(state)) {
     return state;
   }
 
@@ -114,32 +125,33 @@ export function stepGame(
     deltaSeconds,
   );
 
+  const nextPlayer = advancePlayer(
+    state.player,
+    deltaSeconds,
+  );
+
+  if (
+    hasAnyCollision(
+      nextPlayer,
+      obstacleStep.activeObstacles,
+    )
+  ) {
+    return createCollisionState(
+      state,
+      nextPlayer,
+      obstacleStep.activeObstacles,
+    );
+  }
+
   const nextScore = calculateScore(
     state.score,
     obstacleStep.passedObstacleCount,
   );
 
-  if (
-    hasAnyCollision(
-      state.player,
-      obstacleStep.activeObstacles,
-    )
-  ) {
-    return {
-      ...state,
-      status: "game-over",
-      score: nextScore,
-      obstacles: obstacleStep.activeObstacles,
-    };
-  }
-
   return {
     ...state,
     score: nextScore,
-    player: advancePlayer(
-      state.player,
-      deltaSeconds,
-    ),
+    player: nextPlayer,
     obstacles: obstacleStep.activeObstacles,
   };
 }
@@ -156,7 +168,9 @@ export function spawnObstacle(
     ...state,
     obstacles: [
       ...state.obstacles,
-      obstacle,
+      {
+        ...obstacle,
+      },
     ],
   };
 }
@@ -174,9 +188,43 @@ export function hasCollision(
 function createInitialPlayerState(): PlayerState {
   return {
     y: GAME_PHYSICS.groundY,
-    velocityY: 0,
+    velocityY: RESTING_VERTICAL_VELOCITY,
     isGrounded: true,
   };
+}
+
+function createCollisionState(
+  state: GameState,
+  player: PlayerState,
+  obstacles: readonly ObstacleState[],
+): GameState {
+  return {
+    ...state,
+    status: "game-over",
+    player,
+    obstacles,
+  };
+}
+
+function canStartGame(
+  state: GameState,
+): boolean {
+  return state.status === "ready";
+}
+
+function canJump(
+  state: GameState,
+): boolean {
+  return isGameRunning(state) &&
+    state.player.isGrounded;
+}
+
+function canAdvanceGame(
+  state: GameState,
+  deltaSeconds: number,
+): boolean {
+  return isGameRunning(state) &&
+    isValidDeltaSeconds(deltaSeconds);
 }
 
 function isGameRunning(
@@ -190,20 +238,6 @@ function isValidDeltaSeconds(
 ): boolean {
   return Number.isFinite(deltaSeconds) &&
     deltaSeconds > 0;
-}
-
-function canAdvanceGame(
-  state: GameState,
-  deltaSeconds: number,
-): boolean {
-  return isGameRunning(state) &&
-    isValidDeltaSeconds(deltaSeconds);
-}
-
-function canJump(
-  player: PlayerState,
-): boolean {
-  return player.isGrounded;
 }
 
 function advanceObstacles(
@@ -237,26 +271,44 @@ function moveObstacle(
   obstacle: ObstacleState,
   deltaSeconds: number,
 ): ObstacleState {
+  const horizontalDistance = calculateObstacleTravelDistance(
+    deltaSeconds,
+  );
+
   return {
     ...obstacle,
-    x: obstacle.x -
-      GAME_PHYSICS.obstacleSpeed *
-        deltaSeconds,
+    x: obstacle.x - horizontalDistance,
   };
+}
+
+function calculateObstacleTravelDistance(
+  deltaSeconds: number,
+): number {
+  return GAME_PHYSICS.obstacleSpeed *
+    deltaSeconds;
+}
+
+function getObstacleRightEdge(
+  obstacle: ObstacleState,
+): number {
+  return obstacle.x + obstacle.width;
 }
 
 function isObstacleOffScreen(
   obstacle: ObstacleState,
 ): boolean {
-  return obstacle.x < 0;
+  return getObstacleRightEdge(obstacle) <=
+    GAME_PHYSICS.worldLeftX;
 }
 
 function calculateScore(
   currentScore: number,
   passedObstacleCount: number,
 ): number {
-  return currentScore +
-    passedObstacleCount;
+  const earnedScore = passedObstacleCount *
+    GAME_PHYSICS.scorePerPassedObstacle;
+
+  return currentScore + earnedScore;
 }
 
 function advancePlayer(
@@ -291,13 +343,15 @@ function calculateVerticalMotion(
     deltaSeconds,
   );
 
-  return {
+  const y = moveVertically(
+    player.y,
     velocityY,
-    y: moveVertically(
-      player.y,
-      velocityY,
-      deltaSeconds,
-    ),
+    deltaSeconds,
+  );
+
+  return {
+    y,
+    velocityY,
   };
 }
 
@@ -305,8 +359,11 @@ function applyGravity(
   velocityY: number,
   deltaSeconds: number,
 ): number {
+  const gravityAcceleration = GAME_PHYSICS.gravity *
+    deltaSeconds;
+
   return velocityY +
-    GAME_PHYSICS.gravity * deltaSeconds;
+    gravityAcceleration;
 }
 
 function moveVertically(
@@ -314,8 +371,9 @@ function moveVertically(
   velocityY: number,
   deltaSeconds: number,
 ): number {
-  return y +
-    velocityY * deltaSeconds;
+  const verticalDistance = velocityY * deltaSeconds;
+
+  return y + verticalDistance;
 }
 
 function hasReachedGround(
@@ -330,7 +388,7 @@ function landPlayer(
   return {
     ...player,
     y: GAME_PHYSICS.groundY,
-    velocityY: 0,
+    velocityY: RESTING_VERTICAL_VELOCITY,
     isGrounded: true,
   };
 }
@@ -347,16 +405,12 @@ function hasAnyCollision(
 function getPlayerBounds(
   player: PlayerState,
 ): CollisionBounds {
-  const {
-    x,
-    width,
-    height,
-  } = GAME_PHYSICS.playerHitbox;
+  const hitbox = GAME_PHYSICS.playerHitbox;
 
   return {
-    left: x,
-    right: x + width,
-    top: player.y - height,
+    left: hitbox.x,
+    right: hitbox.x + hitbox.width,
+    top: player.y - hitbox.height,
     bottom: player.y,
   };
 }
@@ -366,7 +420,7 @@ function getObstacleBounds(
 ): CollisionBounds {
   return {
     left: obstacle.x,
-    right: obstacle.x + obstacle.width,
+    right: getObstacleRightEdge(obstacle),
     top: GAME_PHYSICS.groundY -
       obstacle.height,
     bottom: GAME_PHYSICS.groundY,
@@ -377,12 +431,28 @@ function boundsOverlap(
   first: CollisionBounds,
   second: CollisionBounds,
 ): boolean {
-  const overlapsHorizontally = first.right > second.left &&
-    first.left < second.right;
+  return (
+    overlapsHorizontally(first, second) &&
+    overlapsVertically(first, second)
+  );
+}
 
-  const overlapsVertically = first.bottom > second.top &&
-    first.top < second.bottom;
+function overlapsHorizontally(
+  first: CollisionBounds,
+  second: CollisionBounds,
+): boolean {
+  return (
+    first.right > second.left &&
+    first.left < second.right
+  );
+}
 
-  return overlapsHorizontally &&
-    overlapsVertically;
+function overlapsVertically(
+  first: CollisionBounds,
+  second: CollisionBounds,
+): boolean {
+  return (
+    first.bottom > second.top &&
+    first.top < second.bottom
+  );
 }
