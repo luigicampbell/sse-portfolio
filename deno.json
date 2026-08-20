@@ -74,6 +74,7 @@
     "test:api": "deno test --allow-env --allow-read --allow-write apps/api/tests",
     "test:web": "deno test --allow-env --allow-read --allow-write apps/web/tests",
     "test:domain": "deno test --allow-env --allow-read --allow-write packages",
+    "test:game": "deno test apps/web/tests/not-found-game-state.test.ts",
     "test:cv": "deno test --allow-read --allow-write apps/api/tests/cv.routes.test.ts",
     "test:health": "deno test --allow-env --allow-read --allow-write apps/api/tests/health.routes.test.ts",
     "test:middleware": "deno test --allow-env --allow-read --allow-write apps/api/tests/middleware.test.ts",
