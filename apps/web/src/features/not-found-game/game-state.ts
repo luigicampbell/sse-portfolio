@@ -95,6 +95,15 @@ export function startGame(
   };
 }
 
+export function restartGame(
+  state: GameState,
+): GameState {
+  if (!canRestartGame(state)) {
+    return state;
+  }
+
+  return createInitialGameState();
+}
 export function jumpPlayer(
   state: GameState,
 ): GameState {
@@ -210,6 +219,12 @@ function canStartGame(
   state: GameState,
 ): boolean {
   return state.status === "ready";
+}
+
+function canRestartGame(
+  state: GameState,
+): boolean {
+  return state.status === "game-over";
 }
 
 function canJump(

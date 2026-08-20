@@ -4,6 +4,7 @@ import {
   hasCollision,
   jumpPlayer,
   type ObstacleState,
+  restartGame,
   spawnObstacle,
   startGame,
   stepGame,
@@ -67,6 +68,10 @@ const COLLISION_FRAME_COLLIDING_OBSTACLE_START_X = 3;
 const EXPECTED_SCORE_AFTER_ONE_PASSED_OBSTACLE = 1;
 const EXISTING_GAME_OVER_SCORE = 5;
 
+const RESTART_TEST_SCORE = 7;
+const RESTART_TEST_PLAYER_Y = -0.5;
+const RESTART_TEST_PLAYER_VELOCITY_Y = 1;
+const RESTART_TEST_OBSTACLE_X = 4;
 /* -------------------------------------------------------------------------- */
 /* Test helpers                                                               */
 /* -------------------------------------------------------------------------- */
@@ -979,6 +984,104 @@ Deno.test(
       nextState.score,
       EXPECTED_INITIAL_SCORE,
       "Collision frame should preserve the existing score.",
+    );
+  },
+);
+
+/* -------------------------------------------------------------------------- */
+/* restartGame                                                                */
+/* -------------------------------------------------------------------------- */
+
+Deno.test(
+  "restartGame: game-over state resets to a fresh ready state",
+  () => {
+    const state = createGameOverState({
+      score: RESTART_TEST_SCORE,
+      player: {
+        y: RESTART_TEST_PLAYER_Y,
+        velocityY:
+          RESTART_TEST_PLAYER_VELOCITY_Y,
+        isGrounded: false,
+      },
+      obstacles: [
+        createObstacle({
+          id: "restart-obstacle",
+          x: RESTART_TEST_OBSTACLE_X,
+        }),
+      ],
+    });
+
+    const nextState = restartGame(state);
+
+    assertEquals(
+      nextState.status,
+      "ready",
+      "Restarted game should return to ready.",
+    );
+
+    assertEquals(
+      nextState.score,
+      EXPECTED_INITIAL_SCORE,
+      "Restarted game should reset score.",
+    );
+
+    assertEquals(
+      nextState.player.y,
+      EXPECTED_INITIAL_PLAYER_Y,
+      "Restarted game should reset player position.",
+    );
+
+    assertEquals(
+      nextState.player.velocityY,
+      EXPECTED_INITIAL_PLAYER_VELOCITY_Y,
+      "Restarted game should reset player velocity.",
+    );
+
+    assert(
+      nextState.player.isGrounded,
+      "Restarted game should reset player to grounded.",
+    );
+
+    assertEquals(
+      nextState.obstacles.length,
+      NO_OBSTACLES,
+      "Restarted game should remove all obstacles.",
+    );
+
+    assertEquals(
+      state.status,
+      "game-over",
+      "restartGame() must not mutate the original status.",
+    );
+
+    assertEquals(
+      state.score,
+      RESTART_TEST_SCORE,
+      "restartGame() must not mutate the original score.",
+    );
+
+    assertEquals(
+      state.obstacles.length,
+      ONE_OBSTACLE,
+      "restartGame() must not mutate the original obstacles.",
+    );
+
+    assertDifferentReference(
+      nextState,
+      state,
+      "Restarting should return a new game state.",
+    );
+
+    assertDifferentReference(
+      nextState.player,
+      state.player,
+      "Restarting should return a fresh player state.",
+    );
+
+    assertDifferentReference(
+      nextState.obstacles,
+      state.obstacles,
+      "Restarting should return a fresh obstacles array.",
     );
   },
 );
