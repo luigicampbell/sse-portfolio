@@ -80,6 +80,10 @@ const values = {
       empty: "",
       whitespaceOnly: "   ",
     },
+    spawn: {
+      fullyOffScreenX: -1,
+      partiallyVisibleX: -0.5,
+    },
   },
 
   score: {

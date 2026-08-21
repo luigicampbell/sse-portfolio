@@ -492,6 +492,60 @@ Deno.test(
   },
 );
 
+Deno.test(
+  "spawnObstacle: running game ignores obstacles already fully off-screen",
+  () => {
+    const state = fx.createRunningState();
+
+    const obstacle = fx.createObstacle({
+      id: "off-screen-spawn",
+      x: fx.values.obstacle.spawn
+        .fullyOffScreenX,
+    });
+
+    const nextState = spawnObstacle(
+      state,
+      obstacle,
+    );
+
+    expect.sameReference(
+      nextState,
+      state,
+      "Obstacle already fully off-screen should be ignored.",
+    );
+
+    expect.equals(
+      nextState.obstacles.length,
+      fx.values.counts.none,
+      "Off-screen obstacle should not be added.",
+    );
+  },
+);
+
+Deno.test(
+  "spawnObstacle: running game accepts a partially visible obstacle",
+  () => {
+    const state = fx.createRunningState();
+
+    const obstacle = fx.createObstacle({
+      id: "partially-visible-spawn",
+      x: fx.values.obstacle.spawn
+        .partiallyVisibleX,
+    });
+
+    const nextState = spawnObstacle(
+      state,
+      obstacle,
+    );
+
+    expect.equals(
+      nextState.obstacles.length,
+      fx.values.counts.one,
+      "Partially visible obstacle should be accepted.",
+    );
+  },
+);
+
 /* -------------------------------------------------------------------------- */
 /* hasCollision                                                               */
 /* -------------------------------------------------------------------------- */
