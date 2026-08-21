@@ -456,6 +456,42 @@ Deno.test(
   },
 );
 
+Deno.test(
+  "spawnObstacle: running game ignores obstacles with blank ids",
+  () => {
+    const invalidIds = [
+      fx.values.obstacle.invalidId.empty,
+      fx.values.obstacle
+        .invalidId.whitespaceOnly,
+    ];
+
+    for (const id of invalidIds) {
+      const state = fx.createRunningState();
+
+      const obstacle = fx.createObstacle({
+        id,
+      });
+
+      const nextState = spawnObstacle(
+        state,
+        obstacle,
+      );
+
+      expect.sameReference(
+        nextState,
+        state,
+        "Obstacle with blank id should be ignored.",
+      );
+
+      expect.equals(
+        nextState.obstacles.length,
+        fx.values.counts.none,
+        "Obstacle with blank id should not be added.",
+      );
+    }
+  },
+);
+
 /* -------------------------------------------------------------------------- */
 /* hasCollision                                                               */
 /* -------------------------------------------------------------------------- */

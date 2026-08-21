@@ -76,6 +76,10 @@ const values = {
       positiveInfinity: Number.POSITIVE_INFINITY,
       negativeInfinity: Number.NEGATIVE_INFINITY,
     },
+    invalidId: {
+      empty: "",
+      whitespaceOnly: "   ",
+    },
   },
 
   score: {
