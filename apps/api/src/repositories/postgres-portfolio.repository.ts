@@ -16,19 +16,28 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     private readonly databaseUrl: string,
   ) {}
 
-  async getProfile(): Promise<Profile | null> {
+  private notImplemented<T>(
+    operation: string,
+  ): Promise<T> {
+    return Promise.reject(
+      new Error(
+        `PostgreSQL repository operation "${operation}" is not implemented.`,
+      ),
+    );
+  }
+  getProfile(): Promise<Profile | null> {
     throw new Error(
       `PostgreSQL repository is not implemented: ${this.databaseUrl}`,
     );
   }
 
-  async getProjects(): Promise<Project[]> {
+  getProjects(): Promise<Project[]> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async getProject(
+  getProject(
     _slug: string,
   ): Promise<Project | null> {
     throw new Error(
@@ -36,43 +45,43 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async getSkills(): Promise<Skill[]> {
+  getSkills(): Promise<Skill[]> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async getExperience(): Promise<Experience[]> {
+  getExperience(): Promise<Experience[]> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async getEducation(): Promise<Education[]> {
+  getEducation(): Promise<Education[]> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async getCredentials(): Promise<Credential[]> {
+  getCredentials(): Promise<Credential[]> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async getVolunteerExperience(): Promise<VolunteerExperience[]> {
+  getVolunteerExperience(): Promise<VolunteerExperience[]> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async getSeedManifest(): Promise<SeedManifest | null> {
+  getSeedManifest(): Promise<SeedManifest | null> {
     throw new Error(
       "PostgreSQL repository is not implemented.",
     );
   }
 
-  async replaceProfile(
+  replaceProfile(
     _profile: Profile,
   ): Promise<void> {
     throw new Error(
@@ -80,7 +89,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceProjects(
+  replaceProjects(
     _projects: Project[],
   ): Promise<void> {
     throw new Error(
@@ -88,7 +97,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceSkills(
+  replaceSkills(
     _skills: Skill[],
   ): Promise<void> {
     throw new Error(
@@ -96,7 +105,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceExperience(
+  replaceExperience(
     _experience: Experience[],
   ): Promise<void> {
     throw new Error(
@@ -104,7 +113,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceEducation(
+  replaceEducation(
     _education: Education[],
   ): Promise<void> {
     throw new Error(
@@ -112,7 +121,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceCredentials(
+  replaceCredentials(
     _credentials: Credential[],
   ): Promise<void> {
     throw new Error(
@@ -120,7 +129,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceVolunteerExperience(
+  replaceVolunteerExperience(
     _volunteerExperience: VolunteerExperience[],
   ): Promise<void> {
     throw new Error(
@@ -128,7 +137,7 @@ export class PostgresPortfolioRepository implements PortfolioRepository {
     );
   }
 
-  async replaceSeedManifest(
+  replaceSeedManifest(
     _manifest: SeedManifest,
   ): Promise<void> {
     throw new Error(
