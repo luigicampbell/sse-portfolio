@@ -72,6 +72,8 @@ const RESTART_TEST_SCORE = 7;
 const RESTART_TEST_PLAYER_Y = -0.5;
 const RESTART_TEST_PLAYER_VELOCITY_Y = 1;
 const RESTART_TEST_OBSTACLE_X = 4;
+
+const EXPECTED_HIGH_SCORE_AFTER_RUN = 7;
 /* -------------------------------------------------------------------------- */
 /* Test helpers                                                               */
 /* -------------------------------------------------------------------------- */
@@ -999,8 +1001,7 @@ Deno.test(
       score: RESTART_TEST_SCORE,
       player: {
         y: RESTART_TEST_PLAYER_Y,
-        velocityY:
-          RESTART_TEST_PLAYER_VELOCITY_Y,
+        velocityY: RESTART_TEST_PLAYER_VELOCITY_Y,
         isGrounded: false,
       },
       obstacles: [
@@ -1082,6 +1083,38 @@ Deno.test(
       nextState.obstacles,
       state.obstacles,
       "Restarting should return a fresh obstacles array.",
+    );
+  },
+);
+
+Deno.test(
+  "restartGame: preserves the in-session high score",
+  () => {
+    const state: GameState = {
+      ...createGameOverState({
+        score: EXPECTED_HIGH_SCORE_AFTER_RUN,
+      }),
+      highScore: EXPECTED_HIGH_SCORE_AFTER_RUN,
+    };
+
+    const nextState = restartGame(state);
+
+    assertEquals(
+      nextState.status,
+      "ready",
+      "Restarted game should return to ready.",
+    );
+
+    assertEquals(
+      nextState.score,
+      EXPECTED_INITIAL_SCORE,
+      "Restarted game should reset the current score.",
+    );
+
+    assertEquals(
+      nextState.highScore,
+      EXPECTED_HIGH_SCORE_AFTER_RUN,
+      "Restarted game should preserve the in-session high score.",
     );
   },
 );

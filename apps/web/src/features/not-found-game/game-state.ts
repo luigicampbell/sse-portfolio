@@ -19,6 +19,7 @@ export type ObstacleState = {
 export type GameState = {
   readonly status: GameStatus;
   readonly score: number;
+  readonly highScore: number;
   readonly player: PlayerState;
   readonly obstacles: readonly ObstacleState[];
 };
@@ -57,6 +58,7 @@ type CollisionBounds = {
 };
 
 const INITIAL_SCORE = 0;
+const INITIAL_HIGH_SCORE = 0;
 const RESTING_VERTICAL_VELOCITY = 0;
 
 const GAME_PHYSICS = {
@@ -77,8 +79,18 @@ export function createInitialGameState(): GameState {
   return {
     status: "ready",
     score: INITIAL_SCORE,
+    highScore: INITIAL_HIGH_SCORE,
     player: createInitialPlayerState(),
     obstacles: [],
+  };
+}
+
+function createRestartedGameState(
+  state: GameState,
+): GameState {
+  return {
+    ...createInitialGameState(),
+    highScore: state.highScore,
   };
 }
 
@@ -102,8 +114,9 @@ export function restartGame(
     return state;
   }
 
-  return createInitialGameState();
+  return createRestartedGameState(state);
 }
+
 export function jumpPlayer(
   state: GameState,
 ): GameState {
