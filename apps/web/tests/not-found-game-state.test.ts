@@ -376,33 +376,28 @@ Deno.test(
     const invalidObstacles = [
       fx.createObstacle({
         id: "zero-width",
-        width:
-          fx.values.obstacle
-            .invalidZeroDimension,
+        width: fx.values.obstacle
+          .invalidZeroDimension,
       }),
       fx.createObstacle({
         id: "negative-width",
-        width:
-          fx.values.obstacle
-            .invalidNegativeDimension,
+        width: fx.values.obstacle
+          .invalidNegativeDimension,
       }),
       fx.createObstacle({
         id: "zero-height",
-        height:
-          fx.values.obstacle
-            .invalidZeroDimension,
+        height: fx.values.obstacle
+          .invalidZeroDimension,
       }),
       fx.createObstacle({
         id: "negative-height",
-        height:
-          fx.values.obstacle
-            .invalidNegativeDimension,
+        height: fx.values.obstacle
+          .invalidNegativeDimension,
       }),
     ];
 
     for (const obstacle of invalidObstacles) {
-      const state =
-        fx.createRunningState();
+      const state = fx.createRunningState();
 
       const nextState = spawnObstacle(
         state,
@@ -419,6 +414,43 @@ Deno.test(
         nextState.obstacles.length,
         fx.values.counts.none,
         "Invalid obstacle should not be added.",
+      );
+    }
+  },
+);
+
+Deno.test(
+  "spawnObstacle: running game ignores obstacles with non-finite x positions",
+  () => {
+    const invalidXValues = [
+      fx.values.obstacle.invalidX.notANumber,
+      fx.values.obstacle.invalidX.positiveInfinity,
+      fx.values.obstacle.invalidX.negativeInfinity,
+    ];
+
+    for (const x of invalidXValues) {
+      const state = fx.createRunningState();
+
+      const obstacle = fx.createObstacle({
+        id: `invalid-x-${String(x)}`,
+        x,
+      });
+
+      const nextState = spawnObstacle(
+        state,
+        obstacle,
+      );
+
+      expect.sameReference(
+        nextState,
+        state,
+        `Obstacle with x "${String(x)}" should be ignored.`,
+      );
+
+      expect.equals(
+        nextState.obstacles.length,
+        fx.values.counts.none,
+        "Obstacle with non-finite x should not be added.",
       );
     }
   },

@@ -71,6 +71,11 @@ const values = {
 
     invalidZeroDimension: 0,
     invalidNegativeDimension: -1,
+    invalidX: {
+      notANumber: Number.NaN,
+      positiveInfinity: Number.POSITIVE_INFINITY,
+      negativeInfinity: Number.NEGATIVE_INFINITY,
+    },
   },
 
   score: {
