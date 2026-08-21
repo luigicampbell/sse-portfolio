@@ -3,195 +3,28 @@ import {
   type GameState,
   hasCollision,
   jumpPlayer,
-  type ObstacleState,
   restartGame,
   spawnObstacle,
   startGame,
   stepGame,
 } from "../src/features/not-found-game/game-state.ts";
 
-/* -------------------------------------------------------------------------- */
-/* Test values                                                                */
-/* -------------------------------------------------------------------------- */
+import { gameFixture as fx } from "./fixtures/not-found-game.fixture.ts";
 
-const FLOAT_TOLERANCE = 1e-10;
-
-const EXPECTED_INITIAL_SCORE = 0;
-const EXPECTED_INITIAL_PLAYER_Y = 0;
-const EXPECTED_INITIAL_PLAYER_VELOCITY_Y = 0;
-
-const EXPECTED_JUMP_VELOCITY_Y = -1;
-
-const QUARTER_SECOND = 0.25;
-const HALF_SECOND = 0.5;
-const SHORT_COLLISION_FRAME_SECONDS = 0.01;
-const ADVANCED_COLLISION_FRAME_SECONDS = 0.1;
-
-const NEGATIVE_QUARTER_SECOND = -QUARTER_SECOND;
-
-const DEFAULT_OBSTACLE_X = 10;
-const DEFAULT_OBSTACLE_WIDTH = 1;
-const DEFAULT_OBSTACLE_HEIGHT = 1;
-
-const NO_OBSTACLES = 0;
-const ONE_OBSTACLE = 1;
-const TWO_OBSTACLES = 2;
-
-const EXPECTED_OBSTACLE_X_AFTER_HALF_SECOND = 8;
-
-const PASSED_OBSTACLE_START_X = 1;
-const VISIBLE_OBSTACLE_START_X = 5;
-const EXPECTED_VISIBLE_OBSTACLE_X = 3;
-
-const PARTIALLY_VISIBLE_OBSTACLE_START_X = 1.75;
-const EXPECTED_PARTIALLY_VISIBLE_X = -0.25;
-
-const COLLISION_OBSTACLE_X = 1;
-const COLLISION_OBSTACLE_START_X = 1.04;
-
-const AIRBORNE_CLEARANCE_PLAYER_Y = -2;
-
-const LANDING_PLAYER_START_Y = -0.1;
-const LANDING_PLAYER_START_VELOCITY_Y = 1;
-
-const EXPECTED_PLAYER_VELOCITY_AFTER_QUARTER_SECOND = -0.5;
-const EXPECTED_PLAYER_Y_AFTER_QUARTER_SECOND = -0.125;
-
-const FALLING_COLLISION_PLAYER_START_Y = -1.05;
-const FALLING_COLLISION_PLAYER_START_VELOCITY_Y = 0.8;
-const FALLING_COLLISION_OBSTACLE_START_X = 1.4;
-const EXPECTED_FALLING_COLLISION_PLAYER_Y = -0.95;
-
-const COLLISION_FRAME_PASSED_OBSTACLE_START_X = 0.5;
-const COLLISION_FRAME_COLLIDING_OBSTACLE_START_X = 3;
-
-const EXPECTED_SCORE_AFTER_ONE_PASSED_OBSTACLE = 1;
-const EXISTING_GAME_OVER_SCORE = 5;
-
-const RESTART_TEST_SCORE = 7;
-const RESTART_TEST_PLAYER_Y = -0.5;
-const RESTART_TEST_PLAYER_VELOCITY_Y = 1;
-const RESTART_TEST_OBSTACLE_X = 4;
-
-const EXPECTED_INITIAL_HIGH_SCORE = 0;
-const EXPECTED_HIGH_SCORE_AFTER_RUN = 7;
-
-const PREVIOUS_HIGH_SCORE = 3;
-const NEW_HIGH_SCORE = 7;
-const LOWER_COMPLETED_RUN_SCORE = 3;
-const EXISTING_HIGH_SCORE = 7;
-/* -------------------------------------------------------------------------- */
-/* Test helpers                                                               */
-/* -------------------------------------------------------------------------- */
-
-type GameStateOverrides = Partial<Omit<GameState, "status">>;
-
-function createObstacle(
-  overrides: Partial<ObstacleState> = {},
-): ObstacleState {
-  return {
-    id: "obstacle",
-    x: DEFAULT_OBSTACLE_X,
-    width: DEFAULT_OBSTACLE_WIDTH,
-    height: DEFAULT_OBSTACLE_HEIGHT,
-    ...overrides,
-  };
-}
-
-function createRunningState(
-  overrides: GameStateOverrides = {},
-): GameState {
-  return {
-    ...startGame(
-      createInitialGameState(),
-    ),
-    ...overrides,
-    status: "running",
-  };
-}
-
-function createGameOverState(
-  overrides: GameStateOverrides = {},
-): GameState {
-  return {
-    ...createRunningState(overrides),
-    status: "game-over",
-  };
-}
-
-function assert(
-  condition: unknown,
-  message: string,
-): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
-
-function assertEquals<T>(
-  actual: T,
-  expected: T,
-  message: string,
-): void {
-  if (!Object.is(actual, expected)) {
-    throw new Error(
-      `${message} Expected ${String(expected)}, received ${String(actual)}.`,
-    );
-  }
-}
-
-function assertApproximatelyEquals(
-  actual: number,
-  expected: number,
-  message: string,
-): void {
-  const difference = Math.abs(
-    actual - expected,
-  );
-
-  if (difference > FLOAT_TOLERANCE) {
-    throw new Error(
-      `${message} Expected approximately ${String(expected)}, received ${
-        String(actual)
-      }.`,
-    );
-  }
-}
-
-function assertSameReference<T extends object>(
-  actual: T,
-  expected: T,
-  message: string,
-): void {
-  if (actual !== expected) {
-    throw new Error(message);
-  }
-}
-
-function assertDifferentReference<
-  T extends object,
->(
-  actual: T,
-  expected: T,
-  message: string,
-): void {
-  if (actual === expected) {
-    throw new Error(message);
-  }
-}
+import { testAssert as expect } from "./helpers/assertions.ts";
 
 function getOnlyObstacle(
   state: GameState,
-): ObstacleState {
-  assertEquals(
+) {
+  expect.equals(
     state.obstacles.length,
-    ONE_OBSTACLE,
+    fx.values.counts.one,
     "Expected exactly one obstacle.",
   );
 
   const obstacle = state.obstacles[0];
 
-  assert(
+  expect.assert(
     obstacle !== undefined,
     "Expected obstacle to exist.",
   );
@@ -208,44 +41,44 @@ Deno.test(
   () => {
     const state = createInitialGameState();
 
-    assertEquals(
+    expect.equals(
       state.status,
       "ready",
       "Initial game status is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.score,
-      EXPECTED_INITIAL_SCORE,
+      fx.values.initial.score,
       "Initial score is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.highScore,
-      EXPECTED_INITIAL_HIGH_SCORE,
+      fx.values.initial.highScore,
       "Initial high score is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.player.y,
-      EXPECTED_INITIAL_PLAYER_Y,
+      fx.values.initial.playerY,
       "Initial player y position is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.player.velocityY,
-      EXPECTED_INITIAL_PLAYER_VELOCITY_Y,
+      fx.values.initial.playerVelocityY,
       "Initial player velocity is incorrect.",
     );
 
-    assert(
+    expect.assert(
       state.player.isGrounded,
       "Player should initially be grounded.",
     );
 
-    assertEquals(
+    expect.equals(
       state.obstacles.length,
-      NO_OBSTACLES,
+      fx.values.counts.none,
       "Initial state should contain no obstacles.",
     );
   },
@@ -262,19 +95,19 @@ Deno.test(
 
     const nextState = startGame(state);
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "running",
       "Starting the game should transition to running.",
     );
 
-    assertEquals(
+    expect.equals(
       state.status,
       "ready",
       "startGame() must not mutate the original state.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState,
       state,
       "A successful start must return a new state.",
@@ -285,11 +118,11 @@ Deno.test(
 Deno.test(
   "startGame: running game ignores another start request",
   () => {
-    const state = createRunningState();
+    const state = fx.createRunningState();
 
     const nextState = startGame(state);
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "A running game should ignore another start request.",
@@ -300,13 +133,13 @@ Deno.test(
 Deno.test(
   "startGame: game-over state cannot be started directly",
   () => {
-    const state = createGameOverState({
-      score: EXISTING_GAME_OVER_SCORE,
+    const state = fx.createGameOverState({
+      score: fx.values.score.restartTestScore,
     });
 
     const nextState = startGame(state);
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "Game-over state should require an explicit restart.",
@@ -325,7 +158,7 @@ Deno.test(
 
     const nextState = jumpPlayer(state);
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "Player should not jump before the game starts.",
@@ -336,11 +169,11 @@ Deno.test(
 Deno.test(
   "jumpPlayer: game-over player cannot jump",
   () => {
-    const state = createGameOverState();
+    const state = fx.createGameOverState();
 
     const nextState = jumpPlayer(state);
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "Player should not jump after game-over.",
@@ -351,33 +184,33 @@ Deno.test(
 Deno.test(
   "jumpPlayer: grounded running player can jump",
   () => {
-    const state = createRunningState();
+    const state = fx.createRunningState();
 
     const nextState = jumpPlayer(state);
 
-    assertEquals(
+    expect.equals(
       nextState.player.velocityY,
-      EXPECTED_JUMP_VELOCITY_Y,
+      fx.values.player.jumpVelocityY,
       "Jumping should apply the expected upward velocity.",
     );
 
-    assert(
+    expect.assert(
       !nextState.player.isGrounded,
       "Jumping should make the player airborne.",
     );
 
-    assert(
+    expect.assert(
       state.player.isGrounded,
       "jumpPlayer() must not mutate the original player.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState,
       state,
       "A successful jump must return a new game state.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState.player,
       state.player,
       "A successful jump must return a new player state.",
@@ -389,23 +222,23 @@ Deno.test(
   "jumpPlayer: airborne player cannot jump again",
   () => {
     const state = jumpPlayer(
-      createRunningState(),
+      fx.createRunningState(),
     );
 
     const nextState = jumpPlayer(state);
 
-    assertEquals(
+    expect.equals(
       nextState.player.velocityY,
       state.player.velocityY,
       "Airborne jump should preserve vertical velocity.",
     );
 
-    assert(
+    expect.assert(
       !nextState.player.isGrounded,
       "Airborne player should remain airborne.",
     );
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "Ignored airborne jump should return the existing state.",
@@ -420,9 +253,9 @@ Deno.test(
 Deno.test(
   "spawnObstacle: running game can spawn an obstacle",
   () => {
-    const state = createRunningState();
+    const state = fx.createRunningState();
 
-    const obstacle = createObstacle({
+    const obstacle = fx.createObstacle({
       id: "spawned",
     });
 
@@ -431,39 +264,39 @@ Deno.test(
       obstacle,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.obstacles.length,
-      ONE_OBSTACLE,
+      fx.values.counts.one,
       "Running game should contain the spawned obstacle.",
     );
 
     const spawnedObstacle = getOnlyObstacle(nextState);
 
-    assertEquals(
+    expect.equals(
       spawnedObstacle.id,
       "spawned",
       "Spawned obstacle id is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       spawnedObstacle.x,
-      DEFAULT_OBSTACLE_X,
+      fx.values.obstacle.defaultX,
       "Spawned obstacle position is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.obstacles.length,
-      NO_OBSTACLES,
+      fx.values.counts.none,
       "spawnObstacle() must not mutate the original state.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState.obstacles,
       state.obstacles,
       "Spawning should return a new obstacles array.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       spawnedObstacle,
       obstacle,
       "Game state should snapshot the spawned obstacle.",
@@ -481,17 +314,17 @@ Deno.test(
       },
       {
         name: "game-over",
-        state: createGameOverState(),
+        state: fx.createGameOverState(),
       },
     ] as const;
 
     for (const testCase of cases) {
       const nextState = spawnObstacle(
         testCase.state,
-        createObstacle(),
+        fx.createObstacle(),
       );
 
-      assertSameReference(
+      expect.sameReference(
         nextState,
         testCase.state,
         `${testCase.name} game should ignore obstacle spawning.`,
@@ -509,11 +342,11 @@ Deno.test(
   () => {
     const player = createInitialGameState().player;
 
-    const obstacle = createObstacle({
-      x: COLLISION_OBSTACLE_X,
+    const obstacle = fx.createObstacle({
+      x: fx.values.obstacle.collisionX,
     });
 
-    assert(
+    expect.assert(
       hasCollision(player, obstacle),
       "Expected overlapping player and obstacle to collide.",
     );
@@ -523,17 +356,16 @@ Deno.test(
 Deno.test(
   "hasCollision: airborne player can clear an obstacle",
   () => {
-    const player = {
-      ...createInitialGameState().player,
-      y: AIRBORNE_CLEARANCE_PLAYER_Y,
+    const player = fx.createPlayer({
+      y: fx.values.player.airborneClearanceY,
       isGrounded: false,
-    };
-
-    const obstacle = createObstacle({
-      x: COLLISION_OBSTACLE_X,
     });
 
-    assert(
+    const obstacle = fx.createObstacle({
+      x: fx.values.obstacle.collisionX,
+    });
+
+    expect.assert(
       !hasCollision(player, obstacle),
       "Player above the obstacle should not collide.",
     );
@@ -554,17 +386,17 @@ Deno.test(
       },
       {
         name: "game-over",
-        state: createGameOverState(),
+        state: fx.createGameOverState(),
       },
     ] as const;
 
     for (const testCase of cases) {
       const nextState = stepGame(
         testCase.state,
-        QUARTER_SECOND,
+        fx.values.time.quarterSecond,
       );
 
-      assertSameReference(
+      expect.sameReference(
         nextState,
         testCase.state,
         `${testCase.name} game should not advance.`,
@@ -576,11 +408,11 @@ Deno.test(
 Deno.test(
   "stepGame: invalid delta does not advance the game",
   () => {
-    const state = createRunningState();
+    const state = fx.createRunningState();
 
     const invalidDeltas = [
       0,
-      NEGATIVE_QUARTER_SECOND,
+      fx.values.time.negativeQuarterSecond,
       Number.NaN,
       Number.POSITIVE_INFINITY,
       Number.NEGATIVE_INFINITY,
@@ -594,7 +426,7 @@ Deno.test(
         deltaSeconds,
       );
 
-      assertSameReference(
+      expect.sameReference(
         nextState,
         state,
         `Delta ${deltaSeconds} should not advance the game.`,
@@ -611,33 +443,33 @@ Deno.test(
   "stepGame: gravity increases airborne vertical velocity",
   () => {
     const state = jumpPlayer(
-      createRunningState(),
+      fx.createRunningState(),
     );
 
     const nextState = stepGame(
       state,
-      QUARTER_SECOND,
+      fx.values.time.quarterSecond,
     );
 
-    assert(
+    expect.assert(
       nextState.player.velocityY >
         state.player.velocityY,
       "Gravity should increase vertical velocity.",
     );
 
-    assertEquals(
+    expect.equals(
       state.player.velocityY,
-      EXPECTED_JUMP_VELOCITY_Y,
+      fx.values.player.jumpVelocityY,
       "stepGame() must not mutate the original player.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState,
       state,
       "Physics advancement should return a new state.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState.player,
       state.player,
       "Player physics should return a new player state.",
@@ -649,29 +481,29 @@ Deno.test(
   "stepGame: airborne player moves using updated vertical velocity",
   () => {
     const state = jumpPlayer(
-      createRunningState(),
+      fx.createRunningState(),
     );
 
     const nextState = stepGame(
       state,
-      QUARTER_SECOND,
+      fx.values.time.quarterSecond,
     );
 
-    assertApproximatelyEquals(
+    expect.approximatelyEquals(
       nextState.player.velocityY,
-      EXPECTED_PLAYER_VELOCITY_AFTER_QUARTER_SECOND,
+      fx.values.player.velocityAfterQuarterSecond,
       "Vertical velocity is incorrect.",
     );
 
-    assertApproximatelyEquals(
+    expect.approximatelyEquals(
       nextState.player.y,
-      EXPECTED_PLAYER_Y_AFTER_QUARTER_SECOND,
+      fx.values.player.yAfterQuarterSecond,
       "Vertical position is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.player.y,
-      EXPECTED_INITIAL_PLAYER_Y,
+      fx.values.initial.playerY,
       "stepGame() must not mutate the original player position.",
     );
   },
@@ -680,39 +512,39 @@ Deno.test(
 Deno.test(
   "stepGame: player lands at ground level",
   () => {
-    const state = createRunningState({
-      player: {
-        y: LANDING_PLAYER_START_Y,
-        velocityY: LANDING_PLAYER_START_VELOCITY_Y,
+    const state = fx.createRunningState({
+      player: fx.createPlayer({
+        y: fx.values.player.landingStartY,
+        velocityY: fx.values.player.landingStartVelocityY,
         isGrounded: false,
-      },
+      }),
     });
 
     const nextState = stepGame(
       state,
-      QUARTER_SECOND,
+      fx.values.time.quarterSecond,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.player.y,
-      EXPECTED_INITIAL_PLAYER_Y,
+      fx.values.initial.playerY,
       "Landing should clamp player to ground level.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.player.velocityY,
-      EXPECTED_INITIAL_PLAYER_VELOCITY_Y,
+      fx.values.initial.playerVelocityY,
       "Landing should reset vertical velocity.",
     );
 
-    assert(
+    expect.assert(
       nextState.player.isGrounded,
       "Landing should mark player as grounded.",
     );
 
-    assertEquals(
+    expect.equals(
       state.player.y,
-      LANDING_PLAYER_START_Y,
+      fx.values.player.landingStartY,
       "Landing must not mutate the original player.",
     );
   },
@@ -725,9 +557,9 @@ Deno.test(
 Deno.test(
   "stepGame: running game moves obstacles left",
   () => {
-    const state = createRunningState({
+    const state = fx.createRunningState({
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "moving",
         }),
       ],
@@ -735,24 +567,24 @@ Deno.test(
 
     const nextState = stepGame(
       state,
-      HALF_SECOND,
+      fx.values.time.halfSecond,
     );
 
     const movedObstacle = getOnlyObstacle(nextState);
 
-    assertApproximatelyEquals(
+    expect.approximatelyEquals(
       movedObstacle.x,
-      EXPECTED_OBSTACLE_X_AFTER_HALF_SECOND,
+      fx.values.obstacle.xAfterHalfSecond,
       "Obstacle should move left according to obstacle speed.",
     );
 
-    assertEquals(
+    expect.equals(
       state.obstacles[0]?.x,
-      DEFAULT_OBSTACLE_X,
+      fx.values.obstacle.defaultX,
       "stepGame() must not mutate the original obstacle.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState.obstacles,
       state.obstacles,
       "Obstacle movement should return a new array.",
@@ -760,12 +592,12 @@ Deno.test(
 
     const originalObstacle = state.obstacles[0];
 
-    assert(
+    expect.assert(
       originalObstacle !== undefined,
       "Expected original obstacle to exist.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       movedObstacle,
       originalObstacle,
       "Obstacle movement should return a new obstacle.",
@@ -776,47 +608,47 @@ Deno.test(
 Deno.test(
   "stepGame: removes obstacles after their trailing edge passes off-screen",
   () => {
-    const state = createRunningState({
+    const state = fx.createRunningState({
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "passed",
-          x: PASSED_OBSTACLE_START_X,
+          x: fx.values.obstacle.passedStartX,
         }),
-        createObstacle({
+        fx.createObstacle({
           id: "visible",
-          x: VISIBLE_OBSTACLE_START_X,
+          x: fx.values.obstacle.visibleStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      HALF_SECOND,
+      fx.values.time.halfSecond,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.obstacles.length,
-      ONE_OBSTACLE,
+      fx.values.counts.one,
       "Exactly one obstacle should remain.",
     );
 
     const remainingObstacle = getOnlyObstacle(nextState);
 
-    assertEquals(
+    expect.equals(
       remainingObstacle.id,
       "visible",
       "Visible obstacle should remain active.",
     );
 
-    assertApproximatelyEquals(
+    expect.approximatelyEquals(
       remainingObstacle.x,
-      EXPECTED_VISIBLE_OBSTACLE_X,
+      fx.values.obstacle.visibleExpectedX,
       "Visible obstacle position is incorrect.",
     );
 
-    assertEquals(
+    expect.equals(
       state.obstacles.length,
-      TWO_OBSTACLES,
+      fx.values.counts.two,
       "stepGame() must not mutate the original obstacle collection.",
     );
   },
@@ -825,31 +657,31 @@ Deno.test(
 Deno.test(
   "stepGame: partially visible obstacle remains active",
   () => {
-    const state = createRunningState({
+    const state = fx.createRunningState({
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "partially-visible",
-          x: PARTIALLY_VISIBLE_OBSTACLE_START_X,
+          x: fx.values.obstacle.partiallyVisibleStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      HALF_SECOND,
+      fx.values.time.halfSecond,
     );
 
     const obstacle = getOnlyObstacle(nextState);
 
-    assertApproximatelyEquals(
+    expect.approximatelyEquals(
       obstacle.x,
-      EXPECTED_PARTIALLY_VISIBLE_X,
+      fx.values.obstacle.partiallyVisibleExpectedX,
       "Obstacle should retain its advanced x position.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      EXPECTED_INITIAL_SCORE,
+      fx.values.initial.score,
       "Partially visible obstacle must not score yet.",
     );
   },
@@ -862,34 +694,34 @@ Deno.test(
 Deno.test(
   "stepGame: score increases when an obstacle is fully passed",
   () => {
-    const state = createRunningState({
-      score: EXPECTED_INITIAL_SCORE,
+    const state = fx.createRunningState({
+      score: fx.values.initial.score,
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "passed",
-          x: PASSED_OBSTACLE_START_X,
+          x: fx.values.obstacle.passedStartX,
         }),
-        createObstacle({
+        fx.createObstacle({
           id: "visible",
-          x: VISIBLE_OBSTACLE_START_X,
+          x: fx.values.obstacle.visibleStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      HALF_SECOND,
+      fx.values.time.halfSecond,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      EXPECTED_SCORE_AFTER_ONE_PASSED_OBSTACLE,
+      fx.values.score.afterOnePassedObstacle,
       "Passing one obstacle should award one point.",
     );
 
-    assertEquals(
+    expect.equals(
       state.score,
-      EXPECTED_INITIAL_SCORE,
+      fx.values.initial.score,
       "stepGame() must not mutate the original score.",
     );
   },
@@ -902,27 +734,27 @@ Deno.test(
 Deno.test(
   "stepGame: collision transitions running game to game-over",
   () => {
-    const state = createRunningState({
+    const state = fx.createRunningState({
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "collision",
-          x: COLLISION_OBSTACLE_START_X,
+          x: fx.values.obstacle.collisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      SHORT_COLLISION_FRAME_SECONDS,
+      fx.values.time.shortCollisionFrame,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "game-over",
       "Collision should end the running game.",
     );
 
-    assertEquals(
+    expect.equals(
       state.status,
       "running",
       "Collision must not mutate the original state.",
@@ -933,34 +765,34 @@ Deno.test(
 Deno.test(
   "stepGame: collision uses the player's advanced position",
   () => {
-    const state = createRunningState({
-      player: {
-        y: FALLING_COLLISION_PLAYER_START_Y,
-        velocityY: FALLING_COLLISION_PLAYER_START_VELOCITY_Y,
+    const state = fx.createRunningState({
+      player: fx.createPlayer({
+        y: fx.values.player.fallingCollisionStartY,
+        velocityY: fx.values.player.fallingCollisionStartVelocityY,
         isGrounded: false,
-      },
+      }),
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "falling-collision",
-          x: FALLING_COLLISION_OBSTACLE_START_X,
+          x: fx.values.obstacle.fallingCollisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      ADVANCED_COLLISION_FRAME_SECONDS,
+      fx.values.time.advancedCollisionFrame,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "game-over",
       "Player entering obstacle bounds during the frame should collide.",
     );
 
-    assertApproximatelyEquals(
+    expect.approximatelyEquals(
       nextState.player.y,
-      EXPECTED_FALLING_COLLISION_PLAYER_Y,
+      fx.values.player.fallingCollisionExpectedY,
       "Game-over state should preserve the collision-frame player position.",
     );
   },
@@ -969,34 +801,34 @@ Deno.test(
 Deno.test(
   "stepGame: collision frame does not award passed-obstacle score",
   () => {
-    const state = createRunningState({
-      score: EXPECTED_INITIAL_SCORE,
+    const state = fx.createRunningState({
+      score: fx.values.initial.score,
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "passed",
-          x: COLLISION_FRAME_PASSED_OBSTACLE_START_X,
+          x: fx.values.obstacle.collisionFramePassedStartX,
         }),
-        createObstacle({
+        fx.createObstacle({
           id: "collision",
-          x: COLLISION_FRAME_COLLIDING_OBSTACLE_START_X,
+          x: fx.values.obstacle.collisionFrameCollidingStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      HALF_SECOND,
+      fx.values.time.halfSecond,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "game-over",
       "Collision should end the game.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      EXPECTED_INITIAL_SCORE,
+      fx.values.initial.score,
       "Collision frame should preserve the existing score.",
     );
   },
@@ -1005,43 +837,43 @@ Deno.test(
 Deno.test(
   "stepGame: collision updates high score when current score is greater",
   () => {
-    const state = createRunningState({
-      score: NEW_HIGH_SCORE,
-      highScore: PREVIOUS_HIGH_SCORE,
+    const state = fx.createRunningState({
+      score: fx.values.score.newHighScore,
+      highScore: fx.values.score.previousHighScore,
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "high-score-collision",
-          x: COLLISION_OBSTACLE_START_X,
+          x: fx.values.obstacle.collisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      SHORT_COLLISION_FRAME_SECONDS,
+      fx.values.time.shortCollisionFrame,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "game-over",
       "Collision should end the game.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      NEW_HIGH_SCORE,
+      fx.values.score.newHighScore,
       "Collision should preserve the completed run score.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.highScore,
-      NEW_HIGH_SCORE,
+      fx.values.score.newHighScore,
       "A completed run above the previous high score should become the new high score.",
     );
 
-    assertEquals(
+    expect.equals(
       state.highScore,
-      PREVIOUS_HIGH_SCORE,
+      fx.values.score.previousHighScore,
       "stepGame() must not mutate the original high score.",
     );
   },
@@ -1050,43 +882,43 @@ Deno.test(
 Deno.test(
   "stepGame: collision preserves high score when current score is lower",
   () => {
-    const state = createRunningState({
-      score: LOWER_COMPLETED_RUN_SCORE,
-      highScore: EXISTING_HIGH_SCORE,
+    const state = fx.createRunningState({
+      score: fx.values.score.lowerCompletedRunScore,
+      highScore: fx.values.score.existingHighScore,
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "lower-score-collision",
-          x: COLLISION_OBSTACLE_START_X,
+          x: fx.values.obstacle.collisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      SHORT_COLLISION_FRAME_SECONDS,
+      fx.values.time.shortCollisionFrame,
     );
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "game-over",
       "Collision should end the game.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      LOWER_COMPLETED_RUN_SCORE,
+      fx.values.score.lowerCompletedRunScore,
       "Collision should preserve the completed run score.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.highScore,
-      EXISTING_HIGH_SCORE,
+      fx.values.score.existingHighScore,
       "A lower completed run must not replace the existing high score.",
     );
 
-    assertEquals(
+    expect.equals(
       state.highScore,
-      EXISTING_HIGH_SCORE,
+      fx.values.score.existingHighScore,
       "stepGame() must not mutate the original high score.",
     );
   },
@@ -1099,89 +931,89 @@ Deno.test(
 Deno.test(
   "restartGame: game-over state resets to a fresh ready state",
   () => {
-    const state = createGameOverState({
-      score: RESTART_TEST_SCORE,
-      player: {
-        y: RESTART_TEST_PLAYER_Y,
-        velocityY: RESTART_TEST_PLAYER_VELOCITY_Y,
+    const state = fx.createGameOverState({
+      score: fx.values.score.restartTestScore,
+      player: fx.createPlayer({
+        y: fx.values.restart.playerY,
+        velocityY: fx.values.restart.playerVelocityY,
         isGrounded: false,
-      },
+      }),
       obstacles: [
-        createObstacle({
+        fx.createObstacle({
           id: "restart-obstacle",
-          x: RESTART_TEST_OBSTACLE_X,
+          x: fx.values.obstacle.restartTestX,
         }),
       ],
     });
 
     const nextState = restartGame(state);
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "ready",
       "Restarted game should return to ready.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      EXPECTED_INITIAL_SCORE,
+      fx.values.initial.score,
       "Restarted game should reset score.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.player.y,
-      EXPECTED_INITIAL_PLAYER_Y,
+      fx.values.initial.playerY,
       "Restarted game should reset player position.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.player.velocityY,
-      EXPECTED_INITIAL_PLAYER_VELOCITY_Y,
+      fx.values.initial.playerVelocityY,
       "Restarted game should reset player velocity.",
     );
 
-    assert(
+    expect.assert(
       nextState.player.isGrounded,
       "Restarted game should reset player to grounded.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.obstacles.length,
-      NO_OBSTACLES,
+      fx.values.counts.none,
       "Restarted game should remove all obstacles.",
     );
 
-    assertEquals(
+    expect.equals(
       state.status,
       "game-over",
       "restartGame() must not mutate the original status.",
     );
 
-    assertEquals(
+    expect.equals(
       state.score,
-      RESTART_TEST_SCORE,
+      fx.values.score.restartTestScore,
       "restartGame() must not mutate the original score.",
     );
 
-    assertEquals(
+    expect.equals(
       state.obstacles.length,
-      ONE_OBSTACLE,
+      fx.values.counts.one,
       "restartGame() must not mutate the original obstacles.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState,
       state,
       "Restarting should return a new game state.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState.player,
       state.player,
       "Restarting should return a fresh player state.",
     );
 
-    assertDifferentReference(
+    expect.differentReference(
       nextState.obstacles,
       state.obstacles,
       "Restarting should return a fresh obstacles array.",
@@ -1192,30 +1024,30 @@ Deno.test(
 Deno.test(
   "restartGame: preserves the in-session high score",
   () => {
-    const state: GameState = {
-      ...createGameOverState({
-        score: EXPECTED_HIGH_SCORE_AFTER_RUN,
+    const state = {
+      ...fx.createGameOverState({
+        score: fx.values.score.newHighScore,
       }),
-      highScore: EXPECTED_HIGH_SCORE_AFTER_RUN,
+      highScore: fx.values.score.newHighScore,
     };
 
     const nextState = restartGame(state);
 
-    assertEquals(
+    expect.equals(
       nextState.status,
       "ready",
       "Restarted game should return to ready.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.score,
-      EXPECTED_INITIAL_SCORE,
+      fx.values.initial.score,
       "Restarted game should reset the current score.",
     );
 
-    assertEquals(
+    expect.equals(
       nextState.highScore,
-      EXPECTED_HIGH_SCORE_AFTER_RUN,
+      fx.values.score.newHighScore,
       "Restarted game should preserve the in-session high score.",
     );
   },
@@ -1228,7 +1060,7 @@ Deno.test(
 
     const nextState = restartGame(state);
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "Ready game should ignore restart requests.",
@@ -1239,11 +1071,11 @@ Deno.test(
 Deno.test(
   "restartGame: running state ignores restart request",
   () => {
-    const state = createRunningState();
+    const state = fx.createRunningState();
 
     const nextState = restartGame(state);
 
-    assertSameReference(
+    expect.sameReference(
       nextState,
       state,
       "Running game should ignore restart requests.",
