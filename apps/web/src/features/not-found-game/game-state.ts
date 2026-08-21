@@ -202,6 +202,41 @@ export function spawnObstacle(
   };
 }
 
+function canSpawnObstacle(
+  state: GameState,
+  obstacle: ObstacleState,
+): boolean {
+  return isGameRunning(state) &&
+    hasValidObstacleDimensions(obstacle) &&
+    !hasObstacleWithId(
+      state.obstacles,
+      obstacle.id,
+    );
+}
+
+function hasObstacleWithId(
+  obstacles: readonly ObstacleState[],
+  obstacleId: string,
+): boolean {
+  return obstacles.some(
+    (obstacle) => obstacle.id === obstacleId,
+  );
+}
+
+function hasValidObstacleDimensions(
+  obstacle: ObstacleState,
+): boolean {
+  return isPositiveNumber(obstacle.width) &&
+    isPositiveNumber(obstacle.height);
+}
+
+function isPositiveNumber(
+  value: number,
+): boolean {
+  return Number.isFinite(value) &&
+    value > 0;
+}
+
 export function hasCollision(
   player: PlayerState,
   obstacle: ObstacleState,
@@ -355,26 +390,6 @@ function calculateHighScore(
   return Math.max(
     currentScore,
     highScore,
-  );
-}
-
-function canSpawnObstacle(
-  state: GameState,
-  obstacle: ObstacleState,
-): boolean {
-  return isGameRunning(state) &&
-    !hasObstacleWithId(
-      state.obstacles,
-      obstacle.id,
-    );
-}
-
-function hasObstacleWithId(
-  obstacles: readonly ObstacleState[],
-  obstacleId: string,
-): boolean {
-  return obstacles.some(
-    (obstacle) => obstacle.id === obstacleId,
   );
 }
 
