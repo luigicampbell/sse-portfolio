@@ -77,6 +77,8 @@ const EXPECTED_HIGH_SCORE_AFTER_RUN = 7;
 
 const PREVIOUS_HIGH_SCORE = 3;
 const NEW_HIGH_SCORE = 7;
+const LOWER_COMPLETED_RUN_SCORE = 3;
+const EXISTING_HIGH_SCORE = 7;
 /* -------------------------------------------------------------------------- */
 /* Test helpers                                                               */
 /* -------------------------------------------------------------------------- */
@@ -1033,6 +1035,51 @@ Deno.test(
     assertEquals(
       state.highScore,
       PREVIOUS_HIGH_SCORE,
+      "stepGame() must not mutate the original high score.",
+    );
+  },
+);
+
+Deno.test(
+  "stepGame: collision preserves high score when current score is lower",
+  () => {
+    const state = createRunningState({
+      score: LOWER_COMPLETED_RUN_SCORE,
+      highScore: EXISTING_HIGH_SCORE,
+      obstacles: [
+        createObstacle({
+          id: "lower-score-collision",
+          x: COLLISION_OBSTACLE_START_X,
+        }),
+      ],
+    });
+
+    const nextState = stepGame(
+      state,
+      SHORT_COLLISION_FRAME_SECONDS,
+    );
+
+    assertEquals(
+      nextState.status,
+      "game-over",
+      "Collision should end the game.",
+    );
+
+    assertEquals(
+      nextState.score,
+      LOWER_COMPLETED_RUN_SCORE,
+      "Collision should preserve the completed run score.",
+    );
+
+    assertEquals(
+      nextState.highScore,
+      EXISTING_HIGH_SCORE,
+      "A lower completed run must not replace the existing high score.",
+    );
+
+    assertEquals(
+      state.highScore,
+      EXISTING_HIGH_SCORE,
       "stepGame() must not mutate the original high score.",
     );
   },

@@ -223,7 +223,10 @@ function createCollisionState(
   return {
     ...state,
     status: "game-over",
-    highScore: state.score,
+    highScore: calculateHighScore(
+      state.score,
+      state.highScore,
+    ),
     player,
     obstacles,
   };
@@ -338,6 +341,16 @@ function calculateScore(
     GAME_PHYSICS.scorePerPassedObstacle;
 
   return currentScore + earnedScore;
+}
+
+function calculateHighScore(
+  currentScore: number,
+  highScore: number,
+): number {
+  return Math.max(
+    currentScore,
+    highScore,
+  );
 }
 
 function advancePlayer(
