@@ -207,6 +207,7 @@ function canSpawnObstacle(
   obstacle: ObstacleState,
 ): boolean {
   return isGameRunning(state) &&
+    hasValidObstaclePosition(obstacle) &&
     hasValidObstacleDimensions(obstacle) &&
     !hasObstacleWithId(
       state.obstacles,
@@ -235,6 +236,12 @@ function isPositiveNumber(
 ): boolean {
   return Number.isFinite(value) &&
     value > 0;
+}
+
+function hasValidObstaclePosition(
+  obstacle: ObstacleState,
+): boolean {
+  return Number.isFinite(obstacle.x);
 }
 
 export function hasCollision(
