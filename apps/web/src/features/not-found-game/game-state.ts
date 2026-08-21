@@ -223,6 +223,7 @@ function createCollisionState(
   return {
     ...state,
     status: "game-over",
+    highScore: state.score,
     player,
     obstacles,
   };
