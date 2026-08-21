@@ -73,6 +73,7 @@ const RESTART_TEST_PLAYER_Y = -0.5;
 const RESTART_TEST_PLAYER_VELOCITY_Y = 1;
 const RESTART_TEST_OBSTACLE_X = 4;
 
+const EXPECTED_INITIAL_HIGH_SCORE = 0;
 const EXPECTED_HIGH_SCORE_AFTER_RUN = 7;
 
 const PREVIOUS_HIGH_SCORE = 3;
@@ -217,6 +218,12 @@ Deno.test(
       state.score,
       EXPECTED_INITIAL_SCORE,
       "Initial score is incorrect.",
+    );
+
+    assertEquals(
+      state.highScore,
+      EXPECTED_INITIAL_HIGH_SCORE,
+      "Initial high score is incorrect.",
     );
 
     assertEquals(
@@ -1210,6 +1217,36 @@ Deno.test(
       nextState.highScore,
       EXPECTED_HIGH_SCORE_AFTER_RUN,
       "Restarted game should preserve the in-session high score.",
+    );
+  },
+);
+
+Deno.test(
+  "restartGame: ready state ignores restart request",
+  () => {
+    const state = createInitialGameState();
+
+    const nextState = restartGame(state);
+
+    assertSameReference(
+      nextState,
+      state,
+      "Ready game should ignore restart requests.",
+    );
+  },
+);
+
+Deno.test(
+  "restartGame: running state ignores restart request",
+  () => {
+    const state = createRunningState();
+
+    const nextState = restartGame(state);
+
+    assertSameReference(
+      nextState,
+      state,
+      "Running game should ignore restart requests.",
     );
   },
 );
