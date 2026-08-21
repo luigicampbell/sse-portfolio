@@ -86,6 +86,16 @@ const values = {
     },
   },
 
+  generation: {
+    obstacleId: "generated-obstacle",
+    midpointSample: 0.5,
+    spawnX: 12,
+    width: 1,
+    minimumHeight: 0.5,
+    maximumHeight: 1.5,
+    midpointHeight: 1,
+  },
+
   score: {
     afterOnePassedObstacle: 1,
     restartTestScore: 7,
