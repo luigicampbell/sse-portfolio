@@ -207,6 +207,7 @@ function canSpawnObstacle(
   obstacle: ObstacleState,
 ): boolean {
   return isGameRunning(state) &&
+    hasValidObstacleId(obstacle) &&
     hasValidObstaclePosition(obstacle) &&
     hasValidObstacleDimensions(obstacle) &&
     !hasObstacleWithId(
@@ -222,6 +223,12 @@ function hasObstacleWithId(
   return obstacles.some(
     (obstacle) => obstacle.id === obstacleId,
   );
+}
+
+function hasValidObstacleId(
+  obstacle: ObstacleState,
+): boolean {
+  return obstacle.id.trim().length > 0;
 }
 
 function hasValidObstacleDimensions(
