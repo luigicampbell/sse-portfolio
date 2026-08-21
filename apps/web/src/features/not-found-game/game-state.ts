@@ -182,7 +182,12 @@ export function spawnObstacle(
   state: GameState,
   obstacle: ObstacleState,
 ): GameState {
-  if (!isGameRunning(state)) {
+  if (
+    !canSpawnObstacle(
+      state,
+      obstacle,
+    )
+  ) {
     return state;
   }
 
@@ -350,6 +355,26 @@ function calculateHighScore(
   return Math.max(
     currentScore,
     highScore,
+  );
+}
+
+function canSpawnObstacle(
+  state: GameState,
+  obstacle: ObstacleState,
+): boolean {
+  return isGameRunning(state) &&
+    !hasObstacleWithId(
+      state.obstacles,
+      obstacle.id,
+    );
+}
+
+function hasObstacleWithId(
+  obstacles: readonly ObstacleState[],
+  obstacleId: string,
+): boolean {
+  return obstacles.some(
+    (obstacle) => obstacle.id === obstacleId,
   );
 }
 
