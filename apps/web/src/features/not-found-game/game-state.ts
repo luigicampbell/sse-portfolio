@@ -210,6 +210,7 @@ function canSpawnObstacle(
     hasValidObstacleId(obstacle) &&
     hasValidObstaclePosition(obstacle) &&
     hasValidObstacleDimensions(obstacle) &&
+    !isObstacleOffScreen(obstacle) &&
     !hasObstacleWithId(
       state.obstacles,
       obstacle.id,
