@@ -333,6 +333,43 @@ Deno.test(
   },
 );
 
+Deno.test(
+  "spawnObstacle: running game ignores an obstacle with an existing id",
+  () => {
+    const existingObstacle = fx.createObstacle({
+      id: "existing-obstacle",
+    });
+
+    const state = fx.createRunningState({
+      obstacles: [
+        existingObstacle,
+      ],
+    });
+
+    const duplicateObstacle = fx.createObstacle({
+      id: existingObstacle.id,
+      x: fx.values.obstacle.visibleStartX,
+    });
+
+    const nextState = spawnObstacle(
+      state,
+      duplicateObstacle,
+    );
+
+    expect.sameReference(
+      nextState,
+      state,
+      "Duplicate obstacle id should be ignored.",
+    );
+
+    expect.equals(
+      nextState.obstacles.length,
+      fx.values.counts.one,
+      "Duplicate obstacle should not be added.",
+    );
+  },
+);
+
 /* -------------------------------------------------------------------------- */
 /* hasCollision                                                               */
 /* -------------------------------------------------------------------------- */
