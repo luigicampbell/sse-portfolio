@@ -370,6 +370,60 @@ Deno.test(
   },
 );
 
+Deno.test(
+  "spawnObstacle: running game ignores obstacles with invalid dimensions",
+  () => {
+    const invalidObstacles = [
+      fx.createObstacle({
+        id: "zero-width",
+        width:
+          fx.values.obstacle
+            .invalidZeroDimension,
+      }),
+      fx.createObstacle({
+        id: "negative-width",
+        width:
+          fx.values.obstacle
+            .invalidNegativeDimension,
+      }),
+      fx.createObstacle({
+        id: "zero-height",
+        height:
+          fx.values.obstacle
+            .invalidZeroDimension,
+      }),
+      fx.createObstacle({
+        id: "negative-height",
+        height:
+          fx.values.obstacle
+            .invalidNegativeDimension,
+      }),
+    ];
+
+    for (const obstacle of invalidObstacles) {
+      const state =
+        fx.createRunningState();
+
+      const nextState = spawnObstacle(
+        state,
+        obstacle,
+      );
+
+      expect.sameReference(
+        nextState,
+        state,
+        `Obstacle "${obstacle.id}" with invalid dimensions should be ignored.`,
+      );
+
+      expect.equals(
+        nextState.obstacles.length,
+        fx.values.counts.none,
+        "Invalid obstacle should not be added.",
+      );
+    }
+  },
+);
+
 /* -------------------------------------------------------------------------- */
 /* hasCollision                                                               */
 /* -------------------------------------------------------------------------- */

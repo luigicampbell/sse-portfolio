@@ -68,6 +68,9 @@ const values = {
     collisionFrameCollidingStartX: 3,
 
     restartTestX: 4,
+
+    invalidZeroDimension: 0,
+    invalidNegativeDimension: -1,
   },
 
   score: {
