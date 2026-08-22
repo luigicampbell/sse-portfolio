@@ -2,6 +2,8 @@ import {
   startNotFoundGameLoop,
 } from "../../src/features/not-found-game/game-loop.ts";
 
+import { startGame } from "../../src/features/not-found-game/game-state.ts";
+
 import {
   createNotFoundGameRuntimeState,
   type NotFoundGameRuntimeState,
@@ -289,5 +291,120 @@ Deno.test(
       fx.values.counts.one,
       "Stopping more than once should not cancel again.",
     );
+  },
+);
+
+Deno.test(
+  "startNotFoundGameLoop: applies runtime state updates to authoritative loop state",
+  () => {
+    let scheduledFrame: FrameCallback | undefined;
+
+    let requestId = 0;
+
+    const publishedStates: NotFoundGameRuntimeState[] = [];
+
+    const controller = startNotFoundGameLoop(
+      createNotFoundGameRuntimeState(),
+      {
+        requestFrame: (
+          callback: FrameCallback,
+        ): number => {
+          scheduledFrame = callback;
+          requestId += 1;
+
+          return requestId;
+        },
+
+        cancelFrame: () => {},
+
+        getSpawnInputs: () => [],
+
+        publishState: (
+          state: NotFoundGameRuntimeState,
+        ): void => {
+          publishedStates.push(state);
+        },
+      },
+    );
+
+    controller.updateRuntimeState(
+      (
+        state: NotFoundGameRuntimeState,
+      ): NotFoundGameRuntimeState => {
+        const gameState = startGame(state.gameState);
+
+        if (
+          gameState ===
+            state.gameState
+        ) {
+          return state;
+        }
+
+        return {
+          ...state,
+          gameState,
+        };
+      },
+    );
+
+    expect.equals(
+      publishedStates.length,
+      fx.values.counts.one,
+      "Runtime update should publish the transitioned state.",
+    );
+
+    const startedState = publishedStates[0];
+
+    expect.assert(
+      startedState !== undefined,
+      "Expected the started runtime state to be published.",
+    );
+
+    expect.equals(
+      startedState.gameState.status,
+      "running",
+      "Runtime update should start the game.",
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Expected the loop to have a pending frame.",
+    );
+
+    scheduledFrame(
+      fx.values.frameClock
+        .firstTimestampMs,
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Expected the loop to schedule another frame.",
+    );
+
+    scheduledFrame(
+      fx.values.frameClock
+        .nextTimestampMs,
+    );
+
+    expect.equals(
+      publishedStates.length,
+      fx.values.counts.two,
+      "A usable frame should publish another runtime state.",
+    );
+
+    const advancedState = publishedStates[1];
+
+    expect.assert(
+      advancedState !== undefined,
+      "Expected the advanced runtime state to be published.",
+    );
+
+    expect.equals(
+      advancedState.gameState.status,
+      "running",
+      "The loop should advance from the UI-updated runtime state.",
+    );
+
+    controller.stop();
   },
 );

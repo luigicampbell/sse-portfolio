@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { createBrowserGameLoopDependencies } from "./browser-game-loop.ts";
 
-import { startNotFoundGameLoop } from "./game-loop.ts";
+import {
+  type NotFoundGameLoopController,
+  startNotFoundGameLoop,
+} from "./game-loop.ts";
 
 import {
   createNotFoundGameRuntimeState,
   type NotFoundGameRuntimeState,
+  restartNotFoundGameRuntime,
 } from "./game-runtime.ts";
+
+import { startGame } from "./game-state.ts";
 
 import "./NotFoundGame.css";
 
@@ -16,6 +22,10 @@ const WORLD_WIDTH = 14;
 export function NotFoundGame() {
   const [runtimeState, setRuntimeState] = useState<NotFoundGameRuntimeState>(
     createNotFoundGameRuntimeState,
+  );
+
+  const controllerRef = useRef<NotFoundGameLoopController | null>(
+    null,
   );
 
   useEffect(() => {
@@ -34,10 +44,51 @@ export function NotFoundGame() {
       dependencies,
     );
 
+    controllerRef.current = controller;
+
     return () => {
       controller.stop();
+
+      if (
+        controllerRef.current ===
+          controller
+      ) {
+        controllerRef.current = null;
+      }
     };
   }, []);
+
+  const handleStart = (): void => {
+    controllerRef.current
+      ?.updateRuntimeState(
+        (
+          state,
+        ): NotFoundGameRuntimeState => {
+          const gameState = startGame(
+            state.gameState,
+          );
+
+          if (
+            gameState ===
+              state.gameState
+          ) {
+            return state;
+          }
+
+          return {
+            ...state,
+            gameState,
+          };
+        },
+      );
+  };
+
+  const handleRestart = (): void => {
+    controllerRef.current
+      ?.updateRuntimeState(
+        restartNotFoundGameRuntime,
+      );
+  };
 
   const gameState = runtimeState.gameState;
 
@@ -86,14 +137,12 @@ export function NotFoundGame() {
                     WORLD_WIDTH
                   ) * 100
                 }%`,
-
                 width: `${
                   (
                     obstacle.width /
                     WORLD_WIDTH
                   ) * 100
                 }%`,
-
                 height: `calc(${obstacle.height} * var(--not-found-game-unit))`,
               }}
               aria-hidden="true"
@@ -105,6 +154,30 @@ export function NotFoundGame() {
           className="not-found-game__ground"
           aria-hidden="true"
         />
+      </div>
+
+      <div className="not-found-game__controls">
+        {gameState.status ===
+            "ready" && (
+          <button
+            type="button"
+            className="not-found-game__control"
+            onClick={handleStart}
+          >
+            Start game
+          </button>
+        )}
+
+        {gameState.status ===
+            "game-over" && (
+          <button
+            type="button"
+            className="not-found-game__control"
+            onClick={handleRestart}
+          >
+            Play again
+          </button>
+        )}
       </div>
 
       <p

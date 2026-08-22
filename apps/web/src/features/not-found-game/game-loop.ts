@@ -30,7 +30,15 @@ export type NotFoundGameLoopDependencies = {
   ) => void;
 };
 
+export type NotFoundGameRuntimeUpdater = (
+  state: NotFoundGameRuntimeState,
+) => NotFoundGameRuntimeState;
+
 export type NotFoundGameLoopController = {
+  readonly updateRuntimeState: (
+    update: NotFoundGameRuntimeUpdater,
+  ) => void;
+
   readonly stop: () => void;
 };
 
@@ -83,6 +91,29 @@ export function startNotFoundGameLoop(
   );
 
   return {
+    updateRuntimeState: (
+      update: NotFoundGameRuntimeUpdater,
+    ): void => {
+      if (!isActive) {
+        return;
+      }
+
+      const nextRuntimeState = update(runtimeState);
+
+      if (
+        nextRuntimeState ===
+          runtimeState
+      ) {
+        return;
+      }
+
+      runtimeState = nextRuntimeState;
+
+      dependencies.publishState(
+        runtimeState,
+      );
+    },
+
     stop: () => {
       if (!isActive) {
         return;

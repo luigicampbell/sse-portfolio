@@ -11,7 +11,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 1 — Deterministic game domain: **Complete**
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
-- Phase 4 — Rendering and controls: **In progress (5/12)**
+- Phase 4 — Rendering and controls: **In progress (7/12)**
 - Phase 5 — Lifecycle and accessibility: **Pending**
 - Phase 6 — Integration hardening: **Pending**
 
@@ -608,8 +608,8 @@ Status: **In progress**
 - [x] Render ground/world
 - [x] Render current score
 - [x] Render high score
-- [ ] Ready-state start control
-- [ ] Game-over/restart control
+- [x] Ready-state start control
+- [x] Game-over/restart control
 - [ ] Keyboard jump input
 - [ ] Touch/pointer jump input
 - [ ] Avoid hover-only interactions
@@ -648,26 +648,26 @@ Status: **Pending**
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
-Phase 4 — Rendering / controls       █████░░░░░  5 / 11
+Phase 4 — Rendering / controls       ██████░░░░  7 / 12
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Add the existing ready-state start and game-over restart controls.
+Add player jump controls using the existing deterministic `jumpPlayer()`
+transition.
 
-Controls should operate on feature-local runtime state:
+The interaction layer should:
 
-- ready state exposes a semantic start control;
-- game-over state exposes a semantic restart control;
-- starting changes the game state to running;
-- restarting uses the runtime restart path so game state and spawn cadence reset
-  together;
-- the session high score remains preserved.
+- support keyboard jumping while the game is running;
+- support touch/pointer jumping for mobile and pointer devices;
+- route both input methods through the same runtime-state transition;
+- avoid duplicate jump behavior from a single interaction;
+- preserve the existing no-double-jump rule from `game-state.ts`;
+- keep controls feature-local.
 
-Do not add keyboard or pointer jump handling during this slice. Those remain
-separate existing Phase 4 requirements.
+No new physics or state-management behavior should be introduced.
 
 ## Design Constraints
 
