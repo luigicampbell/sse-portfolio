@@ -78,3 +78,44 @@ Deno.test(
     );
   },
 );
+
+Deno.test(
+  "advanceFrameClock: invalid timestamps do not advance the frame clock",
+  () => {
+    const initialized = advanceFrameClock(
+      createFrameClockState(),
+      fx.values.frameClock.firstTimestampMs,
+    );
+
+    const invalidTimestamps = [
+      fx.values.frameClock.firstTimestampMs,
+      fx.values.frameClock.backwardTimestampMs,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ];
+
+    for (const timestampMs of invalidTimestamps) {
+      const result = advanceFrameClock(
+        initialized.state,
+        timestampMs,
+      );
+
+      expect.equals(
+        result.deltaSeconds,
+        fx.values.frameClock.noDelta,
+        `Invalid timestamp "${
+          String(timestampMs)
+        }" should not produce a frame delta.`,
+      );
+
+      expect.sameReference(
+        result.state,
+        initialized.state,
+        `Invalid timestamp "${
+          String(timestampMs)
+        }" should preserve the frame clock state.`,
+      );
+    }
+  },
+);

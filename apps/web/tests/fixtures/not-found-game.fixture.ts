@@ -152,6 +152,7 @@ const values = {
 
   frameClock: {
     firstTimestampMs: 1000,
+    backwardTimestampMs: 900,
     nextTimestampMs: 1016,
     largeTimestampMs: 5000,
 
