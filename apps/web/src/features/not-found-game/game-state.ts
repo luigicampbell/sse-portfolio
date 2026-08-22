@@ -1,3 +1,5 @@
+import { isValidObstacle } from "./obstacle-validation.ts";
+
 export type GameStatus =
   | "ready"
   | "running"
@@ -82,15 +84,6 @@ export function createInitialGameState(): GameState {
     highScore: INITIAL_HIGH_SCORE,
     player: createInitialPlayerState(),
     obstacles: [],
-  };
-}
-
-function createRestartedGameState(
-  state: GameState,
-): GameState {
-  return {
-    ...createInitialGameState(),
-    highScore: state.highScore,
   };
 }
 
@@ -182,12 +175,7 @@ export function spawnObstacle(
   state: GameState,
   obstacle: ObstacleState,
 ): GameState {
-  if (
-    !canSpawnObstacle(
-      state,
-      obstacle,
-    )
-  ) {
+  if (!canSpawnObstacle(state, obstacle)) {
     return state;
   }
 
@@ -200,56 +188,6 @@ export function spawnObstacle(
       },
     ],
   };
-}
-
-function canSpawnObstacle(
-  state: GameState,
-  obstacle: ObstacleState,
-): boolean {
-  return isGameRunning(state) &&
-    hasValidObstacleId(obstacle) &&
-    hasValidObstaclePosition(obstacle) &&
-    hasValidObstacleDimensions(obstacle) &&
-    !isObstacleOffScreen(obstacle) &&
-    !hasObstacleWithId(
-      state.obstacles,
-      obstacle.id,
-    );
-}
-
-function hasObstacleWithId(
-  obstacles: readonly ObstacleState[],
-  obstacleId: string,
-): boolean {
-  return obstacles.some(
-    (obstacle) => obstacle.id === obstacleId,
-  );
-}
-
-function hasValidObstacleId(
-  obstacle: ObstacleState,
-): boolean {
-  return obstacle.id.trim().length > 0;
-}
-
-function hasValidObstacleDimensions(
-  obstacle: ObstacleState,
-): boolean {
-  return isPositiveNumber(obstacle.width) &&
-    isPositiveNumber(obstacle.height);
-}
-
-function isPositiveNumber(
-  value: number,
-): boolean {
-  return Number.isFinite(value) &&
-    value > 0;
-}
-
-function hasValidObstaclePosition(
-  obstacle: ObstacleState,
-): boolean {
-  return Number.isFinite(obstacle.x);
 }
 
 export function hasCollision(
@@ -267,6 +205,15 @@ function createInitialPlayerState(): PlayerState {
     y: GAME_PHYSICS.groundY,
     velocityY: RESTING_VERTICAL_VELOCITY,
     isGrounded: true,
+  };
+}
+
+function createRestartedGameState(
+  state: GameState,
+): GameState {
+  return {
+    ...createInitialGameState(),
+    highScore: state.highScore,
   };
 }
 
@@ -314,6 +261,19 @@ function canAdvanceGame(
     isValidDeltaSeconds(deltaSeconds);
 }
 
+function canSpawnObstacle(
+  state: GameState,
+  obstacle: ObstacleState,
+): boolean {
+  return isGameRunning(state) &&
+    isValidObstacle(obstacle) &&
+    !isObstacleOffScreen(obstacle) &&
+    !hasObstacleWithId(
+      state.obstacles,
+      obstacle.id,
+    );
+}
+
 function isGameRunning(
   state: GameState,
 ): boolean {
@@ -325,6 +285,15 @@ function isValidDeltaSeconds(
 ): boolean {
   return Number.isFinite(deltaSeconds) &&
     deltaSeconds > 0;
+}
+
+function hasObstacleWithId(
+  obstacles: readonly ObstacleState[],
+  obstacleId: string,
+): boolean {
+  return obstacles.some(
+    (obstacle) => obstacle.id === obstacleId,
+  );
 }
 
 function advanceObstacles(
@@ -506,8 +475,10 @@ function getPlayerBounds(
 
   return {
     left: hitbox.x,
-    right: hitbox.x + hitbox.width,
-    top: player.y - hitbox.height,
+    right: hitbox.x +
+      hitbox.width,
+    top: player.y -
+      hitbox.height,
     bottom: player.y,
   };
 }
@@ -529,8 +500,14 @@ function boundsOverlap(
   second: CollisionBounds,
 ): boolean {
   return (
-    overlapsHorizontally(first, second) &&
-    overlapsVertically(first, second)
+    overlapsHorizontally(
+      first,
+      second,
+    ) &&
+    overlapsVertically(
+      first,
+      second,
+    )
   );
 }
 
