@@ -30,6 +30,10 @@ export function advanceFrameClock(
   state: FrameClockState,
   timestampMs: number,
 ): FrameClockResult {
+  if (!isValidTimestamp(timestampMs)) {
+    return createNoAdvanceResult(state);
+  }
+
   if (state.previousTimestampMs === null) {
     return {
       state: {
@@ -37,6 +41,13 @@ export function advanceFrameClock(
       },
       deltaSeconds: NO_DELTA_SECONDS,
     };
+  }
+
+  if (
+    timestampMs <=
+      state.previousTimestampMs
+  ) {
+    return createNoAdvanceResult(state);
   }
 
   const elapsedMilliseconds = timestampMs -
@@ -53,5 +64,20 @@ export function advanceFrameClock(
       elapsedSeconds,
       FRAME_CLOCK.maximumDeltaSeconds,
     ),
+  };
+}
+
+function isValidTimestamp(
+  timestampMs: number,
+): boolean {
+  return Number.isFinite(timestampMs);
+}
+
+function createNoAdvanceResult(
+  state: FrameClockState,
+): FrameClockResult {
+  return {
+    state,
+    deltaSeconds: NO_DELTA_SECONDS,
   };
 }

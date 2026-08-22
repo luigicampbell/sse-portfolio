@@ -145,6 +145,10 @@ causing a giant simulation step.
 
 The clock remains independent of `requestAnimationFrame()` itself.
 
+Invalid, non-finite, duplicate, or backwards timestamps are ignored. Ignoring a
+timestamp preserves the existing clock state so malformed input cannot move the
+clock backwards or poison subsequent frame calculations.
+
 ### `obstacle-validation.ts`
 
 Owns reusable structural obstacle validity.
@@ -560,20 +564,21 @@ These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
-Connect the frame clock and deterministic game runtime to the browser
-`requestAnimationFrame()` lifecycle.
+Connect the bounded frame clock and deterministic game runtime to the browser
+animation lifecycle.
 
-The browser runtime should:
+The browser loop should:
 
-1. request the next animation frame;
-2. pass its timestamp through `frame-clock.ts`;
-3. skip deterministic advancement when the clock produces no delta;
-4. advance the game runtime with the bounded delta;
-5. schedule the following frame only while the component is active;
-6. cancel or invalidate the loop on cleanup.
+1. request an animation frame;
+2. pass the frame timestamp through `frame-clock.ts`;
+3. skip game advancement when the clock produces a zero delta;
+4. advance `game-runtime.ts` when a usable delta is produced;
+5. schedule the next frame only while the runtime is active;
+6. cancel or invalidate pending work during cleanup.
 
-Obstacle ID generation and random samples remain runtime-boundary concerns and
-should not move into the deterministic game modules.
+This slice introduces the actual `requestAnimationFrame()` boundary, but random
+obstacle IDs and normalized samples should remain injectable rather than being
+embedded in deterministic modules.
 
 ## Design Constraints
 
