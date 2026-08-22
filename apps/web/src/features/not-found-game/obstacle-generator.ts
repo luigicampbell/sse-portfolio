@@ -31,7 +31,8 @@ export function generateObstacle(
 function calculateObstacleHeight(
   normalizedSample: number,
 ): number {
-  const heightRange = OBSTACLE_GENERATION.maximumHeight -
+  const heightRange =
+    OBSTACLE_GENERATION.maximumHeight -
     OBSTACLE_GENERATION.minimumHeight;
 
   return (

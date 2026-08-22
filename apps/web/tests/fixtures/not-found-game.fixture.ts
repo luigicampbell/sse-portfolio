@@ -88,7 +88,11 @@ const values = {
 
   generation: {
     obstacleId: "generated-obstacle",
+
+    minimumSample: 0,
     midpointSample: 0.5,
+    maximumSample: 1,
+
     spawnX: 12,
     width: 1,
     minimumHeight: 0.5,

@@ -35,7 +35,39 @@ Deno.test(
     expect.equals(
       obstacle.height,
       fx.values.generation.midpointHeight,
-      "Midpoint random sample should generate the midpoint obstacle height.",
+      "Midpoint sample should generate midpoint obstacle height.",
+    );
+  },
+);
+
+Deno.test(
+  "generateObstacle: zero sample generates minimum obstacle height",
+  () => {
+    const obstacle = generateObstacle(
+      fx.values.generation.obstacleId,
+      fx.values.generation.minimumSample,
+    );
+
+    expect.equals(
+      obstacle.height,
+      fx.values.generation.minimumHeight,
+      "Minimum sample should generate minimum obstacle height.",
+    );
+  },
+);
+
+Deno.test(
+  "generateObstacle: one sample generates maximum obstacle height",
+  () => {
+    const obstacle = generateObstacle(
+      fx.values.generation.obstacleId,
+      fx.values.generation.maximumSample,
+    );
+
+    expect.equals(
+      obstacle.height,
+      fx.values.generation.maximumHeight,
+      "Maximum sample should generate maximum obstacle height.",
     );
   },
 );
