@@ -6,6 +6,7 @@ import { AppSkeleton } from "./components/AppSkeleton.tsx";
 import { Loading } from "./components/Loading.tsx";
 import { getPortfolio } from "./lib/api.ts";
 import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
+import { NotFoundPage } from "./pages/NotFoundPage.tsx";
 import { Hero } from "./sections/Hero.tsx";
 
 const Projects = lazy(
@@ -21,11 +22,16 @@ const Skills = lazy(
 );
 
 const SkillsCharts = lazy(
-  () => import("./features/skills-charts/SkillsCharts.tsx"),
+  () =>
+    import(
+      "./features/skills-charts/SkillsCharts.tsx"
+    ),
 );
 
 type LoadState =
-  | { status: "loading" }
+  | {
+    status: "loading";
+  }
   | {
     status: "ready";
     data: PortfolioPageResponse;
@@ -35,7 +41,19 @@ type LoadState =
     message: string;
   };
 
+const PORTFOLIO_PATH = "/";
+
 export function App() {
+  const pathname = globalThis.location.pathname;
+
+  if (pathname !== PORTFOLIO_PATH) {
+    return <NotFoundPage />;
+  }
+
+  return <PortfolioApp />;
+}
+
+function PortfolioApp() {
   const [state, setState] = useState<LoadState>({
     status: "loading",
   });
@@ -55,7 +73,9 @@ export function App() {
         });
       })
       .catch((error: unknown) => {
-        if (controller.signal.aborted) {
+        if (
+          controller.signal.aborted
+        ) {
           return;
         }
 
@@ -98,7 +118,11 @@ export function App() {
           </p>
 
           <p className="app-status__hint">
-            Confirm that <code>deno task dev:api</code> is running.
+            Confirm that{" "}
+            <code>
+              deno task dev:api
+            </code>{" "}
+            is running.
           </p>
         </section>
       </AppShell>
