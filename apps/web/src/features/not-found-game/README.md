@@ -597,7 +597,7 @@ Status: **In progress**
 - [x] Bound browser frame deltas
 - [x] Supply runtime obstacle IDs and random samples
 - [x] Reset runtime state cleanly on restart
-- [ ] Prevent stale animation callbacks after unmount
+- [x] Prevent stale animation callbacks after unmount
 
 ### Phase 4 — Rendering and controls
 
@@ -646,7 +646,7 @@ Status: **Pending**
 ```text
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
-Phase 3 — Runtime integration        ████████░░  5 / 6
+Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ░░░░░░░░░░  Pending
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
@@ -654,17 +654,22 @@ Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 
 ## Next Implementation Slice
 
-Harden animation-loop cleanup against stale frame callbacks.
+Begin Phase 4 by rendering the game world from feature-local runtime state.
 
-Stopping or unmounting the feature should:
+The first rendering pass should display:
 
-- cancel the currently pending animation-frame request;
-- prevent an already captured callback from advancing runtime state;
-- prevent stale callbacks from scheduling additional frames;
-- remain safe when cleanup is called more than once.
+- the game world and ground;
+- the player;
+- active obstacles;
+- current score;
+- session high score.
 
-Completing this work should satisfy the final existing Phase 3 runtime
-integration requirement.
+Rendering should reflect existing `GameState` only. Do not add new physics,
+state management, persistence, animation abstractions, or controls during this
+slice.
+
+Controls are an existing Phase 4 requirement and will follow once the current
+runtime state is visibly represented.
 
 ## Design Constraints
 
