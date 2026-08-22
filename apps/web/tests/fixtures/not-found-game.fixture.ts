@@ -53,6 +53,7 @@ const values = {
 
     xAfterHalfSecond: 8,
     xAfterFullSpawnInterval: 4,
+    xAfterSixteenMilliseconds: 9.936,
 
     passedStartX: 1,
 
