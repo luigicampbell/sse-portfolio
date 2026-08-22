@@ -1,6 +1,8 @@
 import {
   advanceNotFoundGameFrame,
   createNotFoundGameRuntimeState,
+  type NotFoundGameRuntimeState,
+  restartNotFoundGameRuntime,
 } from "../../src/features/not-found-game/game-runtime.ts";
 
 import { gameFixture as fx } from "../fixtures/not-found-game.fixture.ts";
@@ -83,6 +85,103 @@ Deno.test(
       fx.values.spawnCadence
         .elapsedAfterExactSpawn,
       "Spawn cadence should consume the same frame delta.",
+    );
+  },
+);
+
+Deno.test(
+  "restartNotFoundGameRuntime: resets the game and spawn cadence while preserving high score",
+  () => {
+    const state: NotFoundGameRuntimeState = {
+      gameState: fx.createGameOverState({
+        score: fx.values.score
+          .restartTestScore,
+
+        highScore: fx.values.score
+          .existingHighScore,
+
+        obstacles: [
+          fx.createObstacle({
+            x: fx.values.obstacle
+              .restartTestX,
+          }),
+        ],
+      }),
+
+      spawningState: {
+        cadence: {
+          elapsedSeconds: fx.values.spawnCadence
+            .elapsedBeforeThreshold,
+        },
+      },
+    };
+
+    const restarted = restartNotFoundGameRuntime(
+      state,
+    );
+
+    expect.differentReference(
+      restarted,
+      state,
+      "Restart should create a new runtime state.",
+    );
+
+    expect.equals(
+      restarted.gameState.status,
+      "ready",
+      "Restarted runtime should return the game to ready.",
+    );
+
+    expect.equals(
+      restarted.gameState.score,
+      fx.values.initial.score,
+      "Restart should reset the current score.",
+    );
+
+    expect.equals(
+      restarted.gameState.highScore,
+      fx.values.score.existingHighScore,
+      "Restart should preserve the session high score.",
+    );
+
+    expect.equals(
+      restarted.gameState.obstacles.length,
+      fx.values.counts.none,
+      "Restart should clear active obstacles.",
+    );
+
+    expect.equals(
+      restarted.spawningState
+        .cadence.elapsedSeconds,
+      fx.values.spawnCadence
+        .elapsedAfterExactSpawn,
+      "Restart should reset accumulated spawn cadence.",
+    );
+  },
+);
+
+Deno.test(
+  "restartNotFoundGameRuntime: ignores restart outside game-over",
+  () => {
+    const state: NotFoundGameRuntimeState = {
+      gameState: fx.createRunningState(),
+
+      spawningState: {
+        cadence: {
+          elapsedSeconds: fx.values.spawnCadence
+            .elapsedBeforeThreshold,
+        },
+      },
+    };
+
+    const restarted = restartNotFoundGameRuntime(
+      state,
+    );
+
+    expect.sameReference(
+      restarted,
+      state,
+      "Restart outside game-over should preserve the runtime state.",
     );
   },
 );
