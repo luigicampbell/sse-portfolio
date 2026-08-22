@@ -30,6 +30,12 @@ type TestAssert = {
     expected: T,
     message: string,
   ): void;
+
+  throws(
+    callback: () => unknown,
+    expectedError: new (...args: never[]) => Error,
+    message: string,
+  ): Error;
 };
 
 function assert(
@@ -92,10 +98,35 @@ function differentReference<T extends object>(
   }
 }
 
+function throws(
+  callback: () => unknown,
+  expectedError: new (...args: never[]) => Error,
+  message: string,
+): Error {
+  try {
+    callback();
+  } catch (error) {
+    if (error instanceof expectedError) {
+      return error;
+    }
+
+    throw new Error(
+      `${message} Expected ${expectedError.name}, received ${
+        error instanceof Error ? error.constructor.name : typeof error
+      }.`,
+    );
+  }
+
+  throw new Error(
+    `${message} Expected ${expectedError.name} to be thrown.`,
+  );
+}
+
 export const testAssert: TestAssert = {
   assert,
   equals,
   approximatelyEquals,
   sameReference,
   differentReference,
+  throws,
 };

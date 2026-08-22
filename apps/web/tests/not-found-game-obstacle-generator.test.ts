@@ -71,3 +71,36 @@ Deno.test(
     );
   },
 );
+
+Deno.test(
+  "generateObstacle: rejects invalid normalized samples",
+  () => {
+    const invalidSamples = [
+      fx.values.generation.invalidSample
+        .belowMinimum,
+      fx.values.generation.invalidSample
+        .aboveMaximum,
+      fx.values.generation.invalidSample
+        .notANumber,
+      fx.values.generation.invalidSample
+        .positiveInfinity,
+      fx.values.generation.invalidSample
+        .negativeInfinity,
+    ];
+
+    for (const normalizedSample of invalidSamples) {
+      expect.throws(
+        () => {
+          generateObstacle(
+            fx.values.generation.obstacleId,
+            normalizedSample,
+          );
+        },
+        RangeError,
+        `Invalid normalized sample "${
+          String(normalizedSample)
+        }" should be rejected.`,
+      );
+    }
+  },
+);

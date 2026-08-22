@@ -98,6 +98,14 @@ const values = {
     minimumHeight: 0.5,
     maximumHeight: 1.5,
     midpointHeight: 1,
+
+    invalidSample: {
+      belowMinimum: -0.1,
+      aboveMaximum: 1.1,
+      notANumber: Number.NaN,
+      positiveInfinity: Number.POSITIVE_INFINITY,
+      negativeInfinity: Number.NEGATIVE_INFINITY,
+    },
   },
 
   score: {
