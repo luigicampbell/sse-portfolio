@@ -8,6 +8,14 @@
     "Segoe UI",
     sans-serif;
 
+  --font-family-serif:
+    "Iowan Old Style",
+    "Palatino Linotype",
+    Palatino,
+    "Book Antiqua",
+    Georgia,
+    serif;
+
   --font-family-mono:
     "SFMono-Regular",
     Consolas,
@@ -66,6 +74,7 @@
   --page-gutter: clamp(1rem, 4vw, 2rem);
   --section-spacing: clamp(1rem, 5vw, 5rem);
   --header-height: 4.5rem;
+  --not-found-game-unit: 2.5rem;
 
   /* Radius */
   --radius-xs: 0.5rem;
@@ -114,6 +123,39 @@
 
   --color-overlay: rgba(0, 0, 0, 0.4);
   --color-selection: rgba(0, 113, 227, 0.2);
+
+  /* Not-found / Middle-earth semantics */
+
+  --color-not-found-accent: #617047;
+  --color-not-found-gold: #8a6a2f;
+
+  --color-not-found-accent-hover:
+    color-mix(
+      in srgb,
+      var(--color-not-found-accent) 84%,
+      var(--color-text) 16%
+    );
+
+  --color-not-found-accent-muted:
+    color-mix(
+      in srgb,
+      var(--color-not-found-accent) 14%,
+      transparent
+    );
+
+  --color-not-found-surface:
+    color-mix(
+      in srgb,
+      var(--color-surface) 94%,
+      var(--color-not-found-accent) 6%
+    );
+
+  --color-not-found-border:
+    color-mix(
+      in srgb,
+      var(--color-not-found-gold) 34%,
+      var(--color-border-strong)
+    );
 
   /* Shadows */
   --shadow-xs:
@@ -253,6 +295,9 @@
   --color-overlay: rgba(0, 0, 0, 0.66);
   --color-selection: rgba(41, 151, 255, 0.28);
 
+  --color-not-found-accent: #a8b77a;
+  --color-not-found-gold: #d1b36e;
+
   --shadow-xs:
     0 1px 2px rgba(0, 0, 0, 0.3);
 
@@ -311,6 +356,9 @@
 
     --color-overlay: rgba(0, 0, 0, 0.66);
     --color-selection: rgba(41, 151, 255, 0.28);
+
+    --color-not-found-accent: #a8b77a;
+    --color-not-found-gold: #d1b36e;
 
     --shadow-xs:
       0 1px 2px rgba(0, 0, 0, 0.3);

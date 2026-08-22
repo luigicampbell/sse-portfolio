@@ -12,7 +12,6 @@ import {
 import "./NotFoundGame.css";
 
 const WORLD_WIDTH = 14;
-const WORLD_UNIT_REM = 2.5;
 
 export function NotFoundGame() {
   const [runtimeState, setRuntimeState] = useState<NotFoundGameRuntimeState>(
@@ -70,10 +69,7 @@ export function NotFoundGame() {
         <div
           className="not-found-game__player"
           style={{
-            bottom: `${
-              -gameState.player.y *
-              WORLD_UNIT_REM
-            }rem`,
+            bottom: `calc(${-gameState.player.y} * var(--not-found-game-unit))`,
           }}
           aria-hidden="true"
         />
@@ -98,10 +94,7 @@ export function NotFoundGame() {
                   ) * 100
                 }%`,
 
-                height: `${
-                  obstacle.height *
-                  WORLD_UNIT_REM
-                }rem`,
+                height: `calc(${obstacle.height} * var(--not-found-game-unit))`,
               }}
               aria-hidden="true"
             />
