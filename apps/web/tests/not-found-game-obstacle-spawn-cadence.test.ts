@@ -3,26 +3,20 @@ import {
   createObstacleSpawnCadenceState,
 } from "../src/features/not-found-game/obstacle-spawn-cadence.ts";
 
-import {
-  gameFixture as fx,
-} from "./fixtures/not-found-game.fixture.ts";
+import { gameFixture as fx } from "./fixtures/not-found-game.fixture.ts";
 
-import {
-  testAssert as expect,
-} from "./helpers/assertions.ts";
+import { testAssert as expect } from "./helpers/assertions.ts";
 
 Deno.test(
   "advanceObstacleSpawnCadence: spawn becomes due when elapsed time reaches the interval",
   () => {
-    const initialState =
-      createObstacleSpawnCadenceState();
+    const initialState = createObstacleSpawnCadenceState();
 
-    const beforeThreshold =
-      advanceObstacleSpawnCadence(
-        initialState,
-        fx.values.spawnCadence
-          .beforeThresholdDelta,
-      );
+    const beforeThreshold = advanceObstacleSpawnCadence(
+      initialState,
+      fx.values.spawnCadence
+        .beforeThresholdDelta,
+    );
 
     expect.equals(
       beforeThreshold.spawnCount,
@@ -37,12 +31,11 @@ Deno.test(
       "Elapsed spawn time should accumulate before the interval.",
     );
 
-    const atThreshold =
-      advanceObstacleSpawnCadence(
-        beforeThreshold.state,
-        fx.values.spawnCadence
-          .remainingThresholdDelta,
-      );
+    const atThreshold = advanceObstacleSpawnCadence(
+      beforeThreshold.state,
+      fx.values.spawnCadence
+        .remainingThresholdDelta,
+    );
 
     expect.equals(
       atThreshold.spawnCount,
@@ -55,6 +48,33 @@ Deno.test(
       fx.values.spawnCadence
         .elapsedAfterExactSpawn,
       "Exact spawn interval should consume the accumulated elapsed time.",
+    );
+  },
+);
+
+Deno.test(
+  "advanceObstacleSpawnCadence: large delta can produce multiple spawns and preserve remainder",
+  () => {
+    const state = createObstacleSpawnCadenceState();
+
+    const result = advanceObstacleSpawnCadence(
+      state,
+      fx.values.spawnCadence
+        .multipleSpawnDelta,
+    );
+
+    expect.equals(
+      result.spawnCount,
+      fx.values.spawnCadence
+        .multipleSpawnCount,
+      "Large delta should produce every spawn interval crossed.",
+    );
+
+    expect.approximatelyEquals(
+      result.state.elapsedSeconds,
+      fx.values.spawnCadence
+        .multipleSpawnRemainder,
+      "Spawn cadence should preserve elapsed time beyond completed intervals.",
     );
   },
 );

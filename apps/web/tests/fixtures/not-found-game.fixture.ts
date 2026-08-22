@@ -97,6 +97,10 @@ const values = {
 
     elapsedBeforeThreshold: 1,
     elapsedAfterExactSpawn: 0,
+
+    multipleSpawnDelta: 3.2,
+    multipleSpawnCount: 2,
+    multipleSpawnRemainder: 0.2,
   },
 
   generation: {
