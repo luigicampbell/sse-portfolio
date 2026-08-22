@@ -2,7 +2,9 @@
 
 A small deterministic runner embedded in the portfolio's 404 experience.
 
-The game is intentionally isolated from the rest of the application. It is an enhancement to the not-found page, not a dependency of the normal portfolio experience, and its state remains feature-owned rather than application-global.
+The game is intentionally isolated from the rest of the application. It is an
+enhancement to the not-found page, not a dependency of the normal portfolio
+experience, and its state remains feature-owned rather than application-global.
 
 ## Current Status
 
@@ -12,7 +14,9 @@ Assuming the latest spawn-orchestrator guard is green:
 - Playable 404 feature: **~75–80% complete**
 - Remaining work: **~4–6 focused slices**
 
-The remaining work is primarily runtime and UI integration: animation, rendering, controls, lifecycle behavior, accessibility, and final integration hardening.
+The remaining work is primarily runtime and UI integration: animation,
+rendering, controls, lifecycle behavior, accessibility, and final integration
+hardening.
 
 ## Goals
 
@@ -87,7 +91,9 @@ flowchart LR
     STATE --> UI
 ```
 
-The runtime layer produces time, IDs, and random samples. The deterministic modules consume those values but do not call `Math.random()`, `requestAnimationFrame()`, timers, or browser APIs directly.
+The runtime layer produces time, IDs, and random samples. The deterministic
+modules consume those values but do not call `Math.random()`,
+`requestAnimationFrame()`, timers, or browser APIs directly.
 
 ## Responsibility Boundaries
 
@@ -119,9 +125,8 @@ A frame:
 2. advances obstacle spawn cadence using the same delta;
 3. adds obstacles that became due during that frame.
 
-Newly generated obstacles enter after existing game-state advancement, so
-they begin at the configured spawn position and do not move until the next
-frame.
+Newly generated obstacles enter after existing game-state advancement, so they
+begin at the configured spawn position and do not move until the next frame.
 
 The module remains browser-independent. It does not call
 `requestAnimationFrame()`, generate random values, or access the DOM.
@@ -137,7 +142,8 @@ A structurally valid obstacle has:
 - a finite positive width;
 - a finite positive height.
 
-Duplicate IDs and off-screen spawning remain state-specific rules in `game-state.ts`.
+Duplicate IDs and off-screen spawning remain state-specific rules in
+`game-state.ts`.
 
 ### `obstacle-generator.ts`
 
@@ -160,7 +166,8 @@ minimum height = 0.5
 maximum height = 1.5
 ```
 
-The generator rejects blank IDs and normalized samples outside `[0, 1]`, including non-finite values.
+The generator rejects blank IDs and normalized samples outside `[0, 1]`,
+including non-finite values.
 
 ### `obstacle-spawn-cadence.ts`
 
@@ -201,7 +208,8 @@ cadence result
 generated ObstacleState[]
 ```
 
-The spawner rejects insufficient inputs rather than silently consuming due spawn events.
+The spawner rejects insufficient inputs rather than silently consuming due spawn
+events.
 
 ### `obstacle-spawn-orchestrator.ts`
 
@@ -221,7 +229,9 @@ advanceObstacleSpawning()
 GameState + SpawnerState
 ```
 
-Generated obstacles enter the game through `spawnObstacle()`, so orchestration does not duplicate game-state validation. Spawn cadence must not advance while the game is not running.
+Generated obstacles enter the game through `spawnObstacle()`, so orchestration
+does not duplicate game-state validation. Spawn cadence must not advance while
+the game is not running.
 
 ## State Machine
 
@@ -315,7 +325,8 @@ flowchart TD
     SCORE --> NEXT
 ```
 
-A collision frame intentionally does **not** award score for obstacles that also pass off-screen during that frame.
+A collision frame intentionally does **not** award score for obstacles that also
+pass off-screen during that frame.
 
 ## High Score
 
@@ -396,7 +407,8 @@ Full repository verification:
 deno task verify
 ```
 
-Coverage may intentionally exist at more than one public boundary while implementation is shared.
+Coverage may intentionally exist at more than one public boundary while
+implementation is shared.
 
 For example:
 
@@ -408,7 +420,8 @@ spawnObstacle(manually constructed blank obstacle)
     → ignored
 ```
 
-Those are different API contracts backed by the same shared validation invariant.
+Those are different API contracts backed by the same shared validation
+invariant.
 
 ## Roadmap
 
@@ -462,6 +475,7 @@ Status: **Essentially complete**
 ### Phase 3 — Runtime integration
 
 Status: **Next**
+
 - [x] Add deterministic whole-frame runtime orchestration
 - [x] Advance physics and spawning using the same frame delta
 - [ ] Add a small `requestAnimationFrame()` loop
