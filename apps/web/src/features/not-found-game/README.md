@@ -46,7 +46,8 @@ apps/web/src/features/not-found-game/
 ├── obstacle-spawner.ts
 ├── obstacle-spawn-orchestrator.ts
 ├── NotFoundGame.tsx
-└── NotFoundGame.css
+├── NotFoundGame.css
+└── runtime-spawn-inputs.ts
 
 apps/web/tests/
 ├── fixtures/
@@ -60,7 +61,8 @@ apps/web/tests/
 ├── obstacle-generator.test.ts
 ├── obstacle-spawn-cadence.test.ts
 ├── obstacle-spawner.test.ts
-└── obstacle-spawn-orchestrator.test.ts
+├── obstacle-spawn-orchestrator.test.ts
+└── runtime-spawn-inputs.test.ts
 ```
 
 ## Data Flow
@@ -267,6 +269,21 @@ GameState + SpawnerState
 Generated obstacles enter the game through `spawnObstacle()`, so orchestration
 does not duplicate game-state validation. Spawn cadence must not advance while
 the game is not running.
+
+### `runtime-spawn-inputs.ts`
+
+Owns the nondeterministic obstacle-input boundary.
+
+The runtime provider generates exactly one obstacle ID and one normalized sample
+for each due spawn.
+
+The browser implementation uses `crypto.randomUUID()` for IDs and
+`Math.random()` for normalized samples. Both dependencies remain injectable so
+the behavior can be tested deterministically.
+
+Because the provider is consumed lazily by the spawn pipeline, IDs and random
+samples are generated only when cadence reports that an obstacle is actually
+due.
 
 ## State Machine
 
@@ -517,7 +534,7 @@ Status: **Next**
 - [x] Calculate and bound frame delta
 - [ ] Advance `stepGame()` from the runtime loop
 - [ ] Advance obstacle spawning with the same frame delta
-- [ ] Supply runtime-generated obstacle IDs
+- [x] Supply runtime-generated obstacle IDs
 - [ ] Supply normalized random samples at the runtime boundary
 - [ ] Reset runtime/spawner state on restart
 - [ ] Prevent stale animation callbacks after unmount
@@ -581,22 +598,19 @@ These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
-Provide concrete runtime obstacle IDs and normalized random samples through the
-lazy spawn-input provider.
+Connect the tested game loop to the actual browser animation scheduler.
 
-The provider now receives the exact number of obstacle spawns that became due,
-so nondeterministic values are produced only when they will actually be
-consumed.
+The next slice should wire:
 
-The next slice should:
+- `globalThis.requestAnimationFrame()` into the loop scheduler;
+- `globalThis.cancelAnimationFrame()` into loop cleanup;
+- the browser obstacle spawn-input provider into the loop;
+- published runtime state into the feature's React state.
 
-1. generate one unique runtime ID per requested obstacle;
-2. produce one normalized random sample per requested obstacle;
-3. return exactly the requested number of spawn inputs;
-4. keep both dependencies injectable for deterministic tests.
+The deterministic game modules should remain unchanged.
 
-No random or ID-generation behavior should move into the deterministic
-game-state, cadence, generator, or physics modules.
+This should complete the existing runtime-animation roadmap item rather than
+creating another roadmap requirement.
 
 ## Design Constraints
 
