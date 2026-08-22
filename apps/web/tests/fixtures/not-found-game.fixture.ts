@@ -149,6 +149,16 @@ const values = {
     playerY: -0.5,
     playerVelocityY: 1,
   },
+
+  frameClock: {
+    firstTimestampMs: 1000,
+    nextTimestampMs: 1016,
+    largeTimestampMs: 5000,
+
+    noDelta: 0,
+    expectedDeltaSeconds: 0.016,
+    maximumDeltaSeconds: 0.1,
+  },
 } as const;
 
 function createPlayer(
