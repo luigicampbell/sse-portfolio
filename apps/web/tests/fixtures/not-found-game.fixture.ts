@@ -54,6 +54,7 @@ const values = {
     xAfterHalfSecond: 8,
 
     passedStartX: 1,
+
     visibleStartX: 5,
     visibleExpectedX: 3,
 
@@ -62,6 +63,7 @@ const values = {
 
     collisionX: 1,
     collisionStartX: 1.04,
+
     fallingCollisionStartX: 1.4,
 
     collisionFramePassedStartX: 0.5,
@@ -71,15 +73,18 @@ const values = {
 
     invalidZeroDimension: 0,
     invalidNegativeDimension: -1,
+
     invalidX: {
       notANumber: Number.NaN,
       positiveInfinity: Number.POSITIVE_INFINITY,
       negativeInfinity: Number.NEGATIVE_INFINITY,
     },
+
     invalidId: {
       empty: "",
       whitespaceOnly: "   ",
     },
+
     spawn: {
       fullyOffScreenX: -1,
       partiallyVisibleX: -0.5,
@@ -95,9 +100,10 @@ const values = {
 
     spawnX: 12,
     width: 1,
+
     minimumHeight: 0.5,
-    maximumHeight: 1.5,
     midpointHeight: 1,
+    maximumHeight: 1.5,
 
     invalidSample: {
       belowMinimum: -0.1,
@@ -110,9 +116,12 @@ const values = {
 
   score: {
     afterOnePassedObstacle: 1,
+
     restartTestScore: 7,
+
     previousHighScore: 3,
     newHighScore: 7,
+
     lowerCompletedRunScore: 3,
     existingHighScore: 7,
   },

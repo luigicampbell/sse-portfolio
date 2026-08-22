@@ -396,7 +396,9 @@ Deno.test(
       }),
     ];
 
-    for (const obstacle of invalidObstacles) {
+    for (
+      const obstacle of invalidObstacles
+    ) {
       const state = fx.createRunningState();
 
       const nextState = spawnObstacle(
@@ -423,9 +425,12 @@ Deno.test(
   "spawnObstacle: running game ignores obstacles with non-finite x positions",
   () => {
     const invalidXValues = [
-      fx.values.obstacle.invalidX.notANumber,
-      fx.values.obstacle.invalidX.positiveInfinity,
-      fx.values.obstacle.invalidX.negativeInfinity,
+      fx.values.obstacle.invalidX
+        .notANumber,
+      fx.values.obstacle.invalidX
+        .positiveInfinity,
+      fx.values.obstacle.invalidX
+        .negativeInfinity,
     ];
 
     for (const x of invalidXValues) {
@@ -461,8 +466,8 @@ Deno.test(
   () => {
     const invalidIds = [
       fx.values.obstacle.invalidId.empty,
-      fx.values.obstacle
-        .invalidId.whitespaceOnly,
+      fx.values.obstacle.invalidId
+        .whitespaceOnly,
     ];
 
     for (const id of invalidIds) {
@@ -570,7 +575,8 @@ Deno.test(
   "hasCollision: airborne player can clear an obstacle",
   () => {
     const player = fx.createPlayer({
-      y: fx.values.player.airborneClearanceY,
+      y: fx.values.player
+        .airborneClearanceY,
       isGrounded: false,
     });
 
@@ -625,7 +631,8 @@ Deno.test(
 
     const invalidDeltas = [
       0,
-      fx.values.time.negativeQuarterSecond,
+      fx.values.time
+        .negativeQuarterSecond,
       Number.NaN,
       Number.POSITIVE_INFINITY,
       Number.NEGATIVE_INFINITY,
@@ -704,13 +711,15 @@ Deno.test(
 
     expect.approximatelyEquals(
       nextState.player.velocityY,
-      fx.values.player.velocityAfterQuarterSecond,
+      fx.values.player
+        .velocityAfterQuarterSecond,
       "Vertical velocity is incorrect.",
     );
 
     expect.approximatelyEquals(
       nextState.player.y,
-      fx.values.player.yAfterQuarterSecond,
+      fx.values.player
+        .yAfterQuarterSecond,
       "Vertical position is incorrect.",
     );
 
@@ -727,8 +736,10 @@ Deno.test(
   () => {
     const state = fx.createRunningState({
       player: fx.createPlayer({
-        y: fx.values.player.landingStartY,
-        velocityY: fx.values.player.landingStartVelocityY,
+        y: fx.values.player
+          .landingStartY,
+        velocityY: fx.values.player
+          .landingStartVelocityY,
         isGrounded: false,
       }),
     });
@@ -746,7 +757,8 @@ Deno.test(
 
     expect.equals(
       nextState.player.velocityY,
-      fx.values.initial.playerVelocityY,
+      fx.values.initial
+        .playerVelocityY,
       "Landing should reset vertical velocity.",
     );
 
@@ -787,7 +799,8 @@ Deno.test(
 
     expect.approximatelyEquals(
       movedObstacle.x,
-      fx.values.obstacle.xAfterHalfSecond,
+      fx.values.obstacle
+        .xAfterHalfSecond,
       "Obstacle should move left according to obstacle speed.",
     );
 
@@ -825,11 +838,13 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "passed",
-          x: fx.values.obstacle.passedStartX,
+          x: fx.values.obstacle
+            .passedStartX,
         }),
         fx.createObstacle({
           id: "visible",
-          x: fx.values.obstacle.visibleStartX,
+          x: fx.values.obstacle
+            .visibleStartX,
         }),
       ],
     });
@@ -855,7 +870,8 @@ Deno.test(
 
     expect.approximatelyEquals(
       remainingObstacle.x,
-      fx.values.obstacle.visibleExpectedX,
+      fx.values.obstacle
+        .visibleExpectedX,
       "Visible obstacle position is incorrect.",
     );
 
@@ -874,7 +890,8 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "partially-visible",
-          x: fx.values.obstacle.partiallyVisibleStartX,
+          x: fx.values.obstacle
+            .partiallyVisibleStartX,
         }),
       ],
     });
@@ -888,7 +905,8 @@ Deno.test(
 
     expect.approximatelyEquals(
       obstacle.x,
-      fx.values.obstacle.partiallyVisibleExpectedX,
+      fx.values.obstacle
+        .partiallyVisibleExpectedX,
       "Obstacle should retain its advanced x position.",
     );
 
@@ -912,11 +930,13 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "passed",
-          x: fx.values.obstacle.passedStartX,
+          x: fx.values.obstacle
+            .passedStartX,
         }),
         fx.createObstacle({
           id: "visible",
-          x: fx.values.obstacle.visibleStartX,
+          x: fx.values.obstacle
+            .visibleStartX,
         }),
       ],
     });
@@ -928,7 +948,8 @@ Deno.test(
 
     expect.equals(
       nextState.score,
-      fx.values.score.afterOnePassedObstacle,
+      fx.values.score
+        .afterOnePassedObstacle,
       "Passing one obstacle should award one point.",
     );
 
@@ -951,14 +972,16 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "collision",
-          x: fx.values.obstacle.collisionStartX,
+          x: fx.values.obstacle
+            .collisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      fx.values.time.shortCollisionFrame,
+      fx.values.time
+        .shortCollisionFrame,
     );
 
     expect.equals(
@@ -980,21 +1003,25 @@ Deno.test(
   () => {
     const state = fx.createRunningState({
       player: fx.createPlayer({
-        y: fx.values.player.fallingCollisionStartY,
-        velocityY: fx.values.player.fallingCollisionStartVelocityY,
+        y: fx.values.player
+          .fallingCollisionStartY,
+        velocityY: fx.values.player
+          .fallingCollisionStartVelocityY,
         isGrounded: false,
       }),
       obstacles: [
         fx.createObstacle({
           id: "falling-collision",
-          x: fx.values.obstacle.fallingCollisionStartX,
+          x: fx.values.obstacle
+            .fallingCollisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      fx.values.time.advancedCollisionFrame,
+      fx.values.time
+        .advancedCollisionFrame,
     );
 
     expect.equals(
@@ -1005,7 +1032,8 @@ Deno.test(
 
     expect.approximatelyEquals(
       nextState.player.y,
-      fx.values.player.fallingCollisionExpectedY,
+      fx.values.player
+        .fallingCollisionExpectedY,
       "Game-over state should preserve the collision-frame player position.",
     );
   },
@@ -1019,11 +1047,13 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "passed",
-          x: fx.values.obstacle.collisionFramePassedStartX,
+          x: fx.values.obstacle
+            .collisionFramePassedStartX,
         }),
         fx.createObstacle({
           id: "collision",
-          x: fx.values.obstacle.collisionFrameCollidingStartX,
+          x: fx.values.obstacle
+            .collisionFrameCollidingStartX,
         }),
       ],
     });
@@ -1056,14 +1086,16 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "high-score-collision",
-          x: fx.values.obstacle.collisionStartX,
+          x: fx.values.obstacle
+            .collisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      fx.values.time.shortCollisionFrame,
+      fx.values.time
+        .shortCollisionFrame,
     );
 
     expect.equals(
@@ -1096,19 +1128,23 @@ Deno.test(
   "stepGame: collision preserves high score when current score is lower",
   () => {
     const state = fx.createRunningState({
-      score: fx.values.score.lowerCompletedRunScore,
-      highScore: fx.values.score.existingHighScore,
+      score: fx.values.score
+        .lowerCompletedRunScore,
+      highScore: fx.values.score
+        .existingHighScore,
       obstacles: [
         fx.createObstacle({
           id: "lower-score-collision",
-          x: fx.values.obstacle.collisionStartX,
+          x: fx.values.obstacle
+            .collisionStartX,
         }),
       ],
     });
 
     const nextState = stepGame(
       state,
-      fx.values.time.shortCollisionFrame,
+      fx.values.time
+        .shortCollisionFrame,
     );
 
     expect.equals(
@@ -1119,7 +1155,8 @@ Deno.test(
 
     expect.equals(
       nextState.score,
-      fx.values.score.lowerCompletedRunScore,
+      fx.values.score
+        .lowerCompletedRunScore,
       "Collision should preserve the completed run score.",
     );
 
@@ -1154,7 +1191,8 @@ Deno.test(
       obstacles: [
         fx.createObstacle({
           id: "restart-obstacle",
-          x: fx.values.obstacle.restartTestX,
+          x: fx.values.obstacle
+            .restartTestX,
         }),
       ],
     });
@@ -1181,7 +1219,8 @@ Deno.test(
 
     expect.equals(
       nextState.player.velocityY,
-      fx.values.initial.playerVelocityY,
+      fx.values.initial
+        .playerVelocityY,
       "Restarted game should reset player velocity.",
     );
 

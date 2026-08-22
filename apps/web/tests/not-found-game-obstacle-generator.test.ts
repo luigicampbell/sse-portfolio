@@ -88,7 +88,9 @@ Deno.test(
         .negativeInfinity,
     ];
 
-    for (const normalizedSample of invalidSamples) {
+    for (
+      const normalizedSample of invalidSamples
+    ) {
       expect.throws(
         () => {
           generateObstacle(
@@ -110,7 +112,8 @@ Deno.test(
   () => {
     const invalidIds = [
       fx.values.obstacle.invalidId.empty,
-      fx.values.obstacle.invalidId.whitespaceOnly,
+      fx.values.obstacle.invalidId
+        .whitespaceOnly,
     ];
 
     for (const id of invalidIds) {

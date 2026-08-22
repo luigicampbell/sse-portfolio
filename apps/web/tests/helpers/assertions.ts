@@ -33,7 +33,7 @@ type TestAssert = {
 
   throws(
     callback: () => unknown,
-    expectedError: new (...args: never[]) => Error,
+    expectedError: ErrorConstructor,
     message: string,
   ): Error;
 };
@@ -65,9 +65,7 @@ function approximatelyEquals(
   message: string,
   tolerance = DEFAULT_FLOAT_TOLERANCE,
 ): void {
-  const difference = Math.abs(
-    actual - expected,
-  );
+  const difference = Math.abs(actual - expected);
 
   if (difference > tolerance) {
     throw new Error(
@@ -88,7 +86,9 @@ function sameReference<T extends object>(
   }
 }
 
-function differentReference<T extends object>(
+function differentReference<
+  T extends object,
+>(
   actual: T,
   expected: T,
   message: string,
@@ -100,7 +100,7 @@ function differentReference<T extends object>(
 
 function throws(
   callback: () => unknown,
-  expectedError: new (...args: never[]) => Error,
+  expectedError: ErrorConstructor,
   message: string,
 ): Error {
   try {
@@ -110,15 +110,15 @@ function throws(
       return error;
     }
 
+    const receivedError = error instanceof Error ? error.name : typeof error;
+
     throw new Error(
-      `${message} Expected ${expectedError.name}, received ${
-        error instanceof Error ? error.constructor.name : typeof error
-      }.`,
+      `${message} Expected ${expectedError.prototype.name}, received ${receivedError}.`,
     );
   }
 
   throw new Error(
-    `${message} Expected ${expectedError.name} to be thrown.`,
+    `${message} Expected ${expectedError.prototype.name} to be thrown.`,
   );
 }
 

@@ -1,10 +1,17 @@
 import type { ObstacleState } from "./game-state.ts";
 
+import { isValidObstacleId } from "./obstacle-validation.ts";
+
 type ObstacleGenerationConfig = {
   readonly spawnX: number;
   readonly width: number;
   readonly minimumHeight: number;
   readonly maximumHeight: number;
+};
+
+type NormalizedSampleRange = {
+  readonly minimum: number;
+  readonly maximum: number;
 };
 
 const OBSTACLE_GENERATION = {
@@ -13,11 +20,6 @@ const OBSTACLE_GENERATION = {
   minimumHeight: 0.5,
   maximumHeight: 1.5,
 } as const satisfies ObstacleGenerationConfig;
-
-type NormalizedSampleRange = {
-  readonly minimum: number;
-  readonly maximum: number;
-};
 
 const NORMALIZED_SAMPLE_RANGE = {
   minimum: 0,
@@ -43,16 +45,14 @@ export function generateObstacle(
   };
 }
 
-function calculateObstacleHeight(
-  normalizedSample: number,
-): number {
-  const heightRange = OBSTACLE_GENERATION.maximumHeight -
-    OBSTACLE_GENERATION.minimumHeight;
-
-  return (
-    OBSTACLE_GENERATION.minimumHeight +
-    heightRange * normalizedSample
-  );
+function validateObstacleId(
+  id: string,
+): void {
+  if (!isValidObstacleId(id)) {
+    throw new TypeError(
+      "Generated obstacle id must not be blank.",
+    );
+  }
 }
 
 function validateNormalizedSample(
@@ -81,18 +81,14 @@ function isValidNormalizedSample(
       NORMALIZED_SAMPLE_RANGE.maximum;
 }
 
-function validateObstacleId(
-  id: string,
-): void {
-  if (!hasValidObstacleId(id)) {
-    throw new TypeError(
-      "Generated obstacle id must not be blank.",
-    );
-  }
-}
+function calculateObstacleHeight(
+  normalizedSample: number,
+): number {
+  const heightRange = OBSTACLE_GENERATION.maximumHeight -
+    OBSTACLE_GENERATION.minimumHeight;
 
-function hasValidObstacleId(
-  id: string,
-): boolean {
-  return id.trim().length > 0;
+  return (
+    OBSTACLE_GENERATION.minimumHeight +
+    heightRange * normalizedSample
+  );
 }

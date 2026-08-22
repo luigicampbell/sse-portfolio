@@ -6,13 +6,21 @@ export function isValidObstacleId(
   return id.trim().length > 0;
 }
 
-export function hasValidObstaclePosition(
+export function isValidObstacle(
+  obstacle: ObstacleState,
+): boolean {
+  return isValidObstacleId(obstacle.id) &&
+    hasValidObstaclePosition(obstacle) &&
+    hasValidObstacleDimensions(obstacle);
+}
+
+function hasValidObstaclePosition(
   obstacle: ObstacleState,
 ): boolean {
   return Number.isFinite(obstacle.x);
 }
 
-export function hasValidObstacleDimensions(
+function hasValidObstacleDimensions(
   obstacle: ObstacleState,
 ): boolean {
   return isPositiveFiniteNumber(
@@ -21,14 +29,6 @@ export function hasValidObstacleDimensions(
     isPositiveFiniteNumber(
       obstacle.height,
     );
-}
-
-export function isValidObstacle(
-  obstacle: ObstacleState,
-): boolean {
-  return isValidObstacleId(obstacle.id) &&
-    hasValidObstaclePosition(obstacle) &&
-    hasValidObstacleDimensions(obstacle);
 }
 
 function isPositiveFiniteNumber(
