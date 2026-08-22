@@ -125,6 +125,11 @@ const values = {
       positiveInfinity: Number.POSITIVE_INFINITY,
       negativeInfinity: Number.NEGATIVE_INFINITY,
     },
+
+    multipleSpawnIds: {
+      first: "generated-obstacle-1",
+      second: "generated-obstacle-2",
+    },
   },
 
   score: {

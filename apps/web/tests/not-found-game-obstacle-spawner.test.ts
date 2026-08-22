@@ -86,3 +86,84 @@ Deno.test(
     );
   },
 );
+
+Deno.test(
+  "advanceObstacleSpawner: produces every obstacle due during a large frame",
+  () => {
+    const state = createObstacleSpawnerState();
+
+    const result = advanceObstacleSpawner(
+      state,
+      fx.values.spawnCadence
+        .multipleSpawnDelta,
+      [
+        {
+          id: fx.values.generation
+            .multipleSpawnIds.first,
+          normalizedSample: fx.values.generation
+            .minimumSample,
+        },
+        {
+          id: fx.values.generation
+            .multipleSpawnIds.second,
+          normalizedSample: fx.values.generation
+            .maximumSample,
+        },
+      ],
+    );
+
+    expect.equals(
+      result.obstacles.length,
+      fx.values.spawnCadence
+        .multipleSpawnCount,
+      "Spawner should generate every obstacle due during the frame.",
+    );
+
+    const firstObstacle = result.obstacles[0];
+
+    const secondObstacle = result.obstacles[1];
+
+    expect.assert(
+      firstObstacle !== undefined,
+      "Expected first generated obstacle.",
+    );
+
+    expect.assert(
+      secondObstacle !== undefined,
+      "Expected second generated obstacle.",
+    );
+
+    expect.equals(
+      firstObstacle.id,
+      fx.values.generation
+        .multipleSpawnIds.first,
+      "First generated obstacle should preserve its id.",
+    );
+
+    expect.equals(
+      firstObstacle.height,
+      fx.values.generation.minimumHeight,
+      "First obstacle should use its supplied sample.",
+    );
+
+    expect.equals(
+      secondObstacle.id,
+      fx.values.generation
+        .multipleSpawnIds.second,
+      "Second generated obstacle should preserve its id.",
+    );
+
+    expect.equals(
+      secondObstacle.height,
+      fx.values.generation.maximumHeight,
+      "Second obstacle should use its supplied sample.",
+    );
+
+    expect.approximatelyEquals(
+      result.state.cadence.elapsedSeconds,
+      fx.values.spawnCadence
+        .multipleSpawnRemainder,
+      "Spawner should preserve cadence remainder after multiple spawns.",
+    );
+  },
+);
