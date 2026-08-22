@@ -59,3 +59,30 @@ Deno.test(
     );
   },
 );
+
+Deno.test(
+  "advanceObstacleSpawner: rejects insufficient inputs for due spawns",
+  () => {
+    const state = createObstacleSpawnerState();
+
+    expect.throws(
+      () => {
+        advanceObstacleSpawner(
+          state,
+          fx.values.spawnCadence
+            .multipleSpawnDelta,
+          [
+            {
+              id: fx.values.generation
+                .obstacleId,
+              normalizedSample: fx.values.generation
+                .midpointSample,
+            },
+          ],
+        );
+      },
+      RangeError,
+      "Spawner should reject fewer inputs than the number of due spawns.",
+    );
+  },
+);
