@@ -6,7 +6,7 @@ import {
   advanceObstacleSpawner,
   createObstacleSpawnerState,
   type ObstacleSpawnerState,
-  type ObstacleSpawnInput,
+  type ObstacleSpawnInputProvider,
 } from "./obstacle-spawner.ts";
 
 export type ObstacleSpawningState = ObstacleSpawnerState;
@@ -24,7 +24,7 @@ export function advanceObstacleSpawning(
   gameState: GameState,
   spawningState: ObstacleSpawningState,
   deltaSeconds: number,
-  inputs: readonly ObstacleSpawnInput[],
+  getInputs: ObstacleSpawnInputProvider,
 ): ObstacleSpawningResult {
   if (!canAdvanceObstacleSpawning(gameState)) {
     return {
@@ -36,7 +36,7 @@ export function advanceObstacleSpawning(
   const spawnerResult = advanceObstacleSpawner(
     spawningState,
     deltaSeconds,
-    inputs,
+    getInputs,
   );
 
   const nextGameState = addGeneratedObstacles(

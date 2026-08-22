@@ -13,6 +13,10 @@ export type ObstacleSpawnInput = {
   readonly normalizedSample: number;
 };
 
+export type ObstacleSpawnInputProvider = (
+  spawnCount: number,
+) => readonly ObstacleSpawnInput[];
+
 export type ObstacleSpawnerState = {
   readonly cadence: ObstacleSpawnCadenceState;
 };
@@ -31,11 +35,24 @@ export function createObstacleSpawnerState(): ObstacleSpawnerState {
 export function advanceObstacleSpawner(
   state: ObstacleSpawnerState,
   deltaSeconds: number,
-  inputs: readonly ObstacleSpawnInput[],
+  getInputs: ObstacleSpawnInputProvider,
 ): ObstacleSpawnerResult {
   const cadenceResult = advanceObstacleSpawnCadence(
     state.cadence,
     deltaSeconds,
+  );
+
+  if (cadenceResult.spawnCount === 0) {
+    return {
+      state: {
+        cadence: cadenceResult.state,
+      },
+      obstacles: [],
+    };
+  }
+
+  const inputs = getInputs(
+    cadenceResult.spawnCount,
   );
 
   validateSpawnInputCount(

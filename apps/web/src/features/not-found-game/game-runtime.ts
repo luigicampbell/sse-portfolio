@@ -10,7 +10,7 @@ import {
   type ObstacleSpawningState,
 } from "./obstacle-spawn-orchestrator.ts";
 
-import type { ObstacleSpawnInput } from "./obstacle-spawner.ts";
+import type { ObstacleSpawnInputProvider } from "./obstacle-spawner.ts";
 
 export type NotFoundGameRuntimeState = {
   readonly gameState: GameState;
@@ -27,7 +27,7 @@ export function createNotFoundGameRuntimeState(): NotFoundGameRuntimeState {
 export function advanceNotFoundGameFrame(
   state: NotFoundGameRuntimeState,
   deltaSeconds: number,
-  inputs: readonly ObstacleSpawnInput[],
+  getSpawnInputs: ObstacleSpawnInputProvider,
 ): NotFoundGameRuntimeState {
   const steppedGameState = stepGame(
     state.gameState,
@@ -38,7 +38,7 @@ export function advanceNotFoundGameFrame(
     steppedGameState,
     state.spawningState,
     deltaSeconds,
-    inputs,
+    getSpawnInputs,
   );
 
   return {

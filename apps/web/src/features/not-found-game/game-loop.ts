@@ -9,7 +9,7 @@ import {
   type NotFoundGameRuntimeState,
 } from "./game-runtime.ts";
 
-import type { ObstacleSpawnInput } from "./obstacle-spawner.ts";
+import type { ObstacleSpawnInputProvider } from "./obstacle-spawner.ts";
 
 export type NotFoundGameFrameCallback = (
   timestampMs: number,
@@ -24,8 +24,7 @@ type NotFoundGameLoopDependencies = {
     requestId: number,
   ) => void;
 
-  readonly getSpawnInputs: () => readonly ObstacleSpawnInput[];
-
+  readonly getSpawnInputs: ObstacleSpawnInputProvider;
   readonly publishState: (
     state: NotFoundGameRuntimeState,
   ) => void;
@@ -64,7 +63,7 @@ export function startNotFoundGameLoop(
       runtimeState = advanceNotFoundGameFrame(
         runtimeState,
         clockResult.deltaSeconds,
-        dependencies.getSpawnInputs(),
+        dependencies.getSpawnInputs,
       );
 
       dependencies.publishState(

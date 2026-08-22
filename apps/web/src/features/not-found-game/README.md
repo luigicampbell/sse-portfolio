@@ -105,14 +105,12 @@ modules consume those values but do not call `Math.random()`,
 
 Owns animation-frame lifecycle orchestration.
 
-The loop schedules frame callbacks, passes timestamps through
-`frame-clock.ts`, advances `game-runtime.ts` only when a usable delta is
-produced, publishes the resulting runtime state, and schedules the next
-frame.
+The loop schedules frame callbacks, passes timestamps through `frame-clock.ts`,
+advances `game-runtime.ts` only when a usable delta is produced, publishes the
+resulting runtime state, and schedules the next frame.
 
-The scheduler is injected so browser timing remains outside the
-deterministic game modules and the lifecycle can be tested without real
-animation frames.
+The scheduler is injected so browser timing remains outside the deterministic
+game modules and the lifecycle can be tested without real animation frames.
 
 Stopping the loop cancels its pending frame request and prevents further
 advancement.
@@ -516,7 +514,7 @@ Status: **Next**
 - [x] Add deterministic whole-frame runtime orchestration
 - [x] Advance physics and spawning using the same frame delta
 - [ ] Add a small `requestAnimationFrame()` loop
-- [ ] Calculate and bound frame delta
+- [x] Calculate and bound frame delta
 - [ ] Advance `stepGame()` from the runtime loop
 - [ ] Advance obstacle spawning with the same frame delta
 - [ ] Supply runtime-generated obstacle IDs
@@ -583,19 +581,22 @@ These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
-Supply obstacle spawn inputs at the runtime boundary without consuming
-nondeterminism on frames where no spawn is due.
+Provide concrete runtime obstacle IDs and normalized random samples through the
+lazy spawn-input provider.
+
+The provider now receives the exact number of obstacle spawns that became due,
+so nondeterministic values are produced only when they will actually be
+consumed.
 
 The next slice should:
 
-1. keep obstacle ID generation outside deterministic game modules;
-2. keep normalized random sampling outside deterministic game modules;
-3. request spawn inputs only when cadence reports that a spawn is due;
-4. provide exactly enough inputs for the number of due spawns;
-5. preserve deterministic generation and game-state validation downstream.
+1. generate one unique runtime ID per requested obstacle;
+2. produce one normalized random sample per requested obstacle;
+3. return exactly the requested number of spawn inputs;
+4. keep both dependencies injectable for deterministic tests.
 
-The runtime boundary may eventually use browser randomness and generated
-IDs, but those values should remain injectable and independently testable.
+No random or ID-generation behavior should move into the deterministic
+game-state, cadence, generator, or physics modules.
 
 ## Design Constraints
 

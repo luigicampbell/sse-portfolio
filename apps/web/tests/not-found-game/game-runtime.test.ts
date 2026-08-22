@@ -25,7 +25,7 @@ Deno.test(
       initialState,
       fx.values.spawnCadence
         .fullIntervalDelta,
-      [
+      () => [
         {
           id: fx.values.generation
             .obstacleId,
