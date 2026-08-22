@@ -15,7 +15,7 @@ export type NotFoundGameFrameCallback = (
   timestampMs: number,
 ) => void;
 
-type NotFoundGameLoopDependencies = {
+export type NotFoundGameLoopDependencies = {
   readonly requestFrame: (
     callback: NotFoundGameFrameCallback,
   ) => number;

@@ -129,6 +129,22 @@ Owns:
 
 It does **not** generate obstacles or decide when they become due.
 
+### `browser-game-loop.ts`
+
+Owns the browser-specific adapter for the tested animation loop.
+
+It binds the injected game-loop scheduler to
+`globalThis.requestAnimationFrame()` and `globalThis.cancelAnimationFrame()`,
+supplies the browser obstacle spawn-input provider, and forwards published
+runtime state to the caller.
+
+The scheduler and spawn-input provider remain injectable for deterministic
+tests.
+
+This adapter does not itself own the React lifecycle. The browser-animation
+roadmap item remains incomplete until `NotFoundGame.tsx` starts and cleans up
+the loop.
+
 ### `game-runtime.ts`
 
 Owns deterministic advancement of one complete game frame.
@@ -638,19 +654,22 @@ Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 
 ## Next Implementation Slice
 
-Connect the tested game loop to the actual browser animation scheduler.
+Wire the browser game-loop adapter into `NotFoundGame.tsx`.
 
-The next slice should wire:
+The component should:
 
-- `globalThis.requestAnimationFrame()` into the loop scheduler;
-- `globalThis.cancelAnimationFrame()` into loop cleanup;
-- the browser obstacle spawn-input provider into the loop;
-- published runtime state into the feature's React state.
+- keep `NotFoundGameRuntimeState` feature-local;
+- initialize the runtime state once;
+- start the tested game loop from a React effect;
+- publish loop state into local React state;
+- stop the loop from the effect cleanup;
+- continue rendering the existing 404-game shell from that state.
 
-The deterministic game modules should remain unchanged.
+This should complete the existing browser `requestAnimationFrame()` lifecycle
+roadmap item.
 
-Completing this work should satisfy the existing browser-animation roadmap item
-rather than creating another roadmap requirement.
+Do not add global state, new persistence, or additional runtime abstractions
+unless integration exposes a concrete requirement.
 
 ## Design Constraints
 
