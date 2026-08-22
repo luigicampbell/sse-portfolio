@@ -593,7 +593,7 @@ Status: **Complete**
 Status: **In progress**
 
 - [x] Add deterministic frame orchestration
-- [ ] Connect the game to the browser `requestAnimationFrame()` lifecycle
+- [x] Connect the game to the browser `requestAnimationFrame()` lifecycle
 - [x] Bound browser frame deltas
 - [x] Supply runtime obstacle IDs and random samples
 - [ ] Reset runtime state cleanly on restart
@@ -646,7 +646,7 @@ Status: **Pending**
 ```text
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
-Phase 3 — Runtime integration        █████░░░░░  3 / 6
+Phase 3 — Runtime integration        ███████░░░  4 / 6
 Phase 4 — Rendering / controls       ░░░░░░░░░░  Pending
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
@@ -654,22 +654,19 @@ Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 
 ## Next Implementation Slice
 
-Wire the browser game-loop adapter into `NotFoundGame.tsx`.
+Make runtime restart reset the complete run, including obstacle spawn cadence,
+while preserving the session high score.
 
-The component should:
+Restart should return the game to its ready state with:
 
-- keep `NotFoundGameRuntimeState` feature-local;
-- initialize the runtime state once;
-- start the tested game loop from a React effect;
-- publish loop state into local React state;
-- stop the loop from the effect cleanup;
-- continue rendering the existing 404-game shell from that state.
+- score reset;
+- player reset;
+- obstacles cleared;
+- high score preserved;
+- spawn cadence reset to its initial state.
 
-This should complete the existing browser `requestAnimationFrame()` lifecycle
-roadmap item.
-
-Do not add global state, new persistence, or additional runtime abstractions
-unless integration exposes a concrete requirement.
+This completes an existing runtime-integration requirement and should not
+introduce new persistence or global state.
 
 ## Design Constraints
 
