@@ -161,6 +161,10 @@ const values = {
     expectedDeltaSeconds: 0.016,
     maximumDeltaSeconds: 0.1,
   },
+
+  browserRuntime: {
+    requestId: 42,
+  },
 } as const;
 
 function createPlayer(
