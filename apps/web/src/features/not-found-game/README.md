@@ -2,9 +2,7 @@
 
 A small deterministic runner embedded in the portfolio's 404 experience.
 
-The game is intentionally isolated from the rest of the application. It is an
-enhancement to the not-found page, not a dependency of the normal portfolio
-experience, and its state remains feature-owned rather than application-global.
+The game is intentionally isolated from the rest of the application. It is an enhancement to the not-found page, not a dependency of the normal portfolio experience, and its state remains feature-owned rather than application-global.
 
 ## Current Status
 
@@ -14,9 +12,7 @@ Assuming the latest spawn-orchestrator guard is green:
 - Playable 404 feature: **~75–80% complete**
 - Remaining work: **~4–6 focused slices**
 
-The remaining work is primarily runtime and UI integration: animation,
-rendering, controls, lifecycle behavior, accessibility, and final integration
-hardening.
+The remaining work is primarily runtime and UI integration: animation, rendering, controls, lifecycle behavior, accessibility, and final integration hardening.
 
 ## Goals
 
@@ -37,6 +33,7 @@ The feature should:
 ```text
 apps/web/src/features/not-found-game/
 ├── game-state.ts
+├── game-runtime.ts
 ├── obstacle-generator.ts
 ├── obstacle-validation.ts
 ├── obstacle-spawn-cadence.ts
@@ -50,11 +47,12 @@ apps/web/tests/
 │   └── not-found-game.fixture.ts
 ├── helpers/
 │   └── assertions.ts
-├── not-found-game-state.test.ts
-├── not-found-game-obstacle-generator.test.ts
-├── not-found-game-obstacle-spawn-cadence.test.ts
-├── not-found-game-obstacle-spawner.test.ts
-└── not-found-game-obstacle-spawn-orchestrator.test.ts
+├── game-state.test.ts
+├── game-runtime.test.ts
+├── obstacle-generator.test.ts
+├── obstacle-spawn-cadence.test.ts
+├── obstacle-spawner.test.ts
+└── obstacle-spawn-orchestrator.test.ts
 ```
 
 ## Data Flow
@@ -89,9 +87,7 @@ flowchart LR
     STATE --> UI
 ```
 
-The runtime layer produces time, IDs, and random samples. The deterministic
-modules consume those values but do not call `Math.random()`,
-`requestAnimationFrame()`, timers, or browser APIs directly.
+The runtime layer produces time, IDs, and random samples. The deterministic modules consume those values but do not call `Math.random()`, `requestAnimationFrame()`, timers, or browser APIs directly.
 
 ## Responsibility Boundaries
 
@@ -113,6 +109,23 @@ Owns:
 
 It does **not** generate obstacles or decide when they become due.
 
+### `game-runtime.ts`
+
+Owns deterministic advancement of one complete game frame.
+
+A frame:
+
+1. advances existing game physics with `stepGame()`;
+2. advances obstacle spawn cadence using the same delta;
+3. adds obstacles that became due during that frame.
+
+Newly generated obstacles enter after existing game-state advancement, so
+they begin at the configured spawn position and do not move until the next
+frame.
+
+The module remains browser-independent. It does not call
+`requestAnimationFrame()`, generate random values, or access the DOM.
+
 ### `obstacle-validation.ts`
 
 Owns reusable structural obstacle validity.
@@ -124,8 +137,7 @@ A structurally valid obstacle has:
 - a finite positive width;
 - a finite positive height.
 
-Duplicate IDs and off-screen spawning remain state-specific rules in
-`game-state.ts`.
+Duplicate IDs and off-screen spawning remain state-specific rules in `game-state.ts`.
 
 ### `obstacle-generator.ts`
 
@@ -148,8 +160,7 @@ minimum height = 0.5
 maximum height = 1.5
 ```
 
-The generator rejects blank IDs and normalized samples outside `[0, 1]`,
-including non-finite values.
+The generator rejects blank IDs and normalized samples outside `[0, 1]`, including non-finite values.
 
 ### `obstacle-spawn-cadence.ts`
 
@@ -190,8 +201,7 @@ cadence result
 generated ObstacleState[]
 ```
 
-The spawner rejects insufficient inputs rather than silently consuming due spawn
-events.
+The spawner rejects insufficient inputs rather than silently consuming due spawn events.
 
 ### `obstacle-spawn-orchestrator.ts`
 
@@ -211,9 +221,7 @@ advanceObstacleSpawning()
 GameState + SpawnerState
 ```
 
-Generated obstacles enter the game through `spawnObstacle()`, so orchestration
-does not duplicate game-state validation. Spawn cadence must not advance while
-the game is not running.
+Generated obstacles enter the game through `spawnObstacle()`, so orchestration does not duplicate game-state validation. Spawn cadence must not advance while the game is not running.
 
 ## State Machine
 
@@ -307,8 +315,7 @@ flowchart TD
     SCORE --> NEXT
 ```
 
-A collision frame intentionally does **not** award score for obstacles that also
-pass off-screen during that frame.
+A collision frame intentionally does **not** award score for obstacles that also pass off-screen during that frame.
 
 ## High Score
 
@@ -389,8 +396,7 @@ Full repository verification:
 deno task verify
 ```
 
-Coverage may intentionally exist at more than one public boundary while
-implementation is shared.
+Coverage may intentionally exist at more than one public boundary while implementation is shared.
 
 For example:
 
@@ -402,8 +408,7 @@ spawnObstacle(manually constructed blank obstacle)
     → ignored
 ```
 
-Those are different API contracts backed by the same shared validation
-invariant.
+Those are different API contracts backed by the same shared validation invariant.
 
 ## Roadmap
 
@@ -457,7 +462,8 @@ Status: **Essentially complete**
 ### Phase 3 — Runtime integration
 
 Status: **Next**
-
+- [x] Add deterministic whole-frame runtime orchestration
+- [x] Advance physics and spawning using the same frame delta
 - [ ] Add a small `requestAnimationFrame()` loop
 - [ ] Calculate and bound frame delta
 - [ ] Advance `stepGame()` from the runtime loop
@@ -519,34 +525,23 @@ Rendering / controls       ░░░░░░░░░░░░░░░░░�
 Lifecycle / accessibility  ░░░░░░░░░░░░░░░░░░░░   0%
 Final hardening            ░░░░░░░░░░░░░░░░░░░░   0%
 
-Overall playable feature   ███████████████░░░░░ ~75–80%
+Overall playable feature   ███████████████░░░░░ ~80%
 ```
 
 These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
-The next slice starts the runtime layer.
+Connect the deterministic frame runtime to a small browser
+`requestAnimationFrame()` loop.
 
-Recommended first contract:
+The browser layer should only:
 
-> A running game frame advances deterministic physics and obstacle spawning
-> using the same validated frame delta.
-
-```text
-requestAnimationFrame(timestamp)
-        ↓
-runtime computes delta
-        ↓
-pure feature functions
-        ↓
-new deterministic state
-        ↓
-React render
-```
-
-Do not put `requestAnimationFrame()`, random sampling, DOM access, or React
-state management into `game-state.ts`.
+1. receive frame timestamps;
+2. calculate a bounded delta;
+3. provide IDs and normalized random samples when spawns are due;
+4. call the deterministic runtime;
+5. publish the resulting state to React.
 
 ## Design Constraints
 
