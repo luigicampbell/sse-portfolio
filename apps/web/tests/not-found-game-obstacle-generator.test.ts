@@ -104,3 +104,26 @@ Deno.test(
     }
   },
 );
+
+Deno.test(
+  "generateObstacle: rejects blank obstacle ids",
+  () => {
+    const invalidIds = [
+      fx.values.obstacle.invalidId.empty,
+      fx.values.obstacle.invalidId.whitespaceOnly,
+    ];
+
+    for (const id of invalidIds) {
+      expect.throws(
+        () => {
+          generateObstacle(
+            id,
+            fx.values.generation.midpointSample,
+          );
+        },
+        TypeError,
+        "Blank obstacle id should be rejected.",
+      );
+    }
+  },
+);
