@@ -150,13 +150,35 @@ export function SiteNavigation() {
           ? "location"
           : undefined}
       >
-        <span
+        <picture
           className="site-navigation__brand-mark"
           aria-hidden="true"
         >
-          LC
-        </span>
+          <source
+            type="image/webp"
+            srcSet={[
+              "/images/brand/brand-mark-48.webp 48w",
+              "/images/brand/brand-mark-96.webp 96w",
+              "/images/brand/brand-mark-192.webp 192w",
+            ].join(", ")}
+            sizes="40px"
+          />
 
+          <img
+            className="site-navigation__brand-image"
+            src="/images/brand/brand-mark-48.png"
+            srcSet={[
+              "/images/brand/brand-mark-48.png 48w",
+              "/images/brand/brand-mark-96.png 96w",
+              "/images/brand/brand-mark-192.png 192w",
+            ].join(", ")}
+            sizes="40px"
+            width="40"
+            height="40"
+            alt=""
+            decoding="async"
+          />
+        </picture>
         <span
           className="site-navigation__brand-label"
           aria-hidden="true"
