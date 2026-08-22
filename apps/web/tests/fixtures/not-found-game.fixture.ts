@@ -91,6 +91,14 @@ const values = {
     },
   },
 
+  spawnCadence: {
+    beforeThresholdDelta: 1,
+    remainingThresholdDelta: 0.5,
+
+    elapsedBeforeThreshold: 1,
+    elapsedAfterExactSpawn: 0,
+  },
+
   generation: {
     obstacleId: "generated-obstacle",
 
