@@ -12,8 +12,6 @@ type ObstacleSpawnCadenceConfig = {
 };
 
 const INITIAL_ELAPSED_SECONDS = 0;
-const NO_SPAWNS = 0;
-const SINGLE_SPAWN = 1;
 
 const OBSTACLE_SPAWN_CADENCE = {
   intervalSeconds: 1.5,
@@ -32,23 +30,37 @@ export function advanceObstacleSpawnCadence(
   const elapsedSeconds = state.elapsedSeconds +
     deltaSeconds;
 
-  if (
-    elapsedSeconds <
-      OBSTACLE_SPAWN_CADENCE.intervalSeconds
-  ) {
-    return {
-      state: {
-        elapsedSeconds,
-      },
-      spawnCount: NO_SPAWNS,
-    };
-  }
+  const spawnCount = calculateSpawnCount(
+    elapsedSeconds,
+  );
+
+  const remainingElapsedSeconds = calculateRemainingElapsedSeconds(
+    elapsedSeconds,
+    spawnCount,
+  );
 
   return {
     state: {
-      elapsedSeconds: elapsedSeconds -
-        OBSTACLE_SPAWN_CADENCE.intervalSeconds,
+      elapsedSeconds: remainingElapsedSeconds,
     },
-    spawnCount: SINGLE_SPAWN,
+    spawnCount,
   };
+}
+
+function calculateSpawnCount(
+  elapsedSeconds: number,
+): number {
+  return Math.floor(
+    elapsedSeconds /
+      OBSTACLE_SPAWN_CADENCE.intervalSeconds,
+  );
+}
+
+function calculateRemainingElapsedSeconds(
+  elapsedSeconds: number,
+  spawnCount: number,
+): number {
+  return elapsedSeconds -
+    spawnCount *
+      OBSTACLE_SPAWN_CADENCE.intervalSeconds;
 }
