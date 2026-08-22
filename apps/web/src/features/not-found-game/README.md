@@ -596,7 +596,7 @@ Status: **In progress**
 - [x] Connect the game to the browser `requestAnimationFrame()` lifecycle
 - [x] Bound browser frame deltas
 - [x] Supply runtime obstacle IDs and random samples
-- [ ] Reset runtime state cleanly on restart
+- [x] Reset runtime state cleanly on restart
 - [ ] Prevent stale animation callbacks after unmount
 
 ### Phase 4 — Rendering and controls
@@ -646,7 +646,7 @@ Status: **Pending**
 ```text
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
-Phase 3 — Runtime integration        ███████░░░  4 / 6
+Phase 3 — Runtime integration        ████████░░  5 / 6
 Phase 4 — Rendering / controls       ░░░░░░░░░░  Pending
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
@@ -654,19 +654,17 @@ Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 
 ## Next Implementation Slice
 
-Make runtime restart reset the complete run, including obstacle spawn cadence,
-while preserving the session high score.
+Harden animation-loop cleanup against stale frame callbacks.
 
-Restart should return the game to its ready state with:
+Stopping or unmounting the feature should:
 
-- score reset;
-- player reset;
-- obstacles cleared;
-- high score preserved;
-- spawn cadence reset to its initial state.
+- cancel the currently pending animation-frame request;
+- prevent an already captured callback from advancing runtime state;
+- prevent stale callbacks from scheduling additional frames;
+- remain safe when cleanup is called more than once.
 
-This completes an existing runtime-integration requirement and should not
-introduce new persistence or global state.
+Completing this work should satisfy the final existing Phase 3 runtime
+integration requirement.
 
 ## Design Constraints
 

@@ -1,6 +1,7 @@
 import {
   createInitialGameState,
   type GameState,
+  restartGame,
   stepGame,
 } from "./game-state.ts";
 
@@ -44,5 +45,23 @@ export function advanceNotFoundGameFrame(
   return {
     gameState: spawningResult.gameState,
     spawningState: spawningResult.spawningState,
+  };
+}
+
+export function restartNotFoundGameRuntime(
+  state: NotFoundGameRuntimeState,
+): NotFoundGameRuntimeState {
+  const restartedGameState = restartGame(state.gameState);
+
+  if (
+    restartedGameState ===
+      state.gameState
+  ) {
+    return state;
+  }
+
+  return {
+    gameState: restartedGameState,
+    spawningState: createObstacleSpawningState(),
   };
 }
