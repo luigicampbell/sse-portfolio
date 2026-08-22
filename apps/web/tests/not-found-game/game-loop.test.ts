@@ -185,3 +185,109 @@ Deno.test(
     controller.stop();
   },
 );
+
+Deno.test(
+  "startNotFoundGameLoop: prevents stale frame callbacks after stop",
+  () => {
+    let scheduledFrame: FrameCallback | undefined;
+
+    let requestCount = 0;
+    let cancelCount = 0;
+
+    let cancelledRequestId: number | undefined;
+
+    let publishCount = 0;
+
+    const controller = startNotFoundGameLoop(
+      createNotFoundGameRuntimeState(),
+      {
+        requestFrame: (
+          callback: FrameCallback,
+        ) => {
+          scheduledFrame = callback;
+          requestCount += 1;
+
+          return requestCount;
+        },
+
+        cancelFrame: (
+          requestId: number,
+        ) => {
+          cancelCount += 1;
+
+          cancelledRequestId = requestId;
+        },
+
+        getSpawnInputs: () => [],
+
+        publishState: () => {
+          publishCount += 1;
+        },
+      },
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Starting the loop should schedule the first frame.",
+    );
+
+    const firstFrame = scheduledFrame;
+
+    firstFrame(
+      fx.values.frameClock
+        .firstTimestampMs,
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "First frame should schedule the next frame.",
+    );
+
+    const staleFrame = scheduledFrame;
+
+    expect.equals(
+      requestCount,
+      fx.values.counts.two,
+      "Expected exactly two frame requests before cleanup.",
+    );
+
+    controller.stop();
+
+    expect.equals(
+      cancelCount,
+      fx.values.counts.one,
+      "Stopping should cancel the pending frame request.",
+    );
+
+    expect.equals(
+      cancelledRequestId,
+      fx.values.counts.two,
+      "Stopping should cancel the latest pending request.",
+    );
+
+    staleFrame(
+      fx.values.frameClock
+        .nextTimestampMs,
+    );
+
+    expect.equals(
+      publishCount,
+      fx.values.counts.none,
+      "A stale frame callback should not publish runtime state.",
+    );
+
+    expect.equals(
+      requestCount,
+      fx.values.counts.two,
+      "A stale frame callback should not schedule another frame.",
+    );
+
+    controller.stop();
+
+    expect.equals(
+      cancelCount,
+      fx.values.counts.one,
+      "Stopping more than once should not cancel again.",
+    );
+  },
+);
