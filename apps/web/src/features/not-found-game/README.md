@@ -11,7 +11,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 1 — Deterministic game domain: **Complete**
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
-- Phase 4 — Rendering and controls: **In progress (5/11)**
+- Phase 4 — Rendering and controls: **In progress (5/12)**
 - Phase 5 — Lifecycle and accessibility: **Pending**
 - Phase 6 — Integration hardening: **Pending**
 
@@ -614,6 +614,7 @@ Status: **In progress**
 - [ ] Touch/pointer jump input
 - [ ] Avoid hover-only interactions
 - [ ] Verify mobile controls
+- [ ] Add lightweight 8-bit game sound effects
 
 ### Phase 5 — Lifecycle and accessibility
 
