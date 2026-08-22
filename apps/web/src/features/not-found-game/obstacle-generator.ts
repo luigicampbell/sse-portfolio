@@ -28,6 +28,7 @@ export function generateObstacle(
   id: string,
   normalizedSample: number,
 ): ObstacleState {
+  validateObstacleId(id);
   validateNormalizedSample(
     normalizedSample,
   );
@@ -78,4 +79,20 @@ function isValidNormalizedSample(
       NORMALIZED_SAMPLE_RANGE.minimum &&
     normalizedSample <=
       NORMALIZED_SAMPLE_RANGE.maximum;
+}
+
+function validateObstacleId(
+  id: string,
+): void {
+  if (!hasValidObstacleId(id)) {
+    throw new TypeError(
+      "Generated obstacle id must not be blank.",
+    );
+  }
+}
+
+function hasValidObstacleId(
+  id: string,
+): boolean {
+  return id.trim().length > 0;
 }
