@@ -1,7 +1,57 @@
 .not-found-game {
+  display: grid;
   width: 100%;
+  gap: 1rem;
+}
+
+.not-found-game__hud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.not-found-game__hud p {
+  margin: 0;
+}
+
+.not-found-game__world {
+  position: relative;
+  width: 100%;
+  min-height: 12rem;
+  overflow: hidden;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+}
+
+.not-found-game__ground {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid currentColor;
+}
+
+.not-found-game__player {
+  position: absolute;
+  bottom: 0;
+  left: calc(100% / 14);
+  width: calc(100% / 14);
+  height: 2.5rem;
+  border: 2px solid currentColor;
+  border-radius: 0.5rem;
+}
+
+.not-found-game__obstacle {
+  position: absolute;
+  bottom: 0;
+  min-width: 2px;
+  border: 2px solid currentColor;
+  border-bottom: 0;
+  border-radius: 0.375rem 0.375rem 0 0;
 }
 
 .not-found-game__status {
   margin: 0;
+  text-transform: capitalize;
 }

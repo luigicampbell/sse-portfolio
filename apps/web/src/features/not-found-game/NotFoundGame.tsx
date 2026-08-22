@@ -11,6 +11,9 @@ import {
 
 import "./NotFoundGame.css";
 
+const WORLD_WIDTH = 14;
+const WORLD_UNIT_REM = 2.5;
+
 export function NotFoundGame() {
   const [runtimeState, setRuntimeState] = useState<NotFoundGameRuntimeState>(
     createNotFoundGameRuntimeState,
@@ -37,13 +40,85 @@ export function NotFoundGame() {
     };
   }, []);
 
+  const gameState = runtimeState.gameState;
+
   return (
     <section
       className="not-found-game"
       aria-label="Not found game"
     >
-      <p className="not-found-game__status">
-        {runtimeState.gameState.status}
+      <header className="not-found-game__hud">
+        <p>
+          Score{" "}
+          <strong>
+            {gameState.score}
+          </strong>
+        </p>
+
+        <p>
+          High score{" "}
+          <strong>
+            {gameState.highScore}
+          </strong>
+        </p>
+      </header>
+
+      <div
+        className="not-found-game__world"
+        aria-label="Game world"
+      >
+        <div
+          className="not-found-game__player"
+          style={{
+            bottom: `${
+              -gameState.player.y *
+              WORLD_UNIT_REM
+            }rem`,
+          }}
+          aria-hidden="true"
+        />
+
+        {gameState.obstacles.map(
+          (obstacle) => (
+            <div
+              key={obstacle.id}
+              className="not-found-game__obstacle"
+              style={{
+                left: `${
+                  (
+                    obstacle.x /
+                    WORLD_WIDTH
+                  ) * 100
+                }%`,
+
+                width: `${
+                  (
+                    obstacle.width /
+                    WORLD_WIDTH
+                  ) * 100
+                }%`,
+
+                height: `${
+                  obstacle.height *
+                  WORLD_UNIT_REM
+                }rem`,
+              }}
+              aria-hidden="true"
+            />
+          ),
+        )}
+
+        <div
+          className="not-found-game__ground"
+          aria-hidden="true"
+        />
+      </div>
+
+      <p
+        className="not-found-game__status"
+        role="status"
+      >
+        {gameState.status}
       </p>
     </section>
   );

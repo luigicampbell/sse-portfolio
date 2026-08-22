@@ -10,8 +10,8 @@ experience, and its state remains feature-owned rather than application-global.
 
 - Phase 1 — Deterministic game domain: **Complete**
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
-- Phase 3 — Runtime integration: **In progress (3/6)**
-- Phase 4 — Rendering and controls: **Pending**
+- Phase 3 — Runtime integration: **Complete**
+- Phase 4 — Rendering and controls: **In progress (5/11)**
 - Phase 5 — Lifecycle and accessibility: **Pending**
 - Phase 6 — Integration hardening: **Pending**
 
@@ -601,13 +601,13 @@ Status: **In progress**
 
 ### Phase 4 — Rendering and controls
 
-Status: **Pending**
+Status: **In progress**
 
-- [ ] Render player
-- [ ] Render obstacles
-- [ ] Render ground/world
-- [ ] Render current score
-- [ ] Render high score
+- [x] Render player
+- [x] Render obstacles
+- [x] Render ground/world
+- [x] Render current score
+- [x] Render high score
 - [ ] Ready-state start control
 - [ ] Game-over/restart control
 - [ ] Keyboard jump input
@@ -647,29 +647,26 @@ Status: **Pending**
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
-Phase 4 — Rendering / controls       ░░░░░░░░░░  Pending
+Phase 4 — Rendering / controls       █████░░░░░  5 / 11
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Begin Phase 4 by rendering the game world from feature-local runtime state.
+Add the existing ready-state start and game-over restart controls.
 
-The first rendering pass should display:
+Controls should operate on feature-local runtime state:
 
-- the game world and ground;
-- the player;
-- active obstacles;
-- current score;
-- session high score.
+- ready state exposes a semantic start control;
+- game-over state exposes a semantic restart control;
+- starting changes the game state to running;
+- restarting uses the runtime restart path so game state and spawn cadence reset
+  together;
+- the session high score remains preserved.
 
-Rendering should reflect existing `GameState` only. Do not add new physics,
-state management, persistence, animation abstractions, or controls during this
-slice.
-
-Controls are an existing Phase 4 requirement and will follow once the current
-runtime state is visibly represented.
+Do not add keyboard or pointer jump handling during this slice. Those remain
+separate existing Phase 4 requirements.
 
 ## Design Constraints
 
