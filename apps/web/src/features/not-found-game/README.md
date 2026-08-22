@@ -8,15 +8,15 @@ experience, and its state remains feature-owned rather than application-global.
 
 ## Current Status
 
-Assuming the latest spawn-orchestrator guard is green:
+- Phase 1 — Deterministic game domain: **Complete**
+- Phase 2 — Deterministic obstacle pipeline: **Complete**
+- Phase 3 — Runtime integration: **In progress (3/6)**
+- Phase 4 — Rendering and controls: **Pending**
+- Phase 5 — Lifecycle and accessibility: **Pending**
+- Phase 6 — Integration hardening: **Pending**
 
-- Deterministic core: **~97% complete**
-- Playable 404 feature: **~75–80% complete**
-- Remaining work: **~4–6 focused slices**
-
-The remaining work is primarily runtime and UI integration: animation,
-rendering, controls, lifecycle behavior, accessibility, and final integration
-hardening.
+Progress is tracked against the roadmap below rather than estimated remaining
+implementation slices.
 
 ## Goals
 
@@ -38,51 +38,63 @@ The feature should:
 apps/web/src/features/not-found-game/
 ├── frame-clock.ts
 ├── game-loop.ts
-├── game-state.ts
 ├── game-runtime.ts
+├── game-state.ts
 ├── obstacle-generator.ts
 ├── obstacle-validation.ts
 ├── obstacle-spawn-cadence.ts
-├── obstacle-spawner.ts
 ├── obstacle-spawn-orchestrator.ts
+├── obstacle-spawner.ts
+├── runtime-spawn-inputs.ts
 ├── NotFoundGame.tsx
 ├── NotFoundGame.css
-└── runtime-spawn-inputs.ts
+└── README.md
 
 apps/web/tests/
 ├── fixtures/
 │   └── not-found-game.fixture.ts
 ├── helpers/
 │   └── assertions.ts
-├── frame-clock.test.ts
-├── game-loop.test.ts
-├── game-state.test.ts
-├── game-runtime.test.ts
-├── obstacle-generator.test.ts
-├── obstacle-spawn-cadence.test.ts
-├── obstacle-spawner.test.ts
-├── obstacle-spawn-orchestrator.test.ts
-└── runtime-spawn-inputs.test.ts
+└── not-found-game/
+    ├── frame-clock.test.ts
+    ├── game-loop.test.ts
+    ├── runtime.test.ts
+    ├── state.test.ts
+    ├── obstacle-generator.test.ts
+    ├── obstacle-spawn-cadence.test.ts
+    ├── obstacle-spawner.test.ts
+    ├── obstacle-spawn-orchestrator.test.ts
+    └── runtime-spawn-inputs.test.ts
 ```
 
 ## Data Flow
 
 ```mermaid
 flowchart LR
-    RAF["requestAnimationFrame<br/>(runtime boundary)"]
+    RAF["requestAnimationFrame<br/>(browser boundary)"]
+    LOOP["Game loop"]
+    CLOCK["Frame clock"]
     DT["deltaSeconds"]
+    RUNTIME["Game runtime"]
+    STEP["stepGame()"]
     CADENCE["Obstacle spawn cadence"]
     COUNT["spawnCount"]
-    INPUTS["Spawn inputs<br/>id + normalized sample"]
+    INPUTS["Runtime spawn inputs<br/>id + normalized sample"]
     GENERATOR["Obstacle generator"]
     VALIDATION["Obstacle validation"]
     SPAWN["spawnObstacle()"]
-    STEP["stepGame()"]
     STATE["GameState"]
     UI["React rendering"]
 
-    RAF --> DT
-    DT --> CADENCE
+    RAF --> LOOP
+    LOOP --> CLOCK
+    CLOCK --> DT
+    DT --> RUNTIME
+
+    RUNTIME --> STEP
+    STEP --> STATE
+
+    RUNTIME --> CADENCE
     CADENCE --> COUNT
     COUNT --> INPUTS
     INPUTS --> GENERATOR
@@ -90,32 +102,14 @@ flowchart LR
     VALIDATION --> SPAWN
     SPAWN --> STATE
 
-    DT --> STEP
-    STATE --> STEP
-    STEP --> STATE
-
     STATE --> UI
 ```
 
-The runtime layer produces time, IDs, and random samples. The deterministic
+The runtime boundary produces time, IDs, and random samples. The deterministic
 modules consume those values but do not call `Math.random()`,
 `requestAnimationFrame()`, timers, or browser APIs directly.
 
 ## Responsibility Boundaries
-
-### `game-loop.ts`
-
-Owns animation-frame lifecycle orchestration.
-
-The loop schedules frame callbacks, passes timestamps through `frame-clock.ts`,
-advances `game-runtime.ts` only when a usable delta is produced, publishes the
-resulting runtime state, and schedules the next frame.
-
-The scheduler is injected so browser timing remains outside the deterministic
-game modules and the lifecycle can be tested without real animation frames.
-
-Stopping the loop cancels its pending frame request and prevents further
-advancement.
 
 ### `game-state.ts`
 
@@ -142,11 +136,14 @@ Owns deterministic advancement of one complete game frame.
 A frame:
 
 1. advances existing game physics with `stepGame()`;
-2. advances obstacle spawn cadence using the same delta;
+2. advances obstacle spawning using the same delta;
 3. adds obstacles that became due during that frame.
 
 Newly generated obstacles enter after existing game-state advancement, so they
 begin at the configured spawn position and do not move until the next frame.
+
+If game advancement causes a collision, the resulting game-over state prevents
+obstacle spawning from consuming cadence during that frame.
 
 The module remains browser-independent. It does not call
 `requestAnimationFrame()`, generate random values, or access the DOM.
@@ -162,11 +159,29 @@ frame delta.
 This prevents tab suspension, debugger pauses, or unusually slow frames from
 causing a giant simulation step.
 
-The clock remains independent of `requestAnimationFrame()` itself.
-
 Invalid, non-finite, duplicate, or backwards timestamps are ignored. Ignoring a
 timestamp preserves the existing clock state so malformed input cannot move the
 clock backwards or poison subsequent frame calculations.
+
+The clock remains independent of `requestAnimationFrame()` itself.
+
+### `game-loop.ts`
+
+Owns animation-frame lifecycle orchestration.
+
+The loop schedules frame callbacks, passes timestamps through `frame-clock.ts`,
+advances `game-runtime.ts` only when a usable delta is produced, publishes the
+resulting runtime state, and schedules the next frame.
+
+The scheduler is injected so browser timing remains outside the deterministic
+game modules and the lifecycle can be tested without real animation frames.
+
+Stopping the loop cancels its pending frame request and prevents further
+advancement.
+
+The loop passes the spawn-input provider through rather than invoking it
+eagerly. This ensures IDs and random samples are not generated on frames where
+no obstacle spawn is due.
 
 ### `obstacle-validation.ts`
 
@@ -235,18 +250,27 @@ Example:
 
 ### `obstacle-spawner.ts`
 
-Combines cadence with deterministic spawn inputs.
+Combines cadence with lazily supplied deterministic spawn inputs.
 
 ```text
-cadence result
-      +
-[id, normalizedSample][]
-      ↓
-generated ObstacleState[]
+cadence
+   ↓
+spawnCount
+   │
+   ├── 0 → do not request inputs
+   │
+   └── N → request exactly N inputs
+                  ↓
+          [id, normalizedSample][]
+                  ↓
+          generated ObstacleState[]
 ```
 
 The spawner rejects insufficient inputs rather than silently consuming due spawn
 events.
+
+The provider is invoked only when cadence reports that at least one obstacle is
+due.
 
 ### `obstacle-spawn-orchestrator.ts`
 
@@ -259,7 +283,7 @@ SpawnerState
    +
 deltaSeconds
    +
-spawn inputs
+lazy spawn-input provider
       ↓
 advanceObstacleSpawning()
       ↓
@@ -267,8 +291,9 @@ GameState + SpawnerState
 ```
 
 Generated obstacles enter the game through `spawnObstacle()`, so orchestration
-does not duplicate game-state validation. Spawn cadence must not advance while
-the game is not running.
+does not duplicate game-state validation.
+
+Spawn cadence does not advance while the game is not running.
 
 ### `runtime-spawn-inputs.ts`
 
@@ -277,9 +302,15 @@ Owns the nondeterministic obstacle-input boundary.
 The runtime provider generates exactly one obstacle ID and one normalized sample
 for each due spawn.
 
-The browser implementation uses `crypto.randomUUID()` for IDs and
-`Math.random()` for normalized samples. Both dependencies remain injectable so
-the behavior can be tested deterministically.
+The browser implementation uses:
+
+```text
+crypto.randomUUID()
+Math.random()
+```
+
+Both dependencies remain injectable so the provider can be tested
+deterministically.
 
 Because the provider is consumed lazily by the spawn pipeline, IDs and random
 samples are generated only when cadence reports that an obstacle is actually
@@ -290,11 +321,15 @@ due.
 ```mermaid
 stateDiagram-v2
     [*] --> Ready
+
     Ready --> Running: startGame()
+
     Running --> Running: stepGame()
     Running --> Running: jumpPlayer()
     Running --> Running: spawnObstacle()
+
     Running --> GameOver: collision
+
     GameOver --> Ready: restartGame()
 ```
 
@@ -425,6 +460,8 @@ Partially visible obstacles remain valid.
 
 ```text
 game-state
+game-runtime
+frame-clock
 obstacle validation
 obstacle generation from supplied samples
 spawn cadence
@@ -435,13 +472,18 @@ spawn orchestration
 
 ```text
 requestAnimationFrame()
+cancelAnimationFrame()
 frame timestamps
-Math.random() or another sample source
-generated obstacle IDs
+Math.random()
+crypto.randomUUID()
 keyboard/touch/pointer events
 document visibility
 prefers-reduced-motion
+React state publication
 ```
+
+The animation loop orchestrates the two sides through injected dependencies
+without moving browser APIs into the deterministic domain.
 
 This keeps tests reproducible without making the finished game static.
 
@@ -451,6 +493,12 @@ Focused game tests:
 
 ```bash
 deno task test:game
+```
+
+The task discovers the complete game test directory:
+
+```text
+apps/web/tests/not-found-game/
 ```
 
 Full repository verification:
@@ -507,7 +555,7 @@ Status: **Complete**
 
 ### Phase 2 — Deterministic obstacle pipeline
 
-Status: **Essentially complete**
+Status: **Complete**
 
 - [x] Shared obstacle validation
 - [x] Deterministic obstacle generator
@@ -526,17 +574,13 @@ Status: **Essentially complete**
 
 ### Phase 3 — Runtime integration
 
-Status: **Next**
+Status: **In progress**
 
-- [x] Add deterministic whole-frame runtime orchestration
-- [x] Advance physics and spawning using the same frame delta
-- [ ] Add a small `requestAnimationFrame()` loop
-- [x] Calculate and bound frame delta
-- [ ] Advance `stepGame()` from the runtime loop
-- [ ] Advance obstacle spawning with the same frame delta
-- [x] Supply runtime-generated obstacle IDs
-- [ ] Supply normalized random samples at the runtime boundary
-- [ ] Reset runtime/spawner state on restart
+- [x] Add deterministic frame orchestration
+- [ ] Connect the game to the browser `requestAnimationFrame()` lifecycle
+- [x] Bound browser frame deltas
+- [x] Supply runtime obstacle IDs and random samples
+- [ ] Reset runtime state cleanly on restart
 - [ ] Prevent stale animation callbacks after unmount
 
 ### Phase 4 — Rendering and controls
@@ -584,17 +628,13 @@ Status: **Pending**
 ## Remaining Work Visualization
 
 ```text
-Deterministic domain       ████████████████████ 100%
-Obstacle pipeline          ███████████████████░ ~97%
-Runtime integration        ░░░░░░░░░░░░░░░░░░░░   0%
-Rendering / controls       ░░░░░░░░░░░░░░░░░░░░   0%
-Lifecycle / accessibility  ░░░░░░░░░░░░░░░░░░░░   0%
-Final hardening            ░░░░░░░░░░░░░░░░░░░░   0%
-
-Overall playable feature   ███████████████░░░░░ ~80%
+Phase 1 — Deterministic domain       ██████████  Complete
+Phase 2 — Obstacle pipeline          ██████████  Complete
+Phase 3 — Runtime integration        █████░░░░░  3 / 6
+Phase 4 — Rendering / controls       ░░░░░░░░░░  Pending
+Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
+Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
-
-These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
@@ -609,8 +649,8 @@ The next slice should wire:
 
 The deterministic game modules should remain unchanged.
 
-This should complete the existing runtime-animation roadmap item rather than
-creating another roadmap requirement.
+Completing this work should satisfy the existing browser-animation roadmap item
+rather than creating another roadmap requirement.
 
 ## Design Constraints
 
