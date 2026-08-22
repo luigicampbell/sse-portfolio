@@ -78,3 +78,42 @@ Deno.test(
     );
   },
 );
+
+Deno.test(
+  "advanceObstacleSpawnCadence: invalid delta does not advance cadence",
+  () => {
+    const state = createObstacleSpawnCadenceState();
+
+    const invalidDeltas = [
+      0,
+      fx.values.time
+        .negativeQuarterSecond,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+      Number.NEGATIVE_INFINITY,
+    ];
+
+    for (
+      const deltaSeconds of invalidDeltas
+    ) {
+      const result = advanceObstacleSpawnCadence(
+        state,
+        deltaSeconds,
+      );
+
+      expect.equals(
+        result.spawnCount,
+        fx.values.counts.none,
+        `Invalid delta "${String(deltaSeconds)}" should not produce a spawn.`,
+      );
+
+      expect.sameReference(
+        result.state,
+        state,
+        `Invalid delta "${
+          String(deltaSeconds)
+        }" should preserve the cadence state.`,
+      );
+    }
+  },
+);
