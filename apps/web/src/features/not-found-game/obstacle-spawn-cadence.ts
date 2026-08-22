@@ -27,6 +27,13 @@ export function advanceObstacleSpawnCadence(
   state: ObstacleSpawnCadenceState,
   deltaSeconds: number,
 ): ObstacleSpawnCadenceResult {
+  if (!isValidDeltaSeconds(deltaSeconds)) {
+    return {
+      state,
+      spawnCount: 0,
+    };
+  }
+
   const elapsedSeconds = state.elapsedSeconds +
     deltaSeconds;
 
@@ -45,6 +52,13 @@ export function advanceObstacleSpawnCadence(
     },
     spawnCount,
   };
+}
+
+function isValidDeltaSeconds(
+  deltaSeconds: number,
+): boolean {
+  return Number.isFinite(deltaSeconds) &&
+    deltaSeconds > 0;
 }
 
 function calculateSpawnCount(
