@@ -38,6 +38,7 @@ The feature should:
 apps/web/src/features/not-found-game/
 ├── game-state.ts
 ├── game-runtime.ts
+├── frame-clock.ts
 ├── obstacle-generator.ts
 ├── obstacle-validation.ts
 ├── obstacle-spawn-cadence.ts
@@ -130,6 +131,19 @@ begin at the configured spawn position and do not move until the next frame.
 
 The module remains browser-independent. It does not call
 `requestAnimationFrame()`, generate random values, or access the DOM.
+
+### `frame-clock.ts`
+
+Owns conversion of browser frame timestamps into bounded simulation deltas.
+
+The first timestamp initializes the clock without advancing the game. Subsequent
+timestamps are converted from milliseconds to seconds and clamped to a maximum
+frame delta.
+
+This prevents tab suspension, debugger pauses, or unusually slow frames from
+causing a giant simulation step.
+
+The clock remains independent of `requestAnimationFrame()` itself.
 
 ### `obstacle-validation.ts`
 
@@ -546,16 +560,20 @@ These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
-Connect the deterministic frame runtime to a small browser
-`requestAnimationFrame()` loop.
+Connect the frame clock and deterministic game runtime to the browser
+`requestAnimationFrame()` lifecycle.
 
-The browser layer should only:
+The browser runtime should:
 
-1. receive frame timestamps;
-2. calculate a bounded delta;
-3. provide IDs and normalized random samples when spawns are due;
-4. call the deterministic runtime;
-5. publish the resulting state to React.
+1. request the next animation frame;
+2. pass its timestamp through `frame-clock.ts`;
+3. skip deterministic advancement when the clock produces no delta;
+4. advance the game runtime with the bounded delta;
+5. schedule the following frame only while the component is active;
+6. cancel or invalidate the loop on cleanup.
+
+Obstacle ID generation and random samples remain runtime-boundary concerns and
+should not move into the deterministic game modules.
 
 ## Design Constraints
 
