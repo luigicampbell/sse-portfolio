@@ -1,11 +1,11 @@
 import {
   advanceObstacleSpawner,
   createObstacleSpawnerState,
-} from "../src/features/not-found-game/obstacle-spawner.ts";
+} from "../../src/features/not-found-game/obstacle-spawner.ts";
 
-import { gameFixture as fx } from "./fixtures/not-found-game.fixture.ts";
+import { gameFixture as fx } from "../fixtures/not-found-game.fixture.ts";
 
-import { testAssert as expect } from "./helpers/assertions.ts";
+import { testAssert as expect } from "../helpers/assertions.ts";
 
 Deno.test(
   "advanceObstacleSpawner: produces one obstacle when one spawn becomes due",

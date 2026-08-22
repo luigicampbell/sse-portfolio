@@ -52,6 +52,7 @@ const values = {
     defaultHeight: 1,
 
     xAfterHalfSecond: 8,
+    xAfterFullSpawnInterval: 4,
 
     passedStartX: 1,
 

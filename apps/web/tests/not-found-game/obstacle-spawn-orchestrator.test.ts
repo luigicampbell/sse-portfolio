@@ -1,13 +1,13 @@
 import {
   advanceObstacleSpawning,
   createObstacleSpawningState,
-} from "../src/features/not-found-game/obstacle-spawn-orchestrator.ts";
+} from "../../src/features/not-found-game/obstacle-spawn-orchestrator.ts";
 import {
   createInitialGameState,
-} from "../src/features/not-found-game/game-state.ts";
-import { gameFixture as fx } from "./fixtures/not-found-game.fixture.ts";
+} from "../../src/features/not-found-game/game-state.ts";
+import { gameFixture as fx } from "../fixtures/not-found-game.fixture.ts";
 
-import { testAssert as expect } from "./helpers/assertions.ts";
+import { testAssert as expect } from "../helpers/assertions.ts";
 
 Deno.test(
   "advanceObstacleSpawning: adds a due generated obstacle to a running game",

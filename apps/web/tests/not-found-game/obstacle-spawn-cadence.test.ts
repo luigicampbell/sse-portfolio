@@ -1,11 +1,11 @@
 import {
   advanceObstacleSpawnCadence,
   createObstacleSpawnCadenceState,
-} from "../src/features/not-found-game/obstacle-spawn-cadence.ts";
+} from "../../src/features/not-found-game/obstacle-spawn-cadence.ts";
 
-import { gameFixture as fx } from "./fixtures/not-found-game.fixture.ts";
+import { gameFixture as fx } from "../fixtures/not-found-game.fixture.ts";
 
-import { testAssert as expect } from "./helpers/assertions.ts";
+import { testAssert as expect } from "../helpers/assertions.ts";
 
 Deno.test(
   "advanceObstacleSpawnCadence: spawn becomes due when elapsed time reaches the interval",

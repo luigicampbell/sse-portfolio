@@ -7,11 +7,11 @@ import {
   spawnObstacle,
   startGame,
   stepGame,
-} from "../src/features/not-found-game/game-state.ts";
+} from "../../src/features/not-found-game/game-state.ts";
 
-import { gameFixture as fx } from "./fixtures/not-found-game.fixture.ts";
+import { gameFixture as fx } from "../fixtures/not-found-game.fixture.ts";
 
-import { testAssert as expect } from "./helpers/assertions.ts";
+import { testAssert as expect } from "../helpers/assertions.ts";
 
 function getOnlyObstacle(
   state: GameState,
