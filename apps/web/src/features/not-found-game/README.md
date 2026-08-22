@@ -36,9 +36,10 @@ The feature should:
 
 ```text
 apps/web/src/features/not-found-game/
+├── frame-clock.ts
+├── game-loop.ts
 ├── game-state.ts
 ├── game-runtime.ts
-├── frame-clock.ts
 ├── obstacle-generator.ts
 ├── obstacle-validation.ts
 ├── obstacle-spawn-cadence.ts
@@ -52,6 +53,8 @@ apps/web/tests/
 │   └── not-found-game.fixture.ts
 ├── helpers/
 │   └── assertions.ts
+├── frame-clock.test.ts
+├── game-loop.test.ts
 ├── game-state.test.ts
 ├── game-runtime.test.ts
 ├── obstacle-generator.test.ts
@@ -97,6 +100,22 @@ modules consume those values but do not call `Math.random()`,
 `requestAnimationFrame()`, timers, or browser APIs directly.
 
 ## Responsibility Boundaries
+
+### `game-loop.ts`
+
+Owns animation-frame lifecycle orchestration.
+
+The loop schedules frame callbacks, passes timestamps through
+`frame-clock.ts`, advances `game-runtime.ts` only when a usable delta is
+produced, publishes the resulting runtime state, and schedules the next
+frame.
+
+The scheduler is injected so browser timing remains outside the
+deterministic game modules and the lifecycle can be tested without real
+animation frames.
+
+Stopping the loop cancels its pending frame request and prevents further
+advancement.
 
 ### `game-state.ts`
 
@@ -564,21 +583,19 @@ These percentages are planning estimates, not measured completion metrics.
 
 ## Next Implementation Slice
 
-Connect the bounded frame clock and deterministic game runtime to the browser
-animation lifecycle.
+Supply obstacle spawn inputs at the runtime boundary without consuming
+nondeterminism on frames where no spawn is due.
 
-The browser loop should:
+The next slice should:
 
-1. request an animation frame;
-2. pass the frame timestamp through `frame-clock.ts`;
-3. skip game advancement when the clock produces a zero delta;
-4. advance `game-runtime.ts` when a usable delta is produced;
-5. schedule the next frame only while the runtime is active;
-6. cancel or invalidate pending work during cleanup.
+1. keep obstacle ID generation outside deterministic game modules;
+2. keep normalized random sampling outside deterministic game modules;
+3. request spawn inputs only when cadence reports that a spawn is due;
+4. provide exactly enough inputs for the number of due spawns;
+5. preserve deterministic generation and game-state validation downstream.
 
-This slice introduces the actual `requestAnimationFrame()` boundary, but random
-obstacle IDs and normalized samples should remain injectable rather than being
-embedded in deterministic modules.
+The runtime boundary may eventually use browser randomness and generated
+IDs, but those values should remain injectable and independently testable.
 
 ## Design Constraints
 
