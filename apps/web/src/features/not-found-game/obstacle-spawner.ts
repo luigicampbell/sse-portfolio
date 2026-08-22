@@ -38,6 +38,11 @@ export function advanceObstacleSpawner(
     deltaSeconds,
   );
 
+  validateSpawnInputCount(
+    cadenceResult.spawnCount,
+    inputs.length,
+  );
+
   const spawnInputs = inputs.slice(
     0,
     cadenceResult.spawnCount,
@@ -57,4 +62,15 @@ export function advanceObstacleSpawner(
     },
     obstacles,
   };
+}
+
+function validateSpawnInputCount(
+  spawnCount: number,
+  inputCount: number,
+): void {
+  if (inputCount < spawnCount) {
+    throw new RangeError(
+      `Obstacle spawner requires ${spawnCount} inputs but received ${inputCount}.`,
+    );
+  }
 }
