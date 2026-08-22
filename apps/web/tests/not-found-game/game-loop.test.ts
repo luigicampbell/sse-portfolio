@@ -118,3 +118,70 @@ Deno.test(
     controller.stop();
   },
 );
+
+Deno.test(
+  "startNotFoundGameLoop: does not request spawn inputs when no spawn is due",
+  () => {
+    let scheduledFrame: FrameCallback | undefined;
+
+    let spawnInputRequestCount = 0;
+
+    const controller = startNotFoundGameLoop(
+      {
+        ...createNotFoundGameRuntimeState(),
+        gameState: fx.createRunningState(),
+      },
+      {
+        requestFrame: (
+          callback: FrameCallback,
+        ) => {
+          scheduledFrame = callback;
+          return 1;
+        },
+
+        cancelFrame: (
+          _requestId: number,
+        ) => {},
+
+        getSpawnInputs: () => {
+          spawnInputRequestCount += 1;
+          return [];
+        },
+
+        publishState: () => {},
+      },
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Starting the loop should schedule the first frame.",
+    );
+
+    const firstFrame = scheduledFrame;
+
+    firstFrame(
+      fx.values.frameClock
+        .firstTimestampMs,
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "First frame should schedule another frame.",
+    );
+
+    const secondFrame = scheduledFrame;
+
+    secondFrame(
+      fx.values.frameClock
+        .nextTimestampMs,
+    );
+
+    expect.equals(
+      spawnInputRequestCount,
+      fx.values.counts.none,
+      "Spawn inputs should not be requested when no spawn is due.",
+    );
+
+    controller.stop();
+  },
+);
