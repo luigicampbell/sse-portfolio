@@ -26,6 +26,13 @@ export function advanceObstacleSpawning(
   deltaSeconds: number,
   inputs: readonly ObstacleSpawnInput[],
 ): ObstacleSpawningResult {
+  if (!canAdvanceObstacleSpawning(gameState)) {
+    return {
+      gameState,
+      spawningState,
+    };
+  }
+
   const spawnerResult = advanceObstacleSpawner(
     spawningState,
     deltaSeconds,
@@ -42,7 +49,6 @@ export function advanceObstacleSpawning(
     spawningState: spawnerResult.state,
   };
 }
-
 function addGeneratedObstacles(
   gameState: GameState,
   obstacles: readonly ObstacleState[],
@@ -55,4 +61,10 @@ function addGeneratedObstacles(
       ),
     gameState,
   );
+}
+
+function canAdvanceObstacleSpawning(
+  gameState: GameState,
+): boolean {
+  return gameState.status === "running";
 }
