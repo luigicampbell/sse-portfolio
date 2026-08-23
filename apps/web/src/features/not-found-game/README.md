@@ -11,8 +11,8 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 1 — Deterministic game domain: **Complete**
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
-- Phase 4 — Rendering and controls: **In progress (11/12)**
-- Phase 5 — Lifecycle and accessibility: **Pending**
+- Phase 4 — Rendering and controls: **Complete**
+- Phase 5 — Lifecycle and accessibility: **In progress ()**
 - Phase 6 — Integration hardening: **Pending**
 
 Progress is tracked against the roadmap below rather than estimated remaining
@@ -36,7 +36,11 @@ The feature should:
 
 ```text
 apps/web/src/features/not-found-game/
+├── browser-game-audio.ts
+├── browser-game-loop.ts
 ├── frame-clock.ts
+├── game-audio.ts
+├── game-input.ts
 ├── game-loop.ts
 ├── game-runtime.ts
 ├── game-state.ts
@@ -48,6 +52,8 @@ apps/web/src/features/not-found-game/
 ├── runtime-spawn-inputs.ts
 ├── NotFoundGame.tsx
 ├── NotFoundGame.css
+├── PeekingEyes.tsx
+├── PeekingEyes.css
 └── README.md
 
 apps/web/tests/
@@ -56,14 +62,17 @@ apps/web/tests/
 ├── helpers/
 │   └── assertions.ts
 └── not-found-game/
+    ├── browser-game-loop.test.ts
     ├── frame-clock.test.ts
+    ├── game-audio.test.ts
+    ├── game-input.test.ts
     ├── game-loop.test.ts
-    ├── runtime.test.ts
-    ├── state.test.ts
+    ├── game-runtime.test.ts
+    ├── game-state.test.ts
     ├── obstacle-generator.test.ts
     ├── obstacle-spawn-cadence.test.ts
-    ├── obstacle-spawner.test.ts
     ├── obstacle-spawn-orchestrator.test.ts
+    ├── obstacle-spawner.test.ts
     └── runtime-spawn-inputs.test.ts
 ```
 
@@ -590,7 +599,7 @@ Status: **Complete**
 
 ### Phase 3 — Runtime integration
 
-Status: **In progress**
+Status: **Complete**
 
 - [x] Add deterministic frame orchestration
 - [x] Connect the game to the browser `requestAnimationFrame()` lifecycle
@@ -601,7 +610,7 @@ Status: **In progress**
 
 ### Phase 4 — Rendering and controls
 
-Status: **In progress**
+Status: **Complete**
 
 - [x] Render player
 - [x] Render obstacles
@@ -614,11 +623,11 @@ Status: **In progress**
 - [x] Touch/pointer jump input
 - [x] Avoid hover-only interactions
 - [x] Verify mobile controls
-- [ ] Add lightweight 8-bit game sound effects
+- [x] Add lightweight 8-bit game sound effects
 
 ### Phase 5 — Lifecycle and accessibility
 
-Status: **Pending**
+Status: **In Progress**
 
 - [ ] Pause advancement while the document is hidden
 - [ ] Prevent giant resume deltas
@@ -648,26 +657,26 @@ Status: **Pending**
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
-Phase 4 — Rendering / controls       █████████░  11 / 12
+Phase 4 — Rendering / controls       ██████████  Complete
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Add lightweight 8-bit game sound effects.
+Add document-visibility lifecycle handling.
 
-The sound layer should:
+The runtime should:
 
-- provide short effects for meaningful game events;
-- include start, jump, score, and game-over feedback;
-- remain lightweight and feature-local;
-- avoid introducing a soundtrack or audio-management system;
-- avoid coupling sound generation to deterministic game-state logic;
-- preserve normal game behavior when audio is unavailable or disabled.
+- stop advancing gameplay while the document is hidden;
+- prevent a large accumulated frame delta when the document becomes visible
+  again;
+- keep visibility behavior at the browser/runtime boundary;
+- preserve the existing deterministic game-state and physics behavior;
+- avoid introducing new application-level state.
 
-Sound effects should remain an enhancement rather than a dependency of the game
-runtime.
+This slice should address lifecycle behavior only. Reduced-motion and remaining
+accessibility verification follow separately.
 
 ## Design Constraints
 

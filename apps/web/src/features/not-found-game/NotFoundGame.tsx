@@ -23,6 +23,10 @@ import {
   shouldHandleNotFoundGamePointer,
 } from "./game-input.ts";
 
+import { playNotFoundGameSoundEffect } from "./browser-game-audio.ts";
+
+import { getNotFoundGameSoundEffect } from "./game-audio.ts";
+
 import { startGame } from "./game-state.ts";
 
 import "./NotFoundGame.css";
@@ -47,8 +51,31 @@ export function NotFoundGame() {
       initialRuntimeState,
     );
 
+    let previousRuntimeState = initialRuntimeState;
+
     const dependencies = createBrowserGameLoopDependencies(
-      setRuntimeState,
+      (
+        nextRuntimeState,
+      ) => {
+        const soundEffect = getNotFoundGameSoundEffect(
+          previousRuntimeState
+            .gameState,
+          nextRuntimeState
+            .gameState,
+        );
+
+        previousRuntimeState = nextRuntimeState;
+
+        if (soundEffect !== null) {
+          playNotFoundGameSoundEffect(
+            soundEffect,
+          );
+        }
+
+        setRuntimeState(
+          nextRuntimeState,
+        );
+      },
     );
 
     const controller = startNotFoundGameLoop(
