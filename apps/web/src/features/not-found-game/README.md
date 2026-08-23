@@ -1,8 +1,7 @@
 # Not Found Game
 
-A small deterministic runner embedded in the portfolio's 404 experience.
-
-The game is intentionally isolated from the rest of the application. It is an
+A small deterministic runner embedded in the portfolio's 404 experience. The
+game is intentionally isolated from the rest of the application. It is an
 enhancement to the not-found page, not a dependency of the normal portfolio
 experience, and its state remains feature-owned rather than application-global.
 
@@ -12,7 +11,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
 - Phase 4 — Rendering and controls: **Complete**
-- Phase 5 — Lifecycle and accessibility: **In progress (4/8)**
+- Phase 5 — Lifecycle and accessibility: **Complete**
 - Phase 6 — Integration hardening: **Pending**
 
 Progress is tracked against the roadmap below rather than estimated remaining
@@ -124,41 +123,27 @@ modules consume those values but do not call `Math.random()`,
 
 ### `game-state.ts`
 
-Owns:
+Owns the deterministic game domain:
 
 - ready / running / game-over transitions;
 - jumping;
+- prevention of double jumps;
 - gravity and vertical movement;
 - landing;
 - obstacle horizontal movement;
 - obstacle culling;
-- collision;
+- collision detection;
 - scoring;
 - session high score;
 - restart behavior;
 - state-specific obstacle admission.
 
-It does **not** generate obstacles or decide when they become due.
-
-### `browser-game-loop.ts`
-
-Owns the browser-specific adapter for the tested animation loop.
-
-It binds the injected game-loop scheduler to
-`globalThis.requestAnimationFrame()` and `globalThis.cancelAnimationFrame()`,
-supplies the browser obstacle spawn-input provider, and forwards published
-runtime state to the caller.
-
-The scheduler and spawn-input provider remain injectable for deterministic
-tests.
-
-This adapter does not itself own the React lifecycle. The browser-animation
-roadmap item remains incomplete until `NotFoundGame.tsx` starts and cleans up
-the loop.
+It **does not** generate obstacles, decide when they become due, access browser
+APIs, or own React state.
 
 ### `game-runtime.ts`
 
-Owns deterministic advancement of one complete game frame.
+Owns deterministic orchestration of the complete runtime state.
 
 A frame:
 
@@ -166,49 +151,114 @@ A frame:
 2. advances obstacle spawning using the same delta;
 3. adds obstacles that became due during that frame.
 
-Newly generated obstacles enter after existing game-state advancement, so they
-begin at the configured spawn position and do not move until the next frame.
+It also provides feature-level runtime transitions for actions such as jumping
+and restarting so the interaction layer does not need to manipulate portions of
+runtime state independently.
 
-If game advancement causes a collision, the resulting game-over state prevents
-obstacle spawning from consuming cadence during that frame.
+Restart resets game and spawning state while preserving behavior defined by the
+underlying deterministic game transitions.
 
-The module remains browser-independent. It does not call
-`requestAnimationFrame()`, generate random values, or access the DOM.
+The module remains browser-independent.
 
 ### `frame-clock.ts`
 
-Owns conversion of browser frame timestamps into bounded simulation deltas.
+Owns conversion of animation-frame timestamps into bounded simulation deltas.
 
-The first timestamp initializes the clock without advancing the game. Subsequent
-timestamps are converted from milliseconds to seconds and clamped to a maximum
-frame delta.
+The first usable timestamp initializes the clock without advancing the game.
+Subsequent timestamps are converted from milliseconds to seconds and bounded to
+the configured maximum frame delta.
 
-This prevents tab suspension, debugger pauses, or unusually slow frames from
-causing a giant simulation step.
+Invalid, non-finite, duplicate, or backwards timestamps do not advance the
+simulation.
 
-Invalid, non-finite, duplicate, or backwards timestamps are ignored. Ignoring a
-timestamp preserves the existing clock state so malformed input cannot move the
-clock backwards or poison subsequent frame calculations.
-
-The clock remains independent of `requestAnimationFrame()` itself.
+Resetting the clock before animation resumes prevents time spent suspended from
+becoming one large simulation step.
 
 ### `game-loop.ts`
 
-Owns animation-frame lifecycle orchestration.
+Owns animation-frame lifecycle orchestration independently of any specific
+browser scheduler.
 
-The loop schedules frame callbacks, passes timestamps through `frame-clock.ts`,
-advances `game-runtime.ts` only when a usable delta is produced, publishes the
-resulting runtime state, and schedules the next frame.
+The loop:
 
-The scheduler is injected so browser timing remains outside the deterministic
-game modules and the lifecycle can be tested without real animation frames.
+- schedules frame callbacks through injected dependencies;
+- passes timestamps through `frame-clock.ts`;
+- advances `game-runtime.ts` only when a usable delta exists;
+- publishes resulting runtime state;
+- exposes feature-owned runtime-state updates;
+- supports pausing and resuming;
+- resets the frame clock when resuming;
+- cancels pending work when paused or stopped;
+- prevents stale callbacks from advancing state after cleanup.
 
-Stopping the loop cancels its pending frame request and prevents further
-advancement.
+The scheduler remains injected so loop behavior can be tested without real
+browser animation frames.
 
-The loop passes the spawn-input provider through rather than invoking it
-eagerly. This ensures IDs and random samples are not generated on frames where
-no obstacle spawn is due.
+### `browser-game-loop.ts`
+
+Owns the browser adapter for `game-loop.ts`.
+
+It binds:
+
+- `globalThis.requestAnimationFrame()`;
+- `globalThis.cancelAnimationFrame()`;
+- the browser obstacle spawn-input provider;
+- runtime-state publication.
+
+The adapter supplies browser dependencies but does not own game rules or React
+component lifecycle.
+
+### `game-input.ts`
+
+Owns feature-local interpretation of jump input.
+
+It determines whether:
+
+- a keyboard key represents a supported jump command;
+- a pointer event represents the primary pointer action.
+
+Keyboard and pointer input ultimately use the same runtime jump transition.
+
+The module does not perform physics or mutate game state directly.
+
+### `game-motion.ts`
+
+Owns the combined lifecycle pause policy.
+
+The game should remain paused when either:
+
+- the document is hidden; or
+- `prefers-reduced-motion` requests reduced motion.
+
+Keeping these conditions in one policy prevents one browser event from resuming
+the game while another pause condition is still active.
+
+The module contains no browser APIs itself.
+
+### `game-audio.ts`
+
+Owns deterministic identification of meaningful sound events from game-state
+transitions.
+
+Current effects are:
+
+- start;
+- jump;
+- score;
+- game over.
+
+It determines which sound event occurred but does not produce audio or access
+browser audio APIs.
+
+### `browser-game-audio.ts`
+
+Owns best-effort browser playback of the lightweight 8-bit sound effects.
+
+It uses the browser audio boundary to synthesize short tones and gracefully does
+nothing when audio is unavailable.
+
+Audio remains an enhancement. Failure to initialize or play audio must not alter
+game behavior.
 
 ### `obstacle-validation.ts`
 
@@ -221,7 +271,7 @@ A structurally valid obstacle has:
 - a finite positive width;
 - a finite positive height.
 
-Duplicate IDs and off-screen spawning remain state-specific rules in
+Duplicate IDs and off-screen admission remain state-specific rules in
 `game-state.ts`.
 
 ### `obstacle-generator.ts`
@@ -230,9 +280,9 @@ Converts deterministic input into obstacle geometry.
 
 ```text
 id + normalized sample [0, 1]
-              ↓
-       generateObstacle()
-              ↓
+             ↓
+      generateObstacle()
+             ↓
         ObstacleState
 ```
 
@@ -264,7 +314,7 @@ It:
 - reports the number of intervals crossed;
 - preserves fractional remainder;
 - supports multiple due spawns from one large delta;
-- ignores invalid/nonpositive deltas.
+- ignores invalid or nonpositive deltas.
 
 Example:
 
@@ -288,16 +338,15 @@ spawnCount
    │
    └── N → request exactly N inputs
                   ↓
-          [id, normalizedSample][]
+           [id, normalizedSample][]
                   ↓
-          generated ObstacleState[]
+           generated ObstacleState[]
 ```
 
-The spawner rejects insufficient inputs rather than silently consuming due spawn
-events.
+The input provider is invoked only when at least one obstacle is due.
 
-The provider is invoked only when cadence reports that at least one obstacle is
-due.
+Insufficient inputs are rejected rather than silently consuming due spawn
+events.
 
 ### `obstacle-spawn-orchestrator.ts`
 
@@ -317,8 +366,8 @@ advanceObstacleSpawning()
 GameState + SpawnerState
 ```
 
-Generated obstacles enter the game through `spawnObstacle()`, so orchestration
-does not duplicate game-state validation.
+Generated obstacles enter through `spawnObstacle()`, so orchestration does not
+duplicate game-state validation.
 
 Spawn cadence does not advance while the game is not running.
 
@@ -326,37 +375,58 @@ Spawn cadence does not advance while the game is not running.
 
 Owns the nondeterministic obstacle-input boundary.
 
-The runtime provider generates exactly one obstacle ID and one normalized sample
-for each due spawn.
-
-The browser implementation uses:
+The browser provider produces exactly one obstacle ID and one normalized random
+sample for each due spawn using:
 
 ```text
 crypto.randomUUID()
 Math.random()
 ```
 
-Both dependencies remain injectable so the provider can be tested
-deterministically.
+Both dependencies remain injectable for deterministic tests.
 
-Because the provider is consumed lazily by the spawn pipeline, IDs and random
-samples are generated only when cadence reports that an obstacle is actually
-due.
+Because inputs are requested lazily, IDs and random samples are generated only
+when cadence reports an obstacle is actually due.
+
+### `NotFoundGame.tsx`
+
+Owns React integration for the feature.
+
+It connects:
+
+- React-rendered runtime state;
+- the browser animation loop;
+- start and restart controls;
+- keyboard and pointer jump input;
+- document visibility;
+- reduced-motion preference changes;
+- lightweight sound playback;
+- loop setup and cleanup.
+
+It coordinates existing feature modules rather than implementing physics,
+collision, spawning, timing, or audio-event rules itself.
+
+Game state remains local to the feature.
+
+### `PeekingEyes.tsx`
+
+Owns the decorative ambient eye presentation used by the not-found experience.
+
+It is presentation-only and does not affect game state, physics, scoring,
+controls, or navigation.
+
+Its motion is disabled for reduced-motion users.
 
 ## State Machine
 
 ```mermaid
 stateDiagram-v2
     [*] --> Ready
-
     Ready --> Running: startGame()
-
     Running --> Running: stepGame()
     Running --> Running: jumpPlayer()
     Running --> Running: spawnObstacle()
-
     Running --> GameOver: collision
-
     GameOver --> Ready: restartGame()
 ```
 
@@ -368,7 +438,6 @@ Invalid transitions are ignored and preserve the existing state.
                 upward
                   ↑
             negative y
-
               player
              ┌──────┐
              │      │
@@ -428,7 +497,6 @@ flowchart TD
     GAMEOVER["Game over<br/>preserve current score<br/>update high score"]
     SCORE["Award passed-obstacle score"]
     NEXT["Return next running state"]
-
     START --> VALID
     VALID -- no --> RETURN["Return original state"]
     VALID -- yes --> MOVE_OBS
@@ -444,9 +512,7 @@ pass off-screen during that frame.
 
 ## High Score
 
-High score is session-local.
-
-On collision:
+High score is session-local. On collision:
 
 ```text
 highScore = max(current score, existing high score)
@@ -510,9 +576,8 @@ React state publication
 ```
 
 The animation loop orchestrates the two sides through injected dependencies
-without moving browser APIs into the deterministic domain.
-
-This keeps tests reproducible without making the finished game static.
+without moving browser APIs into the deterministic domain. This keeps tests
+reproducible without making the finished game static.
 
 ## Testing Strategy
 
@@ -535,14 +600,11 @@ deno task verify
 ```
 
 Coverage may intentionally exist at more than one public boundary while
-implementation is shared.
-
-For example:
+implementation is shared. For example:
 
 ```text
 generateObstacle(blank id)
     → throws
-
 spawnObstacle(manually constructed blank obstacle)
     → ignored
 ```
@@ -629,16 +691,16 @@ Status: **Complete**
 
 ### Phase 5 — Lifecycle and accessibility
 
-Status: **In Progress**
+Status: **Complete**
 
 - [x] Pause advancement while the document is hidden
 - [x] Prevent giant resume deltas
 - [x] Respect `prefers-reduced-motion`
 - [x] Provide appropriate non-motion behavior
-- [ ] Avoid keyboard focus traps
-- [ ] Use semantic start/restart controls
-- [ ] Keep score/status readable
-- [ ] Keep the normal 404 escape/navigation path obvious
+- [x] Avoid keyboard focus traps
+- [x] Use semantic start/restart controls
+- [x] Keep score/status readable
+- [x] Keep the normal 404 escape/navigation path obvious
 
 ### Phase 6 — Integration hardening
 
@@ -660,23 +722,29 @@ Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ██████████  Complete
-Phase 5 — Lifecycle / accessibility  █████░░░░░  4 / 8
+Phase 5 — Lifecycle / accessibility  ██████████  Complete
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Verify and harden the remaining accessibility behavior.
+Complete final integration hardening for the not-found game.
 
-The feature should:
+The final slice should:
 
-- avoid keyboard focus traps;
-- keep start and restart controls semantic and keyboard-accessible;
-- keep score and game status readable to assistive technology;
-- preserve an obvious navigation path away from the 404 page;
-- make only focused accessibility changes where verification finds a problem.
+- verify clean integration with `NotFoundPage`;
+- ensure the normal 404 experience remains usable if the game runtime cannot
+  run;
+- add focused component/integration coverage only where a meaningful gap
+  remains;
+- re-verify narrow and mobile layouts;
+- confirm game state remains feature-local and no global state is required;
+- remove any remaining temporary or debug behavior;
+- run the complete `deno task verify` pipeline;
+- perform final documentation and implementation cleanup.
 
-No new gameplay behavior should be introduced.
+No new gameplay, visual redesign, state architecture, or feature scope should be
+introduced during final hardening.
 
 ## Design Constraints
 
