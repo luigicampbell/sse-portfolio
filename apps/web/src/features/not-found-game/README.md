@@ -12,7 +12,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
 - Phase 4 — Rendering and controls: **Complete**
-- Phase 5 — Lifecycle and accessibility: **In progress (2/8)**
+- Phase 5 — Lifecycle and accessibility: **In progress (4/8)**
 - Phase 6 — Integration hardening: **Pending**
 
 Progress is tracked against the roadmap below rather than estimated remaining
@@ -42,6 +42,7 @@ apps/web/src/features/not-found-game/
 ├── game-audio.ts
 ├── game-input.ts
 ├── game-loop.ts
+├── game-motion.ts
 ├── game-runtime.ts
 ├── game-state.ts
 ├── obstacle-generator.ts
@@ -67,6 +68,7 @@ apps/web/tests/
     ├── game-audio.test.ts
     ├── game-input.test.ts
     ├── game-loop.test.ts
+    ├── game-motion.test.ts
     ├── game-runtime.test.ts
     ├── game-state.test.ts
     ├── obstacle-generator.test.ts
@@ -631,8 +633,8 @@ Status: **In Progress**
 
 - [x] Pause advancement while the document is hidden
 - [x] Prevent giant resume deltas
-- [ ] Respect `prefers-reduced-motion`
-- [ ] Provide appropriate non-motion behavior
+- [x] Respect `prefers-reduced-motion`
+- [x] Provide appropriate non-motion behavior
 - [ ] Avoid keyboard focus traps
 - [ ] Use semantic start/restart controls
 - [ ] Keep score/status readable
@@ -658,26 +660,23 @@ Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ██████████  Complete
-Phase 5 — Lifecycle / accessibility  ██░░░░░░░░  2 / 8
+Phase 5 — Lifecycle / accessibility  █████░░░░░  4 / 8
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Add reduced-motion behavior for the not-found game.
+Verify and harden the remaining accessibility behavior.
 
 The feature should:
 
-- respect the user's `prefers-reduced-motion` preference;
-- avoid automatically advancing the animated game experience when reduced motion
-  is requested;
-- provide appropriate non-motion behavior without removing the normal 404
-  navigation experience;
-- keep reduced-motion detection at the browser/UI boundary;
-- preserve the existing deterministic game-state and runtime behavior;
-- avoid introducing application-level preference state.
+- avoid keyboard focus traps;
+- keep start and restart controls semantic and keyboard-accessible;
+- keep score and game status readable to assistive technology;
+- preserve an obvious navigation path away from the 404 page;
+- make only focused accessibility changes where verification finds a problem.
 
-This slice should address reduced-motion behavior only.
+No new gameplay behavior should be introduced.
 
 ## Design Constraints
 

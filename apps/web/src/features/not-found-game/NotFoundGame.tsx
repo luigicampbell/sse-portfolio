@@ -27,6 +27,8 @@ import { playNotFoundGameSoundEffect } from "./browser-game-audio.ts";
 
 import { getNotFoundGameSoundEffect } from "./game-audio.ts";
 
+import { shouldPauseNotFoundGame } from "./game-motion.ts";
+
 import { startGame } from "./game-state.ts";
 
 import "./NotFoundGame.css";
@@ -85,24 +87,42 @@ export function NotFoundGame() {
 
     controllerRef.current = controller;
 
-    const handleVisibilityChange = (): void => {
+    const reducedMotionQuery = globalThis.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
+
+    const syncPausedState = (): void => {
       controller.setPaused(
-        document.visibilityState ===
-          "hidden",
+        shouldPauseNotFoundGame({
+          documentHidden: document.visibilityState ===
+            "hidden",
+
+          prefersReducedMotion: reducedMotionQuery.matches,
+        }),
       );
     };
 
     document.addEventListener(
       "visibilitychange",
-      handleVisibilityChange,
+      syncPausedState,
     );
 
-    handleVisibilityChange();
+    reducedMotionQuery.addEventListener(
+      "change",
+      syncPausedState,
+    );
+
+    syncPausedState();
 
     return () => {
       document.removeEventListener(
         "visibilitychange",
-        handleVisibilityChange,
+        syncPausedState,
+      );
+
+      reducedMotionQuery.removeEventListener(
+        "change",
+        syncPausedState,
       );
 
       controller.stop();
