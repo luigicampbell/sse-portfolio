@@ -1,6 +1,7 @@
 import {
   advanceNotFoundGameFrame,
   createNotFoundGameRuntimeState,
+  jumpNotFoundGameRuntime,
   type NotFoundGameRuntimeState,
   restartNotFoundGameRuntime,
 } from "../../src/features/not-found-game/game-runtime.ts";
@@ -85,6 +86,60 @@ Deno.test(
       fx.values.spawnCadence
         .elapsedAfterExactSpawn,
       "Spawn cadence should consume the same frame delta.",
+    );
+  },
+);
+
+Deno.test(
+  "jumpNotFoundGameRuntime: applies the existing jump transition without changing spawn state",
+  () => {
+    const state: NotFoundGameRuntimeState = {
+      gameState: fx.createRunningState(),
+
+      spawningState: {
+        cadence: {
+          elapsedSeconds: fx.values.spawnCadence
+            .elapsedBeforeThreshold,
+        },
+      },
+    };
+
+    const jumped = jumpNotFoundGameRuntime(
+      state,
+    );
+
+    expect.differentReference(
+      jumped,
+      state,
+      "Jump should create a new runtime state.",
+    );
+
+    expect.differentReference(
+      jumped.gameState,
+      state.gameState,
+      "Jump should create a new game state.",
+    );
+
+    expect.equals(
+      jumped.gameState.player.velocityY,
+      fx.values.player.jumpVelocityY,
+      "Jump should apply the existing deterministic jump velocity.",
+    );
+
+    expect.assert(
+      !jumped.gameState.player.isGrounded,
+      "Jumped player should become airborne.",
+    );
+
+    expect.sameReference(
+      jumped.spawningState,
+      state.spawningState,
+      "Jump should not alter obstacle spawning state.",
+    );
+
+    expect.assert(
+      state.gameState.player.isGrounded,
+      "Jump must not mutate the original player state.",
     );
   },
 );
