@@ -12,7 +12,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 3 — Runtime integration: **Complete**
 - Phase 4 — Rendering and controls: **Complete**
 - Phase 5 — Lifecycle and accessibility: **Complete**
-- Phase 6 — Integration hardening: **In progress (1/8)**
+- Phase 6 — Integration hardening: **In progress (3/8)**
 
 Progress is tracked against the roadmap below rather than estimated remaining
 implementation slices.
@@ -226,7 +226,7 @@ browser animation frames.
 
 ### `browser-game-loop.ts`
 
-Owns the browser adapter for `game-loop.ts`.
+Owns the browser adapter and safe startup boundary for `game-loop.ts`.
 
 It binds:
 
@@ -235,8 +235,12 @@ It binds:
 - the browser obstacle spawn-input provider;
 - runtime-state publication.
 
-The adapter supplies browser dependencies but does not own game rules or React
-component lifecycle.
+`tryStartBrowserGameLoop()` contains browser-loop startup failure at this
+boundary. If the scheduler cannot start, it returns `null` rather than allowing
+the game enhancement to take down the surrounding 404 experience.
+
+The adapter supplies browser dependencies and startup protection but does not
+own game rules or React component lifecycle.
 
 ### `game-input.ts`
 
@@ -435,6 +439,10 @@ It connects:
 
 It coordinates existing feature modules rather than implementing physics,
 collision, spawning, timing, or audio-event rules itself.
+
+If browser-loop startup fails, it keeps the controller unset and leaves the game
+in its stable initial state so the surrounding 404 content and navigation remain
+usable.
 
 Game state remains local to the feature.
 
@@ -737,8 +745,8 @@ Status: **Complete**
 Status: **In progress**
 
 - [x] Integrate cleanly with `NotFoundPage`
-- [ ] Ensure the 404 page remains usable if the game runtime fails
-- [ ] Add focused component/integration coverage
+- [x] Ensure the 404 page remains usable if the game runtime fails
+- [x] Add focused component/integration coverage
 - [ ] Test narrow/mobile layouts
 - [ ] Confirm no global state is required
 - [ ] Remove temporary/debug behavior
@@ -753,25 +761,23 @@ Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ██████████  Complete
 Phase 5 — Lifecycle / accessibility  ██████████  Complete
-Phase 6 — Integration hardening      █░░░░░░░░░  1 / 8
+Phase 6 — Integration hardening      ████░░░░░░  3 / 8
 ```
 
 ## Next Implementation Slice
 
-Harden the not-found experience against game runtime startup failure.
+Complete final integration hardening for the not-found game.
 
-The slice should:
+The final slice should:
 
-- preserve the normal 404 shell, message, and navigation if the game runtime
-  cannot start;
-- keep failure handling local to the game/browser integration boundary;
-- degrade the game enhancement to a stable non-running state rather than taking
-  down the page;
-- add focused coverage for the failure path;
-- avoid changing deterministic game behavior, visuals, controls, or state
-  architecture.
+- re-verify narrow and mobile layouts;
+- confirm game state remains feature-local and no global state is required;
+- remove any remaining temporary or debug behavior;
+- run the complete `deno task verify` pipeline;
+- perform final implementation and documentation cleanup.
 
-No new gameplay or feature scope should be introduced.
+No new gameplay, visual redesign, state architecture, or feature scope should be
+introduced during final hardening.
 
 ## Design Constraints
 

@@ -1,5 +1,8 @@
-import type { NotFoundGameLoopDependencies } from "./game-loop.ts";
-
+import {
+  type NotFoundGameLoopController,
+  type NotFoundGameLoopDependencies,
+  startNotFoundGameLoop,
+} from "./game-loop.ts";
 import type { NotFoundGameRuntimeState } from "./game-runtime.ts";
 
 import type { ObstacleSpawnInputProvider } from "./obstacle-spawner.ts";
@@ -51,4 +54,17 @@ export function createBrowserGameLoopDependencies(
 
     publishState,
   };
+}
+export function tryStartBrowserGameLoop(
+  initialState: NotFoundGameRuntimeState,
+  dependencies: NotFoundGameLoopDependencies,
+): NotFoundGameLoopController | null {
+  try {
+    return startNotFoundGameLoop(
+      initialState,
+      dependencies,
+    );
+  } catch {
+    return null;
+  }
 }

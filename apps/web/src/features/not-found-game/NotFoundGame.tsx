@@ -4,12 +4,13 @@ import {
   useRef,
   useState,
 } from "react";
-import { createBrowserGameLoopDependencies } from "./browser-game-loop.ts";
 
 import {
-  type NotFoundGameLoopController,
-  startNotFoundGameLoop,
-} from "./game-loop.ts";
+  createBrowserGameLoopDependencies,
+  tryStartBrowserGameLoop,
+} from "./browser-game-loop.ts";
+
+import type { NotFoundGameLoopController } from "./game-loop.ts";
 
 import {
   createNotFoundGameRuntimeState,
@@ -80,10 +81,16 @@ export function NotFoundGame() {
       },
     );
 
-    const controller = startNotFoundGameLoop(
+    const controller = tryStartBrowserGameLoop(
       initialRuntimeState,
       dependencies,
     );
+
+    if (controller === null) {
+      controllerRef.current = null;
+
+      return;
+    }
 
     controllerRef.current = controller;
 
