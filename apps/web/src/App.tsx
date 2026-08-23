@@ -9,6 +9,7 @@ import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
 import {
   useLocationHashNavigation,
 } from "./lib/use-location-hash-navigation.ts";
+import { isPortfolioPath } from "./lib/portfolio-navigation.ts";
 
 import { NotFoundPage } from "./pages/NotFoundPage.tsx";
 import { Hero } from "./sections/Hero.tsx";
@@ -45,12 +46,15 @@ type LoadState =
     message: string;
   };
 
-const PORTFOLIO_PATH = "/";
-
 export function App() {
   const pathname = globalThis.location.pathname;
 
-  if (pathname !== PORTFOLIO_PATH) {
+  const isOnPortfolio = isPortfolioPath(
+    pathname,
+    import.meta.env.BASE_URL,
+  );
+
+  if (!isOnPortfolio) {
     return <NotFoundPage />;
   }
 

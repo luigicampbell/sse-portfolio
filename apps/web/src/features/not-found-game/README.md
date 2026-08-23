@@ -12,7 +12,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 3 — Runtime integration: **Complete**
 - Phase 4 — Rendering and controls: **Complete**
 - Phase 5 — Lifecycle and accessibility: **Complete**
-- Phase 6 — Integration hardening: **Pending**
+- Phase 6 — Integration hardening: **In progress (1/8)**
 
 Progress is tracked against the roadmap below rather than estimated remaining
 implementation slices.
@@ -34,29 +34,37 @@ The feature should:
 ## Architecture
 
 ```text
-apps/web/src/features/not-found-game/
-├── browser-game-audio.ts
-├── browser-game-loop.ts
-├── frame-clock.ts
-├── game-audio.ts
-├── game-input.ts
-├── game-loop.ts
-├── game-motion.ts
-├── game-runtime.ts
-├── game-state.ts
-├── obstacle-generator.ts
-├── obstacle-validation.ts
-├── obstacle-spawn-cadence.ts
-├── obstacle-spawn-orchestrator.ts
-├── obstacle-spawner.ts
-├── runtime-spawn-inputs.ts
-├── NotFoundGame.tsx
-├── NotFoundGame.css
-├── PeekingEyes.tsx
-├── PeekingEyes.css
-└── README.md
+apps/web/src/
+├── App.tsx
+├── lib/
+│   └── portfolio-navigation.ts
+├── pages/
+│   └── NotFoundPage.tsx
+└── features/
+    └── not-found-game/
+        ├── browser-game-audio.ts
+        ├── browser-game-loop.ts
+        ├── frame-clock.ts
+        ├── game-audio.ts
+        ├── game-input.ts
+        ├── game-loop.ts
+        ├── game-motion.ts
+        ├── game-runtime.ts
+        ├── game-state.ts
+        ├── obstacle-generator.ts
+        ├── obstacle-validation.ts
+        ├── obstacle-spawn-cadence.ts
+        ├── obstacle-spawn-orchestrator.ts
+        ├── obstacle-spawner.ts
+        ├── runtime-spawn-inputs.ts
+        ├── NotFoundGame.tsx
+        ├── NotFoundGame.css
+        ├── PeekingEyes.tsx
+        ├── PeekingEyes.css
+        └── README.md
 
 apps/web/tests/
+├── portfolio-navigation.test.ts
 ├── fixtures/
 │   └── not-found-game.fixture.ts
 ├── helpers/
@@ -121,6 +129,28 @@ modules consume those values but do not call `Math.random()`,
 
 ## Responsibility Boundaries
 
+### `App.tsx` and `portfolio-navigation.ts`
+
+Own application-level route classification for the portfolio entry point.
+
+`portfolio-navigation.ts` normalizes the configured Vite base path and
+determines whether the current pathname belongs to the portfolio root. `App.tsx`
+uses that shared predicate to render the portfolio at the configured base path
+and route unknown paths to `NotFoundPage`.
+
+This keeps deployment-base concerns outside the not-found game feature.
+
+### `NotFoundPage.tsx`
+
+Owns composition of the normal 404 experience.
+
+It combines the immersive `AppShell`, explanatory 404 content, `NotFoundGame`,
+and `PeekingEyes`. Navigation remains provided by the shell, so the game is an
+enhancement rather than the only way out of the page.
+
+It does not own game physics, runtime state, input interpretation, or browser
+timing.
+
 ### `game-state.ts`
 
 Owns the deterministic game domain:
@@ -138,7 +168,7 @@ Owns the deterministic game domain:
 - restart behavior;
 - state-specific obstacle admission.
 
-It **does not** generate obstacles, decide when they become due, access browser
+It does not generate obstacles, decide when they become due, access browser
 APIs, or own React state.
 
 ### `game-runtime.ts`
@@ -704,9 +734,9 @@ Status: **Complete**
 
 ### Phase 6 — Integration hardening
 
-Status: **Pending**
+Status: **In progress**
 
-- [ ] Integrate cleanly with `NotFoundPage`
+- [x] Integrate cleanly with `NotFoundPage`
 - [ ] Ensure the 404 page remains usable if the game runtime fails
 - [ ] Add focused component/integration coverage
 - [ ] Test narrow/mobile layouts
@@ -723,28 +753,25 @@ Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ██████████  Complete
 Phase 5 — Lifecycle / accessibility  ██████████  Complete
-Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
+Phase 6 — Integration hardening      █░░░░░░░░░  1 / 8
 ```
 
 ## Next Implementation Slice
 
-Complete final integration hardening for the not-found game.
+Harden the not-found experience against game runtime startup failure.
 
-The final slice should:
+The slice should:
 
-- verify clean integration with `NotFoundPage`;
-- ensure the normal 404 experience remains usable if the game runtime cannot
-  run;
-- add focused component/integration coverage only where a meaningful gap
-  remains;
-- re-verify narrow and mobile layouts;
-- confirm game state remains feature-local and no global state is required;
-- remove any remaining temporary or debug behavior;
-- run the complete `deno task verify` pipeline;
-- perform final documentation and implementation cleanup.
+- preserve the normal 404 shell, message, and navigation if the game runtime
+  cannot start;
+- keep failure handling local to the game/browser integration boundary;
+- degrade the game enhancement to a stable non-running state rather than taking
+  down the page;
+- add focused coverage for the failure path;
+- avoid changing deterministic game behavior, visuals, controls, or state
+  architecture.
 
-No new gameplay, visual redesign, state architecture, or feature scope should be
-introduced during final hardening.
+No new gameplay or feature scope should be introduced.
 
 ## Design Constraints
 
