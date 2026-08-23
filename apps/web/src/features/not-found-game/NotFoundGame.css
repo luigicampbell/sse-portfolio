@@ -6,6 +6,12 @@
       2.25rem
     );
 
+  --not-found-game-ground-offset:
+    calc(
+    var(--not-found-game-unit) *
+    0.5
+  );
+
   display:
     grid;
 
@@ -204,10 +210,7 @@
     0;
 
   bottom:
-    calc(
-    var(--not-found-game-unit) *
-    0.5
-  );
+    var(--not-found-game-ground-offset);
 
   left:
     0;
@@ -236,10 +239,7 @@
     0;
 
   height:
-    calc(
-    var(--not-found-game-unit) *
-    0.5
-  );
+    var(--not-found-game-ground-offset);
 
   background:
     var(
@@ -259,12 +259,6 @@
 
   z-index:
     3;
-
-  left:
-    var(--not-found-game-unit);
-
-  width:
-    var(--not-found-game-unit);
 
   height:
     var(--not-found-game-unit);
@@ -299,10 +293,7 @@
     3;
 
   bottom:
-    calc(
-    var(--not-found-game-unit) *
-    0.5
-  );
+    var(--not-found-game-ground-offset);
 
   min-width:
     2px;

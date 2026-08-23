@@ -18,6 +18,8 @@ import { startGame } from "./game-state.ts";
 import "./NotFoundGame.css";
 
 const WORLD_WIDTH = 14;
+const PLAYER_X = 1;
+const PLAYER_WIDTH = 1;
 
 export function NotFoundGame() {
   const [runtimeState, setRuntimeState] = useState<NotFoundGameRuntimeState>(
@@ -127,7 +129,12 @@ export function NotFoundGame() {
         <div
           className="not-found-game__player"
           style={{
-            bottom: `calc(${-gameState.player.y} * var(--not-found-game-unit))`,
+            left: toWorldPercent(PLAYER_X),
+            width: toWorldPercent(PLAYER_WIDTH),
+            bottom: `calc(
+              var(--not-found-game-ground-offset) +
+              (${-gameState.player.y} * var(--not-found-game-unit))
+            )`,
           }}
           aria-hidden="true"
         />
@@ -138,18 +145,12 @@ export function NotFoundGame() {
               key={obstacle.id}
               className="not-found-game__obstacle"
               style={{
-                left: `${
-                  (
-                    obstacle.x /
-                    WORLD_WIDTH
-                  ) * 100
-                }%`,
-                width: `${
-                  (
-                    obstacle.width /
-                    WORLD_WIDTH
-                  ) * 100
-                }%`,
+                left: toWorldPercent(
+                  obstacle.x,
+                ),
+                width: toWorldPercent(
+                  obstacle.width,
+                ),
                 height: `calc(${obstacle.height} * var(--not-found-game-unit))`,
               }}
               aria-hidden="true"
@@ -188,4 +189,13 @@ export function NotFoundGame() {
       </div>
     </section>
   );
+}
+
+function toWorldPercent(
+  value: number,
+): string {
+  return `${
+    (value / WORLD_WIDTH) *
+    100
+  }%`;
 }
