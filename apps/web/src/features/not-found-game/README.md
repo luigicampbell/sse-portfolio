@@ -76,6 +76,7 @@ apps/web/tests/
     ├── game-input.test.ts
     ├── game-loop.test.ts
     ├── game-motion.test.ts
+    ├── game-playability.test.ts
     ├── game-runtime.test.ts
     ├── game-state.test.ts
     ├── obstacle-generator.test.ts
@@ -107,11 +108,11 @@ flowchart LR
     RAF --> LOOP
     LOOP --> CLOCK
     CLOCK --> DT
+
     DT --> RUNTIME
-
     RUNTIME --> STEP
-    STEP --> STATE
 
+    STEP --> STATE
     RUNTIME --> CADENCE
     CADENCE --> COUNT
     COUNT --> INPUTS
@@ -166,7 +167,11 @@ Owns the deterministic game domain:
 - scoring;
 - session high score;
 - restart behavior;
-- state-specific obstacle admission.
+- state-specific obstacle admission;
+- core movement constants used by the deterministic physics model.
+
+The movement constants are covered by a focused playability regression so a
+correctly timed jump remains capable of clearing generated obstacles.
 
 It does not generate obstacles, decide when they become due, access browser
 APIs, or own React state.
@@ -501,8 +506,8 @@ Rules:
 ## Physics
 
 ```text
-gravity        = 2
-jump velocity  = -1
+gravity        = 8
+jump velocity  = -6
 obstacle speed = 4
 ```
 
@@ -522,6 +527,10 @@ isGrounded = true
 ```
 
 Invalid or nonpositive deltas do not advance the game.
+
+The jump and gravity values are tuned so a correctly timed jump can clear the
+tallest generated obstacle (`1.5` world units). Focused playability coverage
+protects that relationship from future physics regressions.
 
 ## Collision and Scoring Order
 

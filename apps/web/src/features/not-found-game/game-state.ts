@@ -66,8 +66,8 @@ const RESTING_VERTICAL_VELOCITY = 0;
 const GAME_PHYSICS = {
   groundY: 0,
   worldLeftX: 0,
-  jumpVelocity: -1,
-  gravity: 2,
+  jumpVelocity: -6,
+  gravity: 8,
   obstacleSpeed: 4,
   scorePerPassedObstacle: 1,
   playerHitbox: {
