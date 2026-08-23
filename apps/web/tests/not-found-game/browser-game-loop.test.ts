@@ -1,5 +1,6 @@
 import {
   createBrowserGameLoopDependencies,
+  tryStartBrowserGameLoop,
 } from "../../src/features/not-found-game/browser-game-loop.ts";
 
 import {
@@ -103,6 +104,42 @@ Deno.test(
       publishedState,
       runtimeState,
       "Browser adapter should publish runtime state unchanged.",
+    );
+  },
+);
+
+Deno.test(
+  "tryStartBrowserGameLoop: returns null when the animation loop cannot start",
+  () => {
+    const scheduler = {
+      requestAnimationFrame: (
+        _callback: FrameCallback,
+      ): number => {
+        throw new Error(
+          "Animation scheduler unavailable.",
+        );
+      },
+
+      cancelAnimationFrame: (
+        _requestId: number,
+      ): void => {},
+    };
+
+    const dependencies = createBrowserGameLoopDependencies(
+      () => {},
+      scheduler,
+      () => [],
+    );
+
+    const controller = tryStartBrowserGameLoop(
+      createNotFoundGameRuntimeState(),
+      dependencies,
+    );
+
+    expect.equals(
+      controller,
+      null,
+      "Browser integration should degrade safely when the game loop cannot start.",
     );
   },
 );
