@@ -31,19 +31,19 @@ const values = {
   },
 
   player: {
-    jumpVelocityY: -6,
+    jumpVelocityY: -8,
 
     airborneClearanceY: -2,
 
-    velocityAfterQuarterSecond: -4,
-    yAfterQuarterSecond: -1,
+    velocityAfterQuarterSecond: -4.5,
+    yAfterQuarterSecond: -1.125,
 
     landingStartY: -0.1,
     landingStartVelocityY: 1,
 
     fallingCollisionStartY: -1.05,
     fallingCollisionStartVelocityY: 0.8,
-    fallingCollisionExpectedY: -0.89,
+    fallingCollisionExpectedY: -0.83,
   },
 
   obstacle: {

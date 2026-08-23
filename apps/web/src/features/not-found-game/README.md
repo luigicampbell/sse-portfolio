@@ -12,7 +12,9 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 3 — Runtime integration: **Complete**
 - Phase 4 — Rendering and controls: **Complete**
 - Phase 5 — Lifecycle and accessibility: **Complete**
-- Phase 6 — Integration hardening: **In progress (3/8)**
+- Phase 6 — Integration hardening: **Complete**
+
+**Iteration 1 status: Complete.**
 
 Progress is tracked against the roadmap below rather than estimated remaining
 implementation slices.
@@ -506,8 +508,8 @@ Rules:
 ## Physics
 
 ```text
-gravity        = 8
-jump velocity  = -6
+gravity        = 14
+jump velocity  = -8
 obstacle speed = 4
 ```
 
@@ -528,9 +530,10 @@ isGrounded = true
 
 Invalid or nonpositive deltas do not advance the game.
 
-The jump and gravity values are tuned so a correctly timed jump can clear the
-tallest generated obstacle (`1.5` world units). Focused playability coverage
-protects that relationship from future physics regressions.
+The jump and gravity values are tuned for a faster, less floaty response while
+retaining a practical timing window for clearing the tallest generated obstacle
+(`1.5` world units). Focused playability coverage protects that relationship
+from future physics regressions.
 
 ## Collision and Scoring Order
 
@@ -751,16 +754,16 @@ Status: **Complete**
 
 ### Phase 6 — Integration hardening
 
-Status: **In progress**
+Status: **Complete**
 
 - [x] Integrate cleanly with `NotFoundPage`
 - [x] Ensure the 404 page remains usable if the game runtime fails
 - [x] Add focused component/integration coverage
-- [ ] Test narrow/mobile layouts
-- [ ] Confirm no global state is required
-- [ ] Remove temporary/debug behavior
-- [ ] Run full `deno task verify`
-- [ ] Final cleanup
+- [x] Test narrow/mobile layouts
+- [x] Confirm no global state is required
+- [x] Remove temporary/debug behavior
+- [x] Run full `deno task verify`
+- [x] Final cleanup
 
 ## Remaining Work Visualization
 
@@ -770,23 +773,16 @@ Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ██████████  Complete
 Phase 5 — Lifecycle / accessibility  ██████████  Complete
-Phase 6 — Integration hardening      ████░░░░░░  3 / 8
+Phase 6 — Integration hardening      ██████████  Complete
 ```
 
 ## Next Implementation Slice
 
-Complete final integration hardening for the not-found game.
+Iteration 1 of the not-found game is complete.
 
-The final slice should:
-
-- re-verify narrow and mobile layouts;
-- confirm game state remains feature-local and no global state is required;
-- remove any remaining temporary or debug behavior;
-- run the complete `deno task verify` pipeline;
-- perform final implementation and documentation cleanup.
-
-No new gameplay, visual redesign, state architecture, or feature scope should be
-introduced during final hardening.
+No additional game implementation is currently required by this roadmap. Future
+changes should be treated as a separate iteration and scoped only when they
+serve a concrete product, accessibility, performance, or gameplay goal.
 
 ## Design Constraints
 
