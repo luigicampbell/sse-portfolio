@@ -12,7 +12,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
 - Phase 4 — Rendering and controls: **Complete**
-- Phase 5 — Lifecycle and accessibility: **In progress ()**
+- Phase 5 — Lifecycle and accessibility: **In progress (2/8)**
 - Phase 6 — Integration hardening: **Pending**
 
 Progress is tracked against the roadmap below rather than estimated remaining
@@ -629,8 +629,8 @@ Status: **Complete**
 
 Status: **In Progress**
 
-- [ ] Pause advancement while the document is hidden
-- [ ] Prevent giant resume deltas
+- [x] Pause advancement while the document is hidden
+- [x] Prevent giant resume deltas
 - [ ] Respect `prefers-reduced-motion`
 - [ ] Provide appropriate non-motion behavior
 - [ ] Avoid keyboard focus traps
@@ -658,25 +658,26 @@ Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
 Phase 4 — Rendering / controls       ██████████  Complete
-Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
+Phase 5 — Lifecycle / accessibility  ██░░░░░░░░  2 / 8
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Add document-visibility lifecycle handling.
+Add reduced-motion behavior for the not-found game.
 
-The runtime should:
+The feature should:
 
-- stop advancing gameplay while the document is hidden;
-- prevent a large accumulated frame delta when the document becomes visible
-  again;
-- keep visibility behavior at the browser/runtime boundary;
-- preserve the existing deterministic game-state and physics behavior;
-- avoid introducing new application-level state.
+- respect the user's `prefers-reduced-motion` preference;
+- avoid automatically advancing the animated game experience when reduced motion
+  is requested;
+- provide appropriate non-motion behavior without removing the normal 404
+  navigation experience;
+- keep reduced-motion detection at the browser/UI boundary;
+- preserve the existing deterministic game-state and runtime behavior;
+- avoid introducing application-level preference state.
 
-This slice should address lifecycle behavior only. Reduced-motion and remaining
-accessibility verification follow separately.
+This slice should address reduced-motion behavior only.
 
 ## Design Constraints
 

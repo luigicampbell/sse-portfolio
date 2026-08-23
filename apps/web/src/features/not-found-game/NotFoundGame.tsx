@@ -85,7 +85,26 @@ export function NotFoundGame() {
 
     controllerRef.current = controller;
 
+    const handleVisibilityChange = (): void => {
+      controller.setPaused(
+        document.visibilityState ===
+          "hidden",
+      );
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange,
+    );
+
+    handleVisibilityChange();
+
     return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange,
+      );
+
       controller.stop();
 
       if (

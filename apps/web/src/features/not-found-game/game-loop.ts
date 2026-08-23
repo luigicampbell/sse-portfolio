@@ -25,6 +25,7 @@ export type NotFoundGameLoopDependencies = {
   ) => void;
 
   readonly getSpawnInputs: ObstacleSpawnInputProvider;
+
   readonly publishState: (
     state: NotFoundGameRuntimeState,
   ) => void;
@@ -39,6 +40,10 @@ export type NotFoundGameLoopController = {
     update: NotFoundGameRuntimeUpdater,
   ) => void;
 
+  readonly setPaused: (
+    isPaused: boolean,
+  ) => void;
+
   readonly stop: () => void;
 };
 
@@ -51,12 +56,17 @@ export function startNotFoundGameLoop(
   let frameClockState: FrameClockState = createFrameClockState();
 
   let requestId: number | null = null;
+
   let isActive = true;
+  let isPaused = false;
 
   const handleFrame: NotFoundGameFrameCallback = (
     timestampMs,
   ) => {
-    if (!isActive) {
+    if (
+      !isActive ||
+      isPaused
+    ) {
       return;
     }
 
@@ -67,7 +77,10 @@ export function startNotFoundGameLoop(
 
     frameClockState = clockResult.state;
 
-    if (clockResult.deltaSeconds > 0) {
+    if (
+      clockResult.deltaSeconds >
+        0
+    ) {
       runtimeState = advanceNotFoundGameFrame(
         runtimeState,
         clockResult.deltaSeconds,
@@ -79,7 +92,10 @@ export function startNotFoundGameLoop(
       );
     }
 
-    if (isActive) {
+    if (
+      isActive &&
+      !isPaused
+    ) {
       requestId = dependencies.requestFrame(
         handleFrame,
       );
@@ -114,17 +130,57 @@ export function startNotFoundGameLoop(
       );
     },
 
-    stop: () => {
+    setPaused: (
+      nextIsPaused: boolean,
+    ): void => {
+      if (
+        !isActive ||
+        nextIsPaused ===
+          isPaused
+      ) {
+        return;
+      }
+
+      isPaused = nextIsPaused;
+
+      if (isPaused) {
+        if (
+          requestId !==
+            null
+        ) {
+          dependencies.cancelFrame(
+            requestId,
+          );
+
+          requestId = null;
+        }
+
+        return;
+      }
+
+      frameClockState = createFrameClockState();
+
+      requestId = dependencies.requestFrame(
+        handleFrame,
+      );
+    },
+
+    stop: (): void => {
       if (!isActive) {
         return;
       }
 
       isActive = false;
 
-      if (requestId !== null) {
+      if (
+        requestId !==
+          null
+      ) {
         dependencies.cancelFrame(
           requestId,
         );
+
+        requestId = null;
       }
     },
   };
