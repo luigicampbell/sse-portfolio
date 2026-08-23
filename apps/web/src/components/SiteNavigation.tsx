@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 
 import {
+  createPortfolioSectionHref,
+  isPortfolioPath,
+} from "../lib/portfolio-navigation.ts";
+
+import {
   getActiveNavigationSection,
   type NavigationSectionBounds,
   shouldDetachNavigation,
 } from "./navigation-state.ts";
 
 import "./SiteNavigation.css";
+
+const BASE_URL = import.meta.env.BASE_URL;
 
 const NAVIGATION_DETACH_THRESHOLD_PX = 24;
 
@@ -16,28 +23,24 @@ const NAVIGATION_ACTIVATION_MAX_PX = 240;
 
 const HOME_NAVIGATION_ITEM = {
   id: "home",
-  href: "#home",
   ariaLabel: "Go to home",
 } as const;
 
 const NAVIGATION_ITEMS = [
   {
     id: "projects",
-    href: "#projects",
     label: "Projects",
     compactLabel: "Work",
     ariaLabel: "Go to projects",
   },
   {
     id: "experience",
-    href: "#experience",
     label: "Experience",
     compactLabel: "Career",
     ariaLabel: "Go to experience",
   },
   {
     id: "skills",
-    href: "#skills",
     label: "Skills",
     compactLabel: "Skills",
     ariaLabel: "Go to skills",
@@ -51,6 +54,8 @@ const NAVIGATION_SECTION_IDS = [
   ),
 ] as const;
 
+const BRAND_IMAGE_BASE_URL = `${BASE_URL}images/brand`;
+
 export function SiteNavigation() {
   const [
     isDetached,
@@ -60,12 +65,26 @@ export function SiteNavigation() {
   const [
     activeSectionId,
     setActiveSectionId,
-  ] = useState<string | null>("home");
+  ] = useState<string | null>(
+    null,
+  );
+
+  const isOnPortfolio = isPortfolioPath(
+    globalThis.location.pathname,
+    BASE_URL,
+  );
 
   useEffect(() => {
+    if (!isOnPortfolio) {
+      setIsDetached(false);
+      setActiveSectionId(null);
+
+      return;
+    }
+
     let animationFrameId: number | null = null;
 
-    const updateNavigationState = () => {
+    const updateNavigationState = (): void => {
       animationFrameId = null;
 
       setIsDetached(
@@ -87,16 +106,17 @@ export function SiteNavigation() {
       );
     };
 
-    const scheduleUpdate = () => {
+    const scheduleUpdate = (): void => {
       if (
         animationFrameId !== null
       ) {
         return;
       }
 
-      animationFrameId = globalThis.requestAnimationFrame(
-        updateNavigationState,
-      );
+      animationFrameId = globalThis
+        .requestAnimationFrame(
+          updateNavigationState,
+        );
     };
 
     updateNavigationState();
@@ -128,12 +148,13 @@ export function SiteNavigation() {
       if (
         animationFrameId !== null
       ) {
-        globalThis.cancelAnimationFrame(
-          animationFrameId,
-        );
+        globalThis
+          .cancelAnimationFrame(
+            animationFrameId,
+          );
       }
     };
-  }, []);
+  }, [isOnPortfolio]);
 
   return (
     <nav
@@ -143,10 +164,15 @@ export function SiteNavigation() {
     >
       <a
         className="site-navigation__brand"
-        href={HOME_NAVIGATION_ITEM.href}
-        aria-label={HOME_NAVIGATION_ITEM.ariaLabel}
-        aria-current={activeSectionId ===
-            HOME_NAVIGATION_ITEM.id
+        href={createPortfolioSectionHref(
+          BASE_URL,
+          HOME_NAVIGATION_ITEM.id,
+        )}
+        aria-label={HOME_NAVIGATION_ITEM
+          .ariaLabel}
+        aria-current={isOnPortfolio &&
+            activeSectionId ===
+              HOME_NAVIGATION_ITEM.id
           ? "location"
           : undefined}
       >
@@ -157,20 +183,20 @@ export function SiteNavigation() {
           <source
             type="image/webp"
             srcSet={[
-              "/images/brand/brand-mark-48.webp 48w",
-              "/images/brand/brand-mark-96.webp 96w",
-              "/images/brand/brand-mark-192.webp 192w",
+              `${BRAND_IMAGE_BASE_URL}/brand-mark-48.webp 48w`,
+              `${BRAND_IMAGE_BASE_URL}/brand-mark-96.webp 96w`,
+              `${BRAND_IMAGE_BASE_URL}/brand-mark-192.webp 192w`,
             ].join(", ")}
             sizes="40px"
           />
 
           <img
             className="site-navigation__brand-image"
-            src="/images/brand/brand-mark-48.png"
+            src={`${BRAND_IMAGE_BASE_URL}/brand-mark-48.png`}
             srcSet={[
-              "/images/brand/brand-mark-48.png 48w",
-              "/images/brand/brand-mark-96.png 96w",
-              "/images/brand/brand-mark-192.png 192w",
+              `${BRAND_IMAGE_BASE_URL}/brand-mark-48.png 48w`,
+              `${BRAND_IMAGE_BASE_URL}/brand-mark-96.png 96w`,
+              `${BRAND_IMAGE_BASE_URL}/brand-mark-192.png 192w`,
             ].join(", ")}
             sizes="40px"
             width="40"
@@ -179,6 +205,7 @@ export function SiteNavigation() {
             decoding="async"
           />
         </picture>
+
         <span
           className="site-navigation__brand-label"
           aria-hidden="true"
@@ -191,7 +218,6 @@ export function SiteNavigation() {
         {NAVIGATION_ITEMS.map(
           ({
             id,
-            href,
             label,
             compactLabel,
             ariaLabel,
@@ -199,21 +225,22 @@ export function SiteNavigation() {
             <a
               key={id}
               className="site-navigation__link"
-              href={href}
+              href={createPortfolioSectionHref(
+                BASE_URL,
+                id,
+              )}
               aria-label={ariaLabel}
-              aria-current={activeSectionId === id ? "location" : undefined}
+              aria-current={isOnPortfolio &&
+                  activeSectionId ===
+                    id
+                ? "location"
+                : undefined}
             >
-              <span
-                className="site-navigation__label site-navigation__label--full"
-                aria-hidden="true"
-              >
+              <span className="site-navigation__label">
                 {label}
               </span>
 
-              <span
-                className="site-navigation__label site-navigation__label--compact"
-                aria-hidden="true"
-              >
+              <span className="site-navigation__compact-label">
                 {compactLabel}
               </span>
             </a>

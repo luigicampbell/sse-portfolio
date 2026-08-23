@@ -6,6 +6,10 @@ import { AppSkeleton } from "./components/AppSkeleton.tsx";
 import { Loading } from "./components/Loading.tsx";
 import { getPortfolio } from "./lib/api.ts";
 import { useDocumentSectionTitle } from "./lib/use-document-section-title.ts";
+import {
+  useLocationHashNavigation,
+} from "./lib/use-location-hash-navigation.ts";
+
 import { NotFoundPage } from "./pages/NotFoundPage.tsx";
 import { Hero } from "./sections/Hero.tsx";
 
@@ -59,6 +63,10 @@ function PortfolioApp() {
   });
 
   useDocumentSectionTitle(
+    state.status === "ready",
+  );
+
+  useLocationHashNavigation(
     state.status === "ready",
   );
 

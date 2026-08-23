@@ -3,10 +3,9 @@
   min-height: 100dvh;
 }
 
-/* Main */
-
 .app-shell__main {
-  width: min(
+  width:
+    min(
     calc(
       100% -
       (var(--page-gutter) * 2)
@@ -14,14 +13,14 @@
     var(--container-width)
   );
 
-  margin-inline: auto;
+  margin-inline:
+    auto;
 
-  /*
-   * Mobile navigation lives at the bottom,
-   * so no fixed-header offset is required.
-   */
   padding-top:
-    var(--space-8);
+    calc(
+    var(--header-height) +
+    var(--space-12)
+  );
 
   padding-bottom:
     var(--section-spacing);
@@ -30,7 +29,8 @@
 /* Footer */
 
 .app-shell__footer {
-  width: min(
+  width:
+    min(
     calc(
       100% -
       (var(--page-gutter) * 2)
@@ -38,13 +38,15 @@
     var(--container-width)
   );
 
-  margin-inline: auto;
+  margin-inline:
+    auto;
 
   padding-block:
     var(--space-8);
 
   border-top:
-    1px solid var(--color-border);
+    1px solid
+    var(--color-border);
 
   color:
     var(--color-text-tertiary);
@@ -52,48 +54,130 @@
   font-size:
     var(--font-size-sm);
 
-  text-align: center;
+  text-align:
+    center;
+}
+
+/*
+ * Immersive shell
+ *
+ * Used by experiences such as the 404
+ * runner that should occupy exactly one
+ * viewport and never create document
+ * scrolling.
+ */
+
+.app-shell[data-layout="immersive"] {
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  width:
+    100%;
+
+  height:
+    100dvh;
+
+  min-height:
+    0;
+
+  overflow:
+    hidden;
+
+  overscroll-behavior:
+    none;
+}
+
+.app-shell[data-layout="immersive"] .app-shell__main {
+  width:
+    min(
+    calc(
+      100% -
+      (var(--page-gutter) * 2)
+    ),
+    var(--container-width)
+  );
+
+  height:
+    100%;
+
+  min-height:
+    0;
+
+  margin-inline:
+    auto;
+
+  padding-top:
+    calc(
+    env(safe-area-inset-top) +
+    var(--header-height) +
+    var(--space-4)
+  );
+
+  padding-bottom:
+    var(--space-3);
+
+  overflow:
+    hidden;
 }
 
 /* Mobile */
 
 @media (max-width: 47.99rem) {
-  .app-shell {
-    /*
-     * Reserve enough scrollable space beneath
-     * the document for the floating bottom nav:
-     *
-     * control height
-     * + nav internal padding
-     * + distance from viewport edge
-     * + safe-area inset
-     *
-     * Keeping this on the shell also protects
-     * the footer without coupling it directly
-     * to navigation internals.
-     */
+  .app-shell__main {
+    padding-top:
+      var(--space-8);
+
     padding-bottom:
       calc(
-      var(--control-height) +
-      var(--space-8) +
+      var(--section-spacing) +
+      var(--space-20) +
       env(safe-area-inset-bottom)
+    );
+  }
+
+  .app-shell__footer {
+    padding-bottom:
+      calc(
+      var(--space-8) +
+      var(--space-20) +
+      env(safe-area-inset-bottom)
+    );
+  }
+
+  /*
+   * Mobile navigation is fixed at the
+   * bottom, so reserve only enough space
+   * for that control rather than normal
+   * page/footer spacing.
+   */
+
+  .app-shell[data-layout="immersive"] .app-shell__main {
+    padding-top:
+      calc(
+      env(safe-area-inset-top) +
+      var(--space-3)
+    );
+
+    padding-bottom:
+      calc(
+      env(safe-area-inset-bottom) +
+      var(--control-height) +
+      var(--space-8)
     );
   }
 }
 
-/* Tablet and desktop */
+/* Short screens */
 
-@media (min-width: 48rem) {
-  .app-shell__main {
-    /*
-     * SiteNavigation returns to the top at
-     * tablet widths, so reserve its fixed
-     * header region here.
-     */
+@media (max-height: 42rem) {
+  .app-shell[data-layout="immersive"] .app-shell__main {
     padding-top:
       calc(
-      var(--header-height) +
-      var(--space-12)
+      env(safe-area-inset-top) +
+      var(--space-2)
     );
   }
 }

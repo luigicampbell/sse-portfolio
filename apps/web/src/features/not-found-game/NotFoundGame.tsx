@@ -111,6 +111,13 @@ export function NotFoundGame() {
             {gameState.highScore}
           </strong>
         </p>
+
+        <span
+          className="not-found-game__status"
+          role="status"
+        >
+          {gameState.status}
+        </span>
       </header>
 
       <div
@@ -154,38 +161,31 @@ export function NotFoundGame() {
           className="not-found-game__ground"
           aria-hidden="true"
         />
+
+        <div className="not-found-game__controls">
+          {gameState.status ===
+              "ready" && (
+            <button
+              type="button"
+              className="not-found-game__control"
+              onClick={handleStart}
+            >
+              Start game
+            </button>
+          )}
+
+          {gameState.status ===
+              "game-over" && (
+            <button
+              type="button"
+              className="not-found-game__control"
+              onClick={handleRestart}
+            >
+              Play again
+            </button>
+          )}
+        </div>
       </div>
-
-      <div className="not-found-game__controls">
-        {gameState.status ===
-            "ready" && (
-          <button
-            type="button"
-            className="not-found-game__control"
-            onClick={handleStart}
-          >
-            Start game
-          </button>
-        )}
-
-        {gameState.status ===
-            "game-over" && (
-          <button
-            type="button"
-            className="not-found-game__control"
-            onClick={handleRestart}
-          >
-            Play again
-          </button>
-        )}
-      </div>
-
-      <p
-        className="not-found-game__status"
-        role="status"
-      >
-        {gameState.status}
-      </p>
     </section>
   );
 }

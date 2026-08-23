@@ -1,221 +1,326 @@
 .not-found-page {
-  min-width: 0;
-  padding-block: var(--space-8);
+  /*
+   * Page-scoped semantic palette.
+   *
+   * The actual values are derived from
+   * shared application tokens so the 404
+   * continues to adapt to light/dark mode.
+   */
+
+  --color-not-found-gold:
+    color-mix(
+      in srgb,
+      var(--color-warning) 62%,
+      var(--color-text)
+    );
+
+  --color-not-found-accent:
+    color-mix(
+      in srgb,
+      var(--color-success) 58%,
+      var(--color-text)
+    );
+
+  --color-not-found-accent-muted:
+    color-mix(
+      in srgb,
+      var(--color-not-found-accent) 13%,
+      transparent
+    );
+
+  --color-not-found-border:
+    color-mix(
+      in srgb,
+      var(--color-not-found-accent) 32%,
+      transparent
+    );
+
+  display:
+    grid;
+
+  width:
+    100%;
+
+  height:
+    100%;
+
+  min-width:
+    0;
+
+  min-height:
+    0;
+
+  grid-template-rows:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  gap:
+    var(--space-3);
+
+  overflow:
+    hidden;
 }
 
+/* Intro */
+
 .not-found-page__intro {
-  margin-inline: auto;
-  align-items: center;
-  text-align: center;
+  display:
+    grid;
+
+  min-width:
+    0;
+
+  max-width:
+    var(--content-width);
+
+  gap:
+    var(--space-2);
 }
 
 .not-found-page__eyebrow {
-  display: inline-flex;
-  min-height: 2rem;
-  padding-inline: var(--space-3);
-  border: 1px solid var(--color-not-found-border);
-  border-radius: var(--radius-pill);
-  align-items: center;
-  justify-content: center;
+  margin:
+    0;
 
-  color: var(--color-not-found-gold);
-  background: var(--color-not-found-accent-muted);
+  color:
+    var(--color-not-found-gold);
 
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-wide);
-  line-height: 1;
+  font-size:
+    var(--font-size-xs);
+
+  font-weight:
+    var(--font-weight-semibold);
+
+  letter-spacing:
+    var(--letter-spacing-wide);
+
+  text-transform:
+    uppercase;
 }
 
 .not-found-page__title {
-  max-width: 18ch;
-  margin-inline: auto;
+  max-width:
+    24ch;
 
-  color: var(--color-text);
-  font-size: var(--font-size-headline);
-  text-wrap: balance;
-  overflow-wrap: anywhere;
+  margin:
+    0;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    var(--font-size-2xl);
+
+  font-weight:
+    var(--font-weight-semibold);
+
+  line-height:
+    var(--line-height-tight);
+
+  letter-spacing:
+    var(--letter-spacing-tight);
+
+  text-wrap:
+    balance;
 }
+
+/* Quote */
 
 .not-found-page__quote {
-  position: relative;
+  display:
+    grid;
 
-  width: 100%;
-  max-width: var(--content-width);
-  padding: var(--space-6);
-  overflow: hidden;
+  width:
+    fit-content;
 
-  border: 1px solid var(--color-not-found-border);
-  border-radius: var(--radius-xl);
+  max-width:
+    100%;
 
-  background: var(--color-not-found-surface);
-  box-shadow: var(--shadow-sm);
+  margin:
+    0;
 
-  text-align: center;
+  padding-left:
+    var(--space-3);
+
+  border-left:
+    var(--border-width-medium)
+    solid
+    var(--color-not-found-accent);
+
+  gap:
+    var(--space-1);
+
+  color:
+    var(--color-text-secondary);
 }
 
-.not-found-page__quote::before {
-  position: absolute;
-  top: 0;
-  right: var(--space-6);
-  left: var(--space-6);
+.not-found-page__quote p {
+  margin:
+    0;
 
-  height: var(--border-width-medium);
-
-  background:
-    linear-gradient(
-    90deg,
-    transparent,
-    var(--color-not-found-gold),
-    transparent
-  );
-
-  content: "";
-}
-
-.not-found-page__quote-text {
-  color: var(--color-text);
-
-  font-family: var(--font-family-serif);
   font-size:
-    clamp(
-    var(--font-size-lg),
-    4vw,
-    var(--font-size-2xl)
-  );
-  font-style: italic;
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-heading);
-  text-wrap: balance;
-}
+    var(--font-size-sm);
 
-.not-found-page__quote-footer {
-  margin-top: var(--space-4);
+  font-style:
+    italic;
 
-  color: var(--color-text-secondary);
-
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-body);
+  line-height:
+    var(--line-height-body);
 }
 
 .not-found-page__quote cite {
-  font-style: normal;
+  color:
+    var(--color-text-tertiary);
+
+  font-size:
+    var(--font-size-xs);
+
+  font-style:
+    normal;
 }
 
-.not-found-page__quote em {
-  color: var(--color-not-found-gold);
+.not-found-page__quote cite span {
+  font-style:
+    italic;
 }
 
-.not-found-page__message {
-  max-width: var(--content-width);
+/*
+ * Game region
+ *
+ * The grid gives this row all remaining
+ * room, but the game itself is capped so
+ * it does not become enormous on tall
+ * desktop or mobile displays.
+ */
 
-  color: var(--color-text-secondary);
+.not-found-page__game {
+  display:
+    grid;
 
-  font-size: var(--font-size-md);
-  line-height: var(--line-height-body);
-  text-wrap: pretty;
+  width:
+    100%;
+
+  height:
+    min(
+    100%,
+    52dvh,
+    31rem
+  );
+
+  min-height:
+    0;
+
+  align-self:
+    center;
+
+  overflow:
+    hidden;
 }
 
-.not-found-page__actions {
-  justify-content: center;
-}
-
-.not-found-page__return-link {
-  display: inline-flex;
-  min-height: 2.75rem;
-  padding: var(--space-3) var(--space-5);
-
-  border: 1px solid var(--color-not-found-accent);
-  border-radius: var(--radius-pill);
-
-  align-items: center;
-  justify-content: center;
-
-  color: var(--color-text-inverse);
-  background: var(--color-not-found-accent);
-  box-shadow: var(--shadow-sm);
-
-  font-weight: var(--font-weight-semibold);
-  line-height: 1;
-  text-decoration: none;
-
-  transition:
-    background-color
-    var(--duration-fast)
-    var(--ease-standard),
-    border-color
-    var(--duration-fast)
-    var(--ease-standard),
-    box-shadow
-    var(--duration-fast)
-    var(--ease-standard),
-    transform
-    var(--duration-fast)
-    var(--ease-standard);
-}
-
-.not-found-page__return-link:hover {
-  border-color:
-    var(--color-not-found-accent-hover);
-
-  color: var(--color-text-inverse);
-  background:
-    var(--color-not-found-accent-hover);
-
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-.not-found-page__return-link:active {
-  transform: scale(0.98);
-}
+/* Mobile */
 
 @media (max-width: 47.99rem) {
   .not-found-page {
-    gap: var(--space-6);
-    padding-block:
-      var(--space-4)
-      var(--space-8);
+    gap:
+      var(--space-2);
   }
 
   .not-found-page__intro {
-    gap: var(--space-3);
+    gap:
+      var(--space-1);
   }
 
   .not-found-page__title {
-    max-width: 16ch;
-
     font-size:
-      clamp(
-      var(--font-size-2xl),
-      10vw,
-      var(--font-size-3xl)
-    );
+      var(--font-size-2xl);
   }
 
   .not-found-page__quote {
-    padding:
-      var(--space-5)
-      var(--space-4);
-
-    border-radius: var(--radius-lg);
+    padding-left:
+      var(--space-2);
   }
 
-  .not-found-page__quote::before {
-    right: var(--space-4);
-    left: var(--space-4);
+  /*
+   * Slightly smaller than the previous
+   * mobile world.
+   *
+   * ~844px phone:
+   * 48dvh ≈ 405px.
+   */
+
+  .not-found-page__game {
+    height:
+      min(
+      100%,
+      48dvh,
+      28rem
+    );
+  }
+}
+
+/* Narrow phones */
+
+@media (max-width: 24rem) {
+  .not-found-page__title {
+    font-size:
+      var(--font-size-xl);
   }
 
-  .not-found-page__quote-text {
-    font-size: var(--font-size-lg);
+  .not-found-page__quote p {
+    font-size:
+      var(--font-size-xs);
   }
 
-  .not-found-page__message {
-    font-size: var(--font-size-base);
+  .not-found-page__game {
+    height:
+      min(
+      100%,
+      46dvh,
+      25rem
+    );
+  }
+}
+
+/*
+ * Short displays:
+ *
+ * Preserve the game by compressing the
+ * decorative copy instead of allowing
+ * the document to scroll.
+ */
+
+@media (max-height: 42rem) {
+  .not-found-page {
+    gap:
+      var(--space-1);
   }
 
-  .not-found-page__actions,
-  .not-found-page__return-link {
-    width: 100%;
+  .not-found-page__intro {
+    gap:
+      var(--space-1);
+  }
+
+  .not-found-page__title {
+    font-size:
+      var(--font-size-xl);
+  }
+
+  .not-found-page__quote p {
+    font-size:
+      var(--font-size-xs);
+  }
+
+  .not-found-page__quote cite {
+    display:
+      none;
+  }
+
+  .not-found-page__game {
+    height:
+      min(
+      100%,
+      44dvh,
+      23rem
+    );
   }
 }

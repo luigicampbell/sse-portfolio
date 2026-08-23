@@ -1,0 +1,416 @@
+.peeking-eyes {
+  --peeking-eyes-cycle:
+    50s;
+
+  /*
+   * Reference-inspired proportions:
+   *
+   * tall white sclera
+   * substantial white space
+   * vertically oriented pupils
+   * visible separation between eyes
+   */
+
+  --peeking-eye-width:
+    2.1rem;
+
+  --peeking-eye-height:
+    2.7rem;
+
+  --peeking-pupil-width:
+    0.74rem;
+
+  --peeking-pupil-height:
+    1.24rem;
+
+  display:
+    grid;
+
+  width:
+    100%;
+
+  height:
+    3.15rem;
+
+  min-height:
+    0;
+
+  overflow:
+    hidden;
+
+  place-items:
+    end center;
+
+  pointer-events:
+    none;
+
+  contain:
+    layout paint;
+}
+
+.peeking-eyes__pair {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  /*
+   * Deliberately wider than before.
+   *
+   * The reference has a meaningful patch
+   * of dark face between the sclera
+   * rather than eyes touching each other.
+   */
+
+  gap:
+    var(--space-3);
+
+  opacity:
+    0;
+
+  transform:
+    translateY(3rem);
+
+  animation:
+    peeking-eyes-appear
+    var(--peeking-eyes-cycle)
+    linear
+    infinite;
+}
+
+/* Sclera */
+
+.peeking-eyes__eye {
+  position:
+    relative;
+
+  display:
+    block;
+
+  width:
+    var(--peeking-eye-width);
+
+  height:
+    var(--peeking-eye-height);
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    var(--color-border-strong);
+
+  border-radius:
+    50%;
+
+  flex:
+    0 0 auto;
+
+  /*
+   * Explicit white is intentional here.
+   * These should remain white in dark mode.
+   */
+
+  background:
+    #fff;
+
+  box-shadow:
+    var(--shadow-sm);
+
+  transform-origin:
+    center;
+
+  animation:
+    peeking-eye-blink
+    var(--peeking-eyes-cycle)
+    steps(1, end)
+    infinite;
+}
+
+/* Pupils */
+
+.peeking-eyes__pupil {
+  position:
+    absolute;
+
+  top:
+    50%;
+
+  left:
+    50%;
+
+  width:
+    var(--peeking-pupil-width);
+
+  height:
+    var(--peeking-pupil-height);
+
+  border-radius:
+    50%;
+
+  background:
+    #101010;
+
+  transform:
+    translate(
+    -50%,
+    -50%
+  );
+
+  /*
+   * steps() is deliberate.
+   *
+   * The pupils jump from position to
+   * position instead of smoothly gliding.
+   */
+
+  animation:
+    peeking-eye-look
+    var(--peeking-eyes-cycle)
+    steps(1, end)
+    infinite;
+}
+
+/*
+ * Timing
+ *
+ * 0–90%:
+ * 45 seconds completely hidden
+ *
+ * 90–100%:
+ * roughly five seconds of peeking
+ */
+
+@keyframes peeking-eyes-appear {
+  0%,
+  90% {
+    opacity:
+      0;
+
+    transform:
+      translateY(3rem);
+  }
+
+  90.8% {
+    opacity:
+      0;
+  }
+
+  91.4% {
+    opacity:
+      0.72;
+
+    transform:
+      translateY(0.4rem);
+  }
+
+  92%,
+  98.4% {
+    opacity:
+      0.9;
+
+    transform:
+      translateY(0);
+  }
+
+  99% {
+    opacity:
+      0.45;
+
+    transform:
+      translateY(0.65rem);
+  }
+
+  100% {
+    opacity:
+      0;
+
+    transform:
+      translateY(3rem);
+  }
+}
+
+/*
+ * Fast, slightly awkward blinks.
+ *
+ * Because the timing function is steps(),
+ * these snap shut rather than tweening.
+ */
+
+@keyframes peeking-eye-blink {
+  0%,
+  92.8% {
+    transform:
+      scaleY(1);
+  }
+
+  93% {
+    transform:
+      scaleY(0.07);
+  }
+
+  93.25%,
+  96.45% {
+    transform:
+      scaleY(1);
+  }
+
+  96.65% {
+    transform:
+      scaleY(0.07);
+  }
+
+  96.9%,
+  100% {
+    transform:
+      scaleY(1);
+  }
+}
+
+/*
+ * Jerky pupil behavior.
+ *
+ * Each positional change happens nearly
+ * instantaneously instead of interpolating.
+ */
+
+@keyframes peeking-eye-look {
+  0%,
+  91.2% {
+    transform:
+      translate(
+      -50%,
+      -50%
+    );
+  }
+
+  /* snap left */
+
+  91.6% {
+    transform:
+      translate(
+      calc(-50% - 0.38rem),
+      -50%
+    );
+  }
+
+  /* immediately inspect right */
+
+  92.05% {
+    transform:
+      translate(
+      calc(-50% + 0.36rem),
+      -50%
+    );
+  }
+
+  /* twitch back left */
+
+  92.45% {
+    transform:
+      translate(
+      calc(-50% - 0.22rem),
+      calc(-50% + 0.08rem)
+    );
+  }
+
+  92.8% {
+    transform:
+      translate(
+      -50%,
+      -50%
+    );
+  }
+
+  /* second suspicious glance */
+
+  94.15% {
+    transform:
+      translate(
+      calc(-50% + 0.38rem),
+      calc(-50% - 0.06rem)
+    );
+  }
+
+  94.5% {
+    transform:
+      translate(
+      -50%,
+      -50%
+    );
+  }
+
+  /* quick double-take */
+
+  95.3% {
+    transform:
+      translate(
+      calc(-50% - 0.34rem),
+      calc(-50% + 0.1rem)
+    );
+  }
+
+  95.65% {
+    transform:
+      translate(
+      calc(-50% + 0.28rem),
+      calc(-50% - 0.08rem)
+    );
+  }
+
+  96%,
+  100% {
+    transform:
+      translate(
+      -50%,
+      -50%
+    );
+  }
+}
+
+/*
+ * Same size and behavior on mobile.
+ *
+ * Do not hide or scale the eyes down.
+ */
+
+@media (max-width: 47.99rem) {
+  .peeking-eyes {
+    height:
+      3.15rem;
+  }
+
+  .peeking-eyes__pair {
+    gap:
+      var(--space-3);
+  }
+}
+
+/* Short screens */
+
+@media (max-height: 42rem) {
+  .peeking-eyes {
+    height:
+      2.75rem;
+  }
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .peeking-eyes__pair,
+  .peeking-eyes__eye,
+  .peeking-eyes__pupil {
+    animation:
+      none;
+  }
+
+  .peeking-eyes__pair {
+    opacity:
+      0;
+  }
+}
