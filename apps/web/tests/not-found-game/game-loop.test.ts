@@ -408,3 +408,143 @@ Deno.test(
     controller.stop();
   },
 );
+
+Deno.test(
+  "startNotFoundGameLoop: pauses advancement and resets the frame clock before resume",
+  () => {
+    let scheduledFrame: FrameCallback | undefined;
+
+    let requestCount = 0;
+    let cancelCount = 0;
+    let publishCount = 0;
+
+    const controller = startNotFoundGameLoop(
+      {
+        ...createNotFoundGameRuntimeState(),
+        gameState: fx.createRunningState({
+          obstacles: [
+            fx.createObstacle(),
+          ],
+        }),
+      },
+      {
+        requestFrame: (
+          callback: FrameCallback,
+        ): number => {
+          scheduledFrame = callback;
+          requestCount += 1;
+
+          return requestCount;
+        },
+
+        cancelFrame: () => {
+          cancelCount += 1;
+        },
+
+        getSpawnInputs: () => [],
+
+        publishState: () => {
+          publishCount += 1;
+        },
+      },
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Starting should schedule the first frame.",
+    );
+
+    scheduledFrame(
+      fx.values.frameClock
+        .firstTimestampMs,
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Initializing the clock should schedule the next frame.",
+    );
+
+    scheduledFrame(
+      fx.values.frameClock
+        .nextTimestampMs,
+    );
+
+    expect.equals(
+      publishCount,
+      fx.values.counts.one,
+      "A normal running frame should advance the game.",
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Running should leave a pending frame.",
+    );
+
+    const staleHiddenFrame = scheduledFrame;
+
+    controller.setPaused(true);
+
+    expect.equals(
+      cancelCount,
+      fx.values.counts.one,
+      "Pausing should cancel the pending animation frame.",
+    );
+
+    staleHiddenFrame(
+      fx.values.frameClock
+        .largeTimestampMs,
+    );
+
+    expect.equals(
+      publishCount,
+      fx.values.counts.one,
+      "A stale frame should not advance while paused.",
+    );
+
+    controller.setPaused(false);
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "Resuming should request a fresh animation frame.",
+    );
+
+    const firstResumedFrame = scheduledFrame;
+
+    firstResumedFrame(
+      fx.values.frameClock
+        .largeTimestampMs,
+    );
+
+    expect.equals(
+      publishCount,
+      fx.values.counts.one,
+      "The first resumed timestamp should reset the clock without advancing.",
+    );
+
+    expect.assert(
+      scheduledFrame !== undefined,
+      "The initialized resumed clock should schedule another frame.",
+    );
+
+    const nextResumedFrame = scheduledFrame;
+
+    nextResumedFrame(
+      fx.values.frameClock
+        .largeTimestampMs +
+        (
+          fx.values.frameClock
+            .nextTimestampMs -
+          fx.values.frameClock
+            .firstTimestampMs
+        ),
+    );
+
+    expect.equals(
+      publishCount,
+      fx.values.counts.two,
+      "The next resumed frame should advance normally.",
+    );
+
+    controller.stop();
+  },
+);
