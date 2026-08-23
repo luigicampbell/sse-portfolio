@@ -666,7 +666,8 @@ The sound layer should:
 - avoid coupling sound generation to deterministic game-state logic;
 - preserve normal game behavior when audio is unavailable or disabled.
 
-Sound effects should remain an enhancement rather than a dependency of the game runtime.
+Sound effects should remain an enhancement rather than a dependency of the game
+runtime.
 
 ## Design Constraints
 
