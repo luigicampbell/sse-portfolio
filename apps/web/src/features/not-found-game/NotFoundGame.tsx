@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-
+import {
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createBrowserGameLoopDependencies } from "./browser-game-loop.ts";
 
 import {
@@ -9,9 +13,15 @@ import {
 
 import {
   createNotFoundGameRuntimeState,
+  jumpNotFoundGameRuntime,
   type NotFoundGameRuntimeState,
   restartNotFoundGameRuntime,
 } from "./game-runtime.ts";
+
+import {
+  isNotFoundGameJumpKey,
+  shouldHandleNotFoundGamePointer,
+} from "./game-input.ts";
 
 import { startGame } from "./game-state.ts";
 
@@ -94,6 +104,72 @@ export function NotFoundGame() {
 
   const gameState = runtimeState.gameState;
 
+  useEffect(() => {
+    if (
+      gameState.status !==
+        "running"
+    ) {
+      return;
+    }
+
+    const handleKeyDown = (
+      event: KeyboardEvent,
+    ): void => {
+      if (
+        !isNotFoundGameJumpKey(
+          event.key,
+        )
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      controllerRef.current
+        ?.updateRuntimeState(
+          jumpNotFoundGameRuntime,
+        );
+    };
+
+    globalThis.addEventListener(
+      "keydown",
+      handleKeyDown,
+    );
+
+    return () => {
+      globalThis.removeEventListener(
+        "keydown",
+        handleKeyDown,
+      );
+    };
+  }, [gameState.status]);
+
+  const handleJump = (): void => {
+    controllerRef.current
+      ?.updateRuntimeState(
+        jumpNotFoundGameRuntime,
+      );
+  };
+
+  const handlePointerDown = (
+    event: ReactPointerEvent<HTMLDivElement>,
+  ): void => {
+    if (
+      gameState.status !==
+        "running" ||
+      !shouldHandleNotFoundGamePointer({
+        button: event.button,
+        isPrimary: event.isPrimary,
+      })
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    handleJump();
+  };
+
   return (
     <section
       className="not-found-game"
@@ -125,6 +201,7 @@ export function NotFoundGame() {
       <div
         className="not-found-game__world"
         aria-label="Game world"
+        onPointerDown={handlePointerDown}
       >
         <div
           className="not-found-game__player"

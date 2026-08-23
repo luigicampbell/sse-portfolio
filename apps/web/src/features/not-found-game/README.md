@@ -11,7 +11,7 @@ experience, and its state remains feature-owned rather than application-global.
 - Phase 1 — Deterministic game domain: **Complete**
 - Phase 2 — Deterministic obstacle pipeline: **Complete**
 - Phase 3 — Runtime integration: **Complete**
-- Phase 4 — Rendering and controls: **In progress (7/12)**
+- Phase 4 — Rendering and controls: **In progress (11/12)**
 - Phase 5 — Lifecycle and accessibility: **Pending**
 - Phase 6 — Integration hardening: **Pending**
 
@@ -610,10 +610,10 @@ Status: **In progress**
 - [x] Render high score
 - [x] Ready-state start control
 - [x] Game-over/restart control
-- [ ] Keyboard jump input
-- [ ] Touch/pointer jump input
-- [ ] Avoid hover-only interactions
-- [ ] Verify mobile controls
+- [x] Keyboard jump input
+- [x] Touch/pointer jump input
+- [x] Avoid hover-only interactions
+- [x] Verify mobile controls
 - [ ] Add lightweight 8-bit game sound effects
 
 ### Phase 5 — Lifecycle and accessibility
@@ -648,26 +648,25 @@ Status: **Pending**
 Phase 1 — Deterministic domain       ██████████  Complete
 Phase 2 — Obstacle pipeline          ██████████  Complete
 Phase 3 — Runtime integration        ██████████  Complete
-Phase 4 — Rendering / controls       ██████░░░░  7 / 12
+Phase 4 — Rendering / controls       █████████░  11 / 12
 Phase 5 — Lifecycle / accessibility  ░░░░░░░░░░  Pending
 Phase 6 — Integration hardening      ░░░░░░░░░░  Pending
 ```
 
 ## Next Implementation Slice
 
-Add player jump controls using the existing deterministic `jumpPlayer()`
-transition.
+Add lightweight 8-bit game sound effects.
 
-The interaction layer should:
+The sound layer should:
 
-- support keyboard jumping while the game is running;
-- support touch/pointer jumping for mobile and pointer devices;
-- route both input methods through the same runtime-state transition;
-- avoid duplicate jump behavior from a single interaction;
-- preserve the existing no-double-jump rule from `game-state.ts`;
-- keep controls feature-local.
+- provide short effects for meaningful game events;
+- include start, jump, score, and game-over feedback;
+- remain lightweight and feature-local;
+- avoid introducing a soundtrack or audio-management system;
+- avoid coupling sound generation to deterministic game-state logic;
+- preserve normal game behavior when audio is unavailable or disabled.
 
-No new physics or state-management behavior should be introduced.
+Sound effects should remain an enhancement rather than a dependency of the game runtime.
 
 ## Design Constraints
 
