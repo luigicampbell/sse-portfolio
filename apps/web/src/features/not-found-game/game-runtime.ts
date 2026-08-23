@@ -1,6 +1,7 @@
 import {
   createInitialGameState,
   type GameState,
+  jumpPlayer,
   restartGame,
   stepGame,
 } from "./game-state.ts";
@@ -45,6 +46,26 @@ export function advanceNotFoundGameFrame(
   return {
     gameState: spawningResult.gameState,
     spawningState: spawningResult.spawningState,
+  };
+}
+
+export function jumpNotFoundGameRuntime(
+  state: NotFoundGameRuntimeState,
+): NotFoundGameRuntimeState {
+  const jumpedGameState = jumpPlayer(
+    state.gameState,
+  );
+
+  if (
+    jumpedGameState ===
+      state.gameState
+  ) {
+    return state;
+  }
+
+  return {
+    ...state,
+    gameState: jumpedGameState,
   };
 }
 
